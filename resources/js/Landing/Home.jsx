@@ -219,6 +219,11 @@ const Home = () => {
                                     text="Contact"
                                     icon={Mail}
                                 />
+                                <CTAButton 
+                                    href="/form-pengajuan"
+                                    text="Daftarkan Kos"
+                                    icon={HomeIcon}
+                                />
                             </div>
                         </div>
 

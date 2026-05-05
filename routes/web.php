@@ -1,9 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PropertyApplicationController;
 use App\Http\Controllers\UserController;
-use App\Http\Middleware\AdminMiddleware;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -12,7 +11,7 @@ use App\Models\User;
 
 Route::get('/', function () {
     return inertia('Landing');
-});
+})->name('landing');
 
 
 Route::get('/auth/google', function () {
@@ -51,6 +50,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
 
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');
 
+    Route::get('/pengajuan/download/{id}', [PropertyApplicationController::class, 'downloadPDF'])
+    ->name('pengajuan.download');
+
     Route::get('/kos', function () {
         return Inertia::render('Admin/Kos');
     })->name('admin.kos');
@@ -58,6 +60,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     Route::get('/transaksi', function () {
         return Inertia::render('Admin/Transaksi');
     })->name('admin.transaksi');
+
+    Route::get('/request', [PropertyApplicationController::class, 'index'])->name('admin.request');
 
     Route::get('/settings', function () {
         return Inertia::render('Admin/Settings');
@@ -84,5 +88,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])
         ->name('profile.password');
+
+    Route::get('/form-pengajuan', function () {
+        return Inertia::render('FormPengajuan');
+    })->name('form-pengajuan');
+
+    Route::post('/pengajuan-kos', [PropertyApplicationController::class, 'store'])
+        ->name('pengajuan-kos.store');
 
 });

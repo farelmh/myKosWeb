@@ -5,6 +5,7 @@ import {
     LogOut,
     Home,
     ClipboardList,
+    CheckCircleIcon
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, usePage } from "@inertiajs/react";
@@ -21,6 +22,7 @@ const menuSections = [
         items: [
             { name: "Users", icon: Users, href: "/admin/users" },
             { name: "Kos", icon: Home, href: "/admin/kos" },
+            { name: "Permintaan", icon: CheckCircleIcon, href: "/admin/request" },
             { name: "Transaksi", icon: ClipboardList, href: "/admin/transaksi" },
         ],
     },

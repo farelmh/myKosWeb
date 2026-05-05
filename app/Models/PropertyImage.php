@@ -8,7 +8,7 @@ class PropertyImage extends Model
 {
     protected $fillable = [
         'property_id',
-        'imagee_path'
+        'image_path'
     ];
 
     public function property() {
