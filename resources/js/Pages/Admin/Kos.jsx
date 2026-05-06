@@ -1,27 +1,45 @@
+import { useState } from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
-import Pagination from "@/Components/Pagination";
 import TableKos from "@/Components/Admin/TableKos";
+import EditKosModal from "@/Components/Admin/EditKosModal";
 
-export default function Kos({ kos }) {
+export default function Kos() {
+
+    // dummy data
+    const kosData = [
+        {
+            id: 1,
+            name: "Kos Unej",
+            location: "Jember",
+            price: 700000,
+        },
+        {
+            id: 2,
+            name: "Kos Mastrip",
+            location: "Jember",
+            price: 850000,
+        },
+    ];
+
+    const [selectedKos, setSelectedKos] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleEdit = (kos) => {
+        setSelectedKos(kos);
+        setIsOpen(true);
+    };
+
     return (
         <AdminLayout>
-            <div className="space-y-6">
-                
-                {/* HEADER */}
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Kos Management</h1>
+            <h1 className="text-2xl font-bold mb-6">Kos Management</h1>
 
-                    <button className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm">
-                        + Tambah Kos
-                    </button>
-                </div>
+            <TableKos kos={kosData} onEdit={handleEdit} />
 
-                {/* TABLE */}
-                <TableKos kos={kos?.data || []} />
-
-                {/* PAGINATION */}
-                <Pagination links={kos?.links || []} />
-            </div>
+            <EditKosModal
+                isOpen={isOpen}
+                kos={selectedKos}
+                onClose={() => setIsOpen(false)}
+            />
         </AdminLayout>
     );
 }

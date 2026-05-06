@@ -15,6 +15,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
-        URL::forceScheme('https');
+        URL::forceScheme('http');
     }
 }
