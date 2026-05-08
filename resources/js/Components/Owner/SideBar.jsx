@@ -4,40 +4,47 @@ import {
     Settings,
     LogOut,
     Home,
-    ClipboardList,
-    CheckCircleIcon,
-    Sofa
+    Wallet,
+    MessageSquareWarning,
+    Star,
+    Bed,
+    BedDouble
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, usePage } from "@inertiajs/react";
+import PropertySwitcher from "./PropertySwitcher";
 
 const menuSections = [
     {
         title: "MAIN",
         items: [
-            { name: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
+            { name: "Dashboard", icon: LayoutDashboard, href: "/owner/dashboard" },
+            { name: "Keluhan", icon: MessageSquareWarning, href: "/owner/complaints" },
+            { name: "Ulasan", icon: Star, href: "/owner/reviews" },
         ],
     },
     {
         title: "MANAGEMENT",
         items: [
-            { name: "Pengguna", icon: Users, href: "/admin/users" },
-            { name: "Kos", icon: Home, href: "/admin/properties" },
-            { name: "Permintaan", icon: CheckCircleIcon, href: "/admin/request" },
-            { name: "Fasilitas", icon: Sofa, href: "/admin/facilities"},
-            { name: "Transaksi", icon: ClipboardList, href: "/admin/transaksi" },
+            { name: "Penyewa", icon: Users, href: "/owner/tenants" },
+            { name: "Informasi Kos", icon: Home, href: "/owner/property"},
+            { name: "Tipe Kamar", icon: Bed, href: "/owner/roomType" },
+            { name: "Kamar", icon: BedDouble, href: "/owner/rooms" },
+            { name: "Pembayaran", icon: Wallet, href: "/owner/payments" },
         ],
     },
     {
         title: "SYSTEM",
         items: [
-            { name: "Settings", icon: Settings, href: "/admin/settings" },
+            { name: "Settings", icon: Settings, href: "/owner/settings" },
         ],
     },
 ];
 
-export default function Sidebar() {
+export default function SideBar() {
     const { url } = usePage();
+
+    const { ownerProperties } = usePage().props;
 
     return (
         <motion.aside
@@ -47,7 +54,11 @@ export default function Sidebar() {
         >
             {/* LOGO */}
             <div className="p-6 text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                MyKost Admin
+                MyKost Owner
+            </div>
+
+            <div className="mt-5 mt-5 mb-3 ml-4 mr-4 border-t border-white/10">
+                <PropertySwitcher properties={ownerProperties} />
             </div>
 
             {/* MENU */}

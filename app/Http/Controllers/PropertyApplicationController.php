@@ -94,7 +94,7 @@ class PropertyApplicationController extends Controller
     {
         $application = PropertyApplication::with(['images', 'documents'])->findOrFail($id);
 
-        return Inertia::render('Admin/RequestReview', [
+        return Inertia::render('Admin/RequestDetail', [
             'application' => $application
         ]);
     }

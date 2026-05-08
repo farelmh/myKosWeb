@@ -1,7 +1,8 @@
 import AdminLayout from "@/Layouts/AdminLayout";
 import Pagination from "@/Components/Pagination";
+import TablePengajuan from "@/Components/Admin/TablePengajuan";
 
-export default function Request({ applications }) {
+export default function RequestReview({ applications }) {
     return (
         <AdminLayout>
             <div className="space-y-6">

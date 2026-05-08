@@ -1,7 +1,7 @@
 import { Link } from "@inertiajs/react";
 import { Eye } from "lucide-react";
 
-export default function TablePengajuan({ applications }) {
+export default function TableProperties({ properties }) {
     return (
         <div className="mt-8">
             <div className="bg-[#0f0f2a] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
@@ -11,59 +11,44 @@ export default function TablePengajuan({ applications }) {
                             <th className="p-4 text-left font-semibold">Nama Kos</th>
                             <th className="p-4 text-left font-semibold">Alamat</th>
                             <th className="p-4 text-left font-semibold">Kota</th>
-                            <th className="p-4 text-left font-semibold">Status</th>
-                            <th className="p-4 text-left font-semibold">Alasan Penolakan</th>
+                            <th className="p-4 text-left font-semibold">Nama Pemilik</th>
                             <th className="p-4 text-center font-semibold">Action</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        {applications.length > 0 ? (
-                            applications.map((application) => (
+                        {properties.length > 0 ? (
+                            properties.map((property) => (
                                 <tr
-                                    key={application.id}
+                                    key={property.id}
                                     className="border-t border-white/10 hover:bg-white/5 transition"
                                 >
                                     <td className="p-4">
                                         <span className="font-medium text-white">
-                                            {application.name}
+                                            {property.name}
                                         </span>
                                     </td>
 
                                     <td className="p-4 text-gray-400 text-sm">
-                                        {application.address}
+                                        {property.address}
                                     </td>
 
                                     <td className="p-4 text-gray-400 text-sm">
-                                        {application.city}
-                                    </td>
-
-                                    <td className="p-4">
-                                        <span
-                                            className={`px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-tight ${
-                                                application.status === 'approved'
-                                                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                                    : application.status === 'rejected'
-                                                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                                                    : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                            }`}
-                                        >
-                                            {application.status}
-                                        </span>
+                                        {property.city}
                                     </td>
 
                                     <td className="p-4 text-gray-400 text-sm">
-                                        {application.rejection_reason || '-'}
+                                        {property.owner.name}
                                     </td>
 
                                     {/* BAGIAN ACTION TERBARU */}
                                     <td className="p-4 text-center">
                                         <Link
-                                            href={`/admin/request/${application.id}`}
+                                            href={`/admin/properties/${property.id}`}
                                             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all group"
                                         >
                                             <Eye className="w-4 h-4" />
-                                            <span className="text-sm font-medium">Review</span>
+                                            <span className="text-sm font-medium">Detail</span>
                                         </Link>
                                     </td>
                                 </tr>

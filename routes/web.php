@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyApplicationController;
+use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
+use App\Models\Property;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -50,9 +54,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
 
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');
 
-    Route::get('/pengajuan/download/{id}', [PropertyApplicationController::class, 'downloadPDF'])
-    ->name('pengajuan.download');
-
     Route::get('/kos', function () {
         return Inertia::render('Admin/Kos');
     })->name('admin.kos');
@@ -61,11 +62,38 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
         return Inertia::render('Admin/Transaksi');
     })->name('admin.transaksi');
 
+    Route::get('/properties', [PropertyController::class, 'index'])->name('admin.properties');
+
+    Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('admin.properties.detail');
+
     Route::get('/request', [PropertyApplicationController::class, 'index'])->name('admin.request');
 
+    Route::get('/request/{id}', [PropertyApplicationController::class, 'show'])->name('admin.request.detail');
+
+    Route::put('/request/update/{id}', [PropertyApplicationController::class, 'update'])->name('admin.request.update');
+
+    Route::get('/facilities', [FacilityController::class, 'index'])->name('admin.facilities');
+    
+    Route::get('/facilities/create', [FacilityController::class, 'create'])->name('admin.facilities.create');
+    
+    Route::get('/facilities/edit', [FacilityController::class, 'edit'])->name('admin.facilities.edit');
+    
+    Route::post('/facilities/store', [FacilityController::class, 'store'])->name('admin.facilities.store');
+    
     Route::get('/settings', function () {
         return Inertia::render('Admin/Settings');
     })->name('admin.settings');
+
+});
+
+Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Owner/Dashboard');
+    })->name('owner.dashboard');
+
+    Route::get('/tenants', [
+        TenantController::class, 'index'
+    ])->name('owner.tenants');
 
 });
 
