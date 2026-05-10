@@ -2,6 +2,7 @@ import { useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { LocationMarker } from "@/Components/Map/LocationMarker";
+import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
 
 // --- PINDAHKAN KOMPONEN KE LUAR SINI ---
 
@@ -104,6 +105,8 @@ export default function FormPengajuan() {
         });
     }
 
+    console.log(position)
+
     return (
         <div className="max-w-4xl mx-auto p-6">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
@@ -174,7 +177,7 @@ export default function FormPengajuan() {
                         </div>
                         <div className="h-[350px] w-full rounded-xl overflow-hidden border-2 border-gray-100 shadow-inner z-0">
                             <MapContainer center={[-8.1724, 113.7005]} zoom={13} style={{ height: "100%" }}>
-                                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                <GoogleTileLayer />
                                 <LocationMarker position={position} setPosition={setPosition} />
                             </MapContainer>
                         </div>

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Property;
+use App\Models\PropertyImage;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\PropertyApplication;
 use App\Models\PropertyApplicationImage;
@@ -18,11 +21,16 @@ class PropertyApplicationController extends Controller
     public function index(Request $request)
     {
         $applications = PropertyApplication::query()
-        ->when($request->search, function ($query, $search) {
-            $query->where('name', 'like', "%{$search}%")
-            ->orWhere('address', 'like', "%{$search}%")
-            ->orWhere('city', 'like', "%{$search}%");
-        })->paginate(10)->withQueryString();
+            ->when($request->search, function ($query, $search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('address', 'like', "%{$search}%")
+              ->orWhere('city', 'like', "%{$search}%");
+        });
+    })
+    ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
+    ->paginate(10)
+    ->withQueryString();
 
         return Inertia::render('Admin/Request', [
             'applications' => $applications,
@@ -92,10 +100,25 @@ class PropertyApplicationController extends Controller
      */
     public function show(string $id)
     {
-        $application = PropertyApplication::with(['images', 'documents'])->findOrFail($id);
+        $data = PropertyApplication::with([
+            'user:id,name,email',
+            'images:id,property_application_id,image_path',
+            'documents:id,property_application_id,type,file_path'
+        ])->select(
+            'id',
+            'user_id',
+            'name',
+            'address',
+            'city',
+            'description',
+            'rules',
+            'latitude',
+            'longitude',
+            'status'
+        )->findOrFail($id);
 
         return Inertia::render('Admin/RequestDetail', [
-            'application' => $application
+            'application' => $data
         ]);
     }
 
@@ -104,7 +127,50 @@ class PropertyApplicationController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $application = PropertyApplication::findOrFail($id);
+        $status = $request->input('status');
+
+        if ($application->status === 'approved' || $application->status === 'rejected') {
+                return redirect()->back()->with(
+                    'error',
+                    'Pengajuan ini telah diproses sebelumnya!'
+                );
+            }
+
+        DB::transaction(function () use ($application, $status, $request) {
+            if ($status === 'approved') {
+                $application->update(['status' => 'approved', 'approved_by' => auth()->id()]);
+
+                $user = User::find($application->user_id);
+                $user->update(['role' => 'owner']);
+
+                $property = Property::create([
+                    'name' => $application->name,
+                    'address' => $application->address,
+                    'city' => $application->city,
+                    'description' => $application->description,
+                    'rules' => $application->rules,
+                    'latitude' => $application->latitude,
+                    'longitude' => $application->longitude,
+                    'owner_id' => $application->user_id,
+                ]);
+
+                foreach ($application->images as $image) {
+                    PropertyImage::create([
+                        'property_id' => $property->id,
+                        'image_path' => $image->image_path
+                    ]);
+                }
+            } else {
+                $application->update([
+                    'status' => 'rejected', 
+                    'rejection_reason' => $request->input('rejection_reason')
+                ]);
+            }
+        });
+
+        return redirect()->route('admin.request')->with('success', 'Status pengajuan berhasil diperbarui!');
+
     }
 
     /**

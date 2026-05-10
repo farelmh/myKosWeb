@@ -4,6 +4,8 @@ use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyApplicationController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\PropertyFacilityController;
+use App\Http\Controllers\roomTypeControler;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
 use App\Models\Property;
@@ -94,6 +96,38 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
     Route::get('/tenants', [
         TenantController::class, 'index'
     ])->name('owner.tenants');
+
+    Route::get('/property/detail/{id}', [
+        PropertyController::class, 'detail'
+    ])->name('owner.property.detail');
+
+    Route::put('/property/update/{id}', [
+        PropertyController::class, 'update'
+    ])->name('owner.property.update');
+
+    Route::get('/property/edit/{id}', [
+        PropertyController::class, 'edit'
+    ])->name('owner.property.edit');
+
+    Route::delete('/property-image/delete/{id}', [
+        PropertyController::class, 'deleteImage'
+    ])->name('owner.propertyImage.delete');
+
+    Route::get('/facilities/{id}', [
+        PropertyFacilityController::class, 'editFacilities'
+        ])->name('owner.property.facilities');
+
+    Route::post('/facilities/{property}', [
+        PropertyFacilityController::class, 'store'
+        ])->name('owner.property.facilities.store');
+
+    Route::get('/room-types/{property}', [
+        roomTypeControler::class, 'index']
+    )->name('owner.room-types');
+    
+    Route::get('/room-types/create', [
+        roomTypeControler::class, 'create']
+    )->name('owner.room-types.create');
 
 });
 

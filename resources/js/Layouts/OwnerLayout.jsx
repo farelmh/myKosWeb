@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import SideBar from "@/Components/Owner/SideBar";
 import TopBar from "@/Components/Owner/TopBar";
+import FlashAlert from "@/Components/FlashAlert";
 
 export default function OwnerLayout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -16,6 +17,8 @@ export default function OwnerLayout({ children }) {
 
     return (
         <div className="flex h-screen bg-[#0b0b1a] text-white overflow-hidden">
+
+        <FlashAlert />
 
             {sidebarOpen && (
                 <div

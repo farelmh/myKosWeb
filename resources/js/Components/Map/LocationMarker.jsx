@@ -27,7 +27,13 @@ export function LocationMarker({ position, setPosition}) {
             eventHandlers={evenHandlers}
             ref={markerRef}>
             <Popup>
-                {position.lat.toFixed(4)}, {position.lng.toFixed(4)}
+                {position && typeof position.lat !== 'undefined' ? (
+                    <>
+                        {parseFloat(position.lat).toFixed(4)}, {parseFloat(position.lng).toFixed(4)}
+                    </>
+                ) : (
+                    "Lokasi belum ditentukan"
+                )}
             </Popup>
         </Marker>
     );

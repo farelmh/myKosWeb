@@ -1,10 +1,69 @@
 import { ChevronDown, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePage } from "@inertiajs/react";
 
 export default function PropertySwitcher({ properties }) {
+
     const [open, setOpen] = useState(false);
 
-    const currentProperty = properties?.[0];
+    const { auth } = usePage().props;
+
+    // key berdasarkan user login
+    const storageKey = `selectedProperty_${auth.user.id}`;
+
+    // ambil id property tersimpan
+    const [selectedPropertyId, setSelectedPropertyId] = useState(() => {
+
+        const saved = localStorage.getItem(storageKey);
+
+        return saved
+            ? Number(saved)
+            : properties?.[0]?.id;
+
+    });
+
+    // cari object property berdasarkan id
+    const currentProperty = properties?.find(
+        (property) => property.id === selectedPropertyId
+    );
+
+    // pilih property
+    const handleSelect = (property) => {
+
+        setSelectedPropertyId(property.id);
+
+        setOpen(false);
+
+    };
+
+    // simpan ke localStorage
+    useEffect(() => {
+
+        if (selectedPropertyId) {
+
+            localStorage.setItem(
+                storageKey,
+                selectedPropertyId
+            );
+
+        }
+
+    }, [selectedPropertyId]);
+
+    // kalau property sudah tidak ada / beda user
+    useEffect(() => {
+
+        const exists = properties?.some(
+            (property) => property.id === selectedPropertyId
+        );
+
+        if (!exists && properties?.length > 0) {
+
+            setSelectedPropertyId(properties[0].id);
+
+        }
+
+    }, [properties]);
 
     return (
         <div className="relative">
@@ -31,7 +90,6 @@ export default function PropertySwitcher({ properties }) {
 
                 <div className="flex items-center gap-2.5 overflow-hidden">
 
-                    {/* Logo/Icon - Diperkecil dari w-11 ke w-9 */}
                     <div
                         className="
                             w-9
@@ -52,17 +110,16 @@ export default function PropertySwitcher({ properties }) {
                         {currentProperty?.name?.charAt(0)}
                     </div>
 
-                    {/* Property Info */}
                     <div className="text-left overflow-hidden">
-                        {/* Ukuran teks diperkecil ke text-[10px] */}
+
                         <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
                             Active
                         </p>
 
-                        {/* Ukuran teks diperkecil ke text-sm */}
                         <h3 className="text-xs font-semibold text-white truncate -mt-0.5">
-                            {currentProperty?.name}
+                            {currentProperty?.name || "No Property"}
                         </h3>
+
                     </div>
 
                 </div>
@@ -78,6 +135,7 @@ export default function PropertySwitcher({ properties }) {
 
             {/* Dropdown */}
             {open && (
+
                 <div
                     className="
                         absolute
@@ -100,19 +158,25 @@ export default function PropertySwitcher({ properties }) {
                     <div className="p-1.5 space-y-1">
 
                         {properties?.map((property) => (
+
                             <button
                                 key={property.id}
-                                className="
+                                className={`
                                     w-full
                                     flex
                                     items-center
                                     gap-2.5
                                     p-2
                                     rounded-lg
-                                    hover:bg-white/10
                                     transition-all
                                     duration-300
-                                "
+                                    ${
+                                        selectedPropertyId === property.id
+                                            ? "bg-cyan-500/10 border border-cyan-500/20"
+                                            : "hover:bg-white/10"
+                                    }
+                                `}
+                                onClick={() => handleSelect(property)}
                             >
 
                                 <div
@@ -134,6 +198,7 @@ export default function PropertySwitcher({ properties }) {
                                 </div>
 
                                 <div className="text-left overflow-hidden">
+
                                     <h4 className="text-xs text-white font-medium truncate">
                                         {property.name}
                                     </h4>
@@ -141,9 +206,11 @@ export default function PropertySwitcher({ properties }) {
                                     <p className="text-[10px] text-gray-500 truncate">
                                         {property.city}
                                     </p>
+
                                 </div>
 
                             </button>
+
                         ))}
 
                     </div>
@@ -177,6 +244,7 @@ export default function PropertySwitcher({ properties }) {
                     </div>
 
                 </div>
+
             )}
 
         </div>

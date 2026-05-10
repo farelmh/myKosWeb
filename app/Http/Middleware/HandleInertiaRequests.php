@@ -40,6 +40,11 @@ class HandleInertiaRequests extends Middleware
             $request->user()
                 ? Property::where('owner_id', $request->user()->id)->get()
                 : [],
+
+            'flash' => [
+            'success' => fn () => $request->session()->get('success'),
+            'error' => fn () => $request->session()->get('error'),
+            ],
         ];
     }
 }
