@@ -8,18 +8,13 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 
-/* ================= FIX ICON LEAFLET ================= */
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-    iconRetinaUrl:
-        "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
-    iconUrl:
-        "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-    shadowUrl:
-        "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+    iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+    iconUrl:       "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+    shadowUrl:     "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
 });
 
-/* ================= MAP CLICK ================= */
 function LocationPicker({ setLatLng }) {
     useMapEvents({
         click(e) {
@@ -29,18 +24,29 @@ function LocationPicker({ setLatLng }) {
     return null;
 }
 
+const inputClass = `
+    w-full p-3 rounded-xl text-sm outline-none transition
+    bg-mint-50       dark:bg-dark-bg
+    border
+    border-mint-200  dark:border-dark-border/20
+    text-kost-dark   dark:text-mint-50
+    placeholder-kost-muted dark:placeholder-mint-100/30
+    focus:ring-2
+    focus:ring-mint-200 dark:focus:ring-mint-300/30
+`;
+
 export default function EditKosModal({ isOpen, kos, onClose }) {
-    if (!isOpen) return null; // ✅ kontrol modal
+    if (!isOpen) return null;
 
     /* ================= STATE ================= */
     const [form, setForm] = useState({
-        name: "",
-        owner: "",
-        alamat: "",
-        lat: -8.1586,
-        lng: 113.7202,
+        name:      "",
+        owner:     "",
+        alamat:    "",
+        lat:       -8.1586,
+        lng:       113.7202,
         deskripsi: "",
-        rules: "",
+        rules:     "",
         fasilitas: "",
     });
 
@@ -50,66 +56,69 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
     useEffect(() => {
         if (kos) {
             setForm({
-                name: kos.name || "",
-                owner: kos.owner || "",
-                alamat: kos.alamat || "",
-                lat: kos.lat || -8.1586,
-                lng: kos.lng || 113.7202,
+                name:      kos.name      || "",
+                owner:     kos.owner     || "",
+                alamat:    kos.alamat    || "",
+                lat:       kos.lat       || -8.1586,
+                lng:       kos.lng       || 113.7202,
                 deskripsi: kos.deskripsi || "",
-                rules: kos.rules || "",
+                rules:     kos.rules     || "",
                 fasilitas: kos.fasilitas || "",
             });
         }
     }, [kos]);
 
     /* ================= HANDLER ================= */
-    const handleChange = (e) => {
+    const handleChange = (e) =>
         setForm({ ...form, [e.target.name]: e.target.value });
-    };
 
-    const handleImage = (e) => {
-        const files = Array.from(e.target.files);
-        setImages(files);
-    };
+    const handleImage = (e) =>
+        setImages(Array.from(e.target.files));
 
-    const setLatLng = (latlng) => {
-        setForm({
-            ...form,
-            lat: latlng.lat,
-            lng: latlng.lng,
-        });
-    };
+    const setLatLng = (latlng) =>
+        setForm({ ...form, lat: latlng.lat, lng: latlng.lng });
 
     const handleSubmit = () => {
         console.log("DATA:", form);
         console.log("IMAGES:", images);
-
-        // TODO: kirim ke backend (axios / inertia)
-
         onClose();
     };
 
     /* ================= UI ================= */
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            onClick={onClose} // ✅ klik luar close
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
         >
             <div
-                onClick={(e) => e.stopPropagation()} // ❗ supaya tidak close saat klik dalam
-                className="w-full max-w-2xl bg-[#12122a] rounded-2xl border border-white/10 p-6 text-white relative max-h-[90vh] overflow-y-auto shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+                className="
+                    w-full max-w-2xl relative
+                    max-h-[90vh] overflow-y-auto
+                    rounded-2xl p-6
+                    bg-white        dark:bg-dark-card
+                    border
+                    border-mint-200 dark:border-dark-border/20
+                    shadow-sm
+                    transition-colors duration-300
+                "
             >
                 {/* HEADER */}
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg font-semibold tracking-wide">
+                    <h2 className="text-base font-medium text-kost-dark dark:text-mint-50">
                         Edit Kos
                     </h2>
 
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-lg hover:bg-white/10 transition"
+                        className="
+                            p-1.5 rounded-lg transition
+                            text-kost-muted    dark:text-mint-100/50
+                            hover:bg-mint-50   dark:hover:bg-dark-bg
+                            hover:text-kost-dark dark:hover:text-mint-50
+                        "
                     >
-                        <X className="w-5 h-5 text-gray-400 hover:text-white" />
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
@@ -122,7 +131,7 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
                         value={form.name}
                         onChange={handleChange}
                         placeholder="Nama Kos"
-                        className="w-full p-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 outline-none"
+                        className={inputClass}
                     />
 
                     {/* OWNER */}
@@ -131,7 +140,7 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
                         value={form.owner}
                         onChange={handleChange}
                         placeholder="Owner"
-                        className="w-full p-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 outline-none"
+                        className={inputClass}
                     />
 
                     {/* ALAMAT */}
@@ -140,37 +149,37 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
                         value={form.alamat}
                         onChange={handleChange}
                         placeholder="Alamat"
-                        className="w-full p-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 outline-none"
+                        rows={2}
+                        className={inputClass}
                     />
 
                     {/* MAP */}
                     <div>
-                        <p className="text-sm mb-2 text-gray-400">
+                        <p className="text-sm mb-2 text-kost-muted dark:text-mint-100/50">
                             Pilih Lokasi (klik map)
                         </p>
 
                         <MapContainer
                             center={[form.lat, form.lng]}
                             zoom={13}
-                            className="h-64 rounded-xl overflow-hidden border border-white/10"
+                            className="h-64 rounded-xl overflow-hidden border border-mint-200 dark:border-dark-border/20"
                         >
-                            <TileLayer
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
+                            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                             <Marker position={[form.lat, form.lng]} />
                             <LocationPicker setLatLng={setLatLng} />
                         </MapContainer>
 
+                        {/* LAT LNG */}
                         <div className="flex gap-3 mt-3">
                             <input
                                 value={form.lat}
                                 readOnly
-                                className="w-1/2 p-2 rounded-lg bg-white/5 border border-white/10 text-xs"
+                                className={`${inputClass} w-1/2 text-xs cursor-default`}
                             />
                             <input
                                 value={form.lng}
                                 readOnly
-                                className="w-1/2 p-2 rounded-lg bg-white/5 border border-white/10 text-xs"
+                                className={`${inputClass} w-1/2 text-xs cursor-default`}
                             />
                         </div>
                     </div>
@@ -181,7 +190,8 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
                         value={form.deskripsi}
                         onChange={handleChange}
                         placeholder="Deskripsi"
-                        className="w-full p-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 outline-none"
+                        rows={3}
+                        className={inputClass}
                     />
 
                     {/* RULES */}
@@ -190,7 +200,8 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
                         value={form.rules}
                         onChange={handleChange}
                         placeholder="Rules"
-                        className="w-full p-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 outline-none"
+                        rows={2}
+                        className={inputClass}
                     />
 
                     {/* FASILITAS */}
@@ -199,21 +210,33 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
                         value={form.fasilitas}
                         onChange={handleChange}
                         placeholder="Fasilitas (pisah koma)"
-                        className="w-full p-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 outline-none"
+                        className={inputClass}
                     />
 
                     {/* UPLOAD FOTO */}
                     <div>
-                        <p className="text-sm text-gray-400 mb-2">
+                        <p className="text-sm mb-2 text-kost-muted dark:text-mint-100/50">
                             Upload Foto Kos
                         </p>
 
-                        <input
-                            type="file"
-                            multiple
-                            onChange={handleImage}
-                            className="text-sm"
-                        />
+                        <label className="
+                            flex items-center justify-center w-full p-3 rounded-xl
+                            cursor-pointer text-sm transition
+                            bg-mint-50       dark:bg-dark-bg
+                            border border-dashed
+                            border-mint-200  dark:border-dark-border/30
+                            text-kost-muted  dark:text-mint-100/40
+                            hover:border-mint-300 dark:hover:border-mint-300/50
+                            hover:text-kost-dark  dark:hover:text-mint-50
+                        ">
+                            Klik untuk upload foto
+                            <input
+                                type="file"
+                                multiple
+                                onChange={handleImage}
+                                className="hidden"
+                            />
+                        </label>
 
                         {/* PREVIEW */}
                         {images.length > 0 && (
@@ -222,7 +245,10 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
                                     <img
                                         key={i}
                                         src={URL.createObjectURL(img)}
-                                        className="h-24 w-full object-cover rounded-lg border border-white/10"
+                                        className="
+                                            h-24 w-full object-cover rounded-lg
+                                            border border-mint-200 dark:border-dark-border/20
+                                        "
                                     />
                                 ))}
                             </div>
@@ -230,17 +256,30 @@ export default function EditKosModal({ isOpen, kos, onClose }) {
                     </div>
 
                     {/* ACTION */}
-                    <div className="flex justify-end gap-3 pt-4">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-mint-200 dark:border-dark-border/20">
                         <button
                             onClick={onClose}
-                            className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition"
+                            className="
+                                px-4 py-2 rounded-lg text-sm transition
+                                bg-mint-50      dark:bg-dark-bg
+                                border
+                                border-mint-200 dark:border-dark-border/20
+                                text-kost-muted dark:text-mint-100/60
+                                hover:bg-mint-100 dark:hover:bg-dark-sidebar
+                            "
                         >
                             Batal
                         </button>
 
                         <button
                             onClick={handleSubmit}
-                            className="px-5 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 transition"
+                            className="
+                                px-5 py-2 rounded-lg text-sm font-medium transition
+                                bg-mint-200 dark:bg-mint-200/20
+                                text-kost-dark dark:text-mint-50
+                                hover:bg-mint-300 dark:hover:bg-mint-300/30
+                                border border-mint-200 dark:border-mint-300/20
+                            "
                         >
                             Simpan
                         </button>

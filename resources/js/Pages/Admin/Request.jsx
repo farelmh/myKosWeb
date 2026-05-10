@@ -9,7 +9,7 @@ export default function Request({ applications }) {
                 
                 {/* HEADER */}
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Pengajuan Kos</h1>
+                    <h1 className="text-2xl font-bold mb-6 text-kost-dark dark:text-mint-50">Pengajuan Kos</h1>
                 </div>
 
                 {/* TABLE */}

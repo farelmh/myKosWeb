@@ -6,7 +6,7 @@ export default function Properties({ properties }) {
     return (
         <AdminLayout>
 
-            <h1 className="text-2xl font-bold mb-6">Data Kos</h1>
+            <h1 className="text-2xl font-bold mb-6 text-kost-dark dark:text-mint-50">Data Kos</h1>
 
             <TableProperties properties={properties.data} />
 

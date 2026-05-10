@@ -16,7 +16,10 @@ export default function AdminLayout({ children }) {
     }, []);
 
     return (
-        <div className="flex h-screen bg-[#0b0b1a] text-white overflow-hidden">
+        <div className="flex h-screen bg-white       dark:bg-dark-sidebar
+                border-r
+                border-mint-200 dark:border-dark-border/20
+                transition-colors duration-300 overflow-hidden">
 
         <FlashAlert />
 

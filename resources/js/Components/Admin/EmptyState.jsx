@@ -1,6 +1,6 @@
 export default function EmptyState({ text }) {
     return (
-        <div className="text-center py-10 text-gray-400">
+        <div className="text-kost-dark dark:text-mint-50 py-10">
             {text}
         </div>
     );

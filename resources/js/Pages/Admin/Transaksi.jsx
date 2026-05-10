@@ -31,7 +31,7 @@ export default function Transaksi({ transactions }) {
 
     return (
         <AdminLayout>
-            <h1 className="text-2xl font-bold mb-6">
+            <h1 className="text-2xl font-bold mb-6 text-kost-dark dark:text-mint-50">
                 Informasi Transaksi
             </h1>
 

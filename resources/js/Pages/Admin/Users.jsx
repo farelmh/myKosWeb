@@ -6,7 +6,7 @@ export default function Users({ users }) {
     return (
         <AdminLayout>
 
-            <h1 className="text-2xl font-bold mb-6">User Management</h1>
+            <h1 className="text-2xl font-bold mb-6 text-kost-dark dark:text-mint-50">User Management</h1>
 
             <TableUsers users={users.data} />
 

@@ -1,18 +1,22 @@
 import { Link } from "@inertiajs/react";
-import { Eye } from "lucide-react";
+import { Eye,Home } from "lucide-react";
 
 export default function TableProperties({ properties }) {
     return (
         <div className="mt-8">
-            <div className="bg-[#0f0f2a] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
+            <div className="rounded-xl overflow-hidden
+                bg-white        dark:bg-dark-card
+                border
+                border-mint-200 dark:border-dark-border/20
+                transition-colors duration-300">
                 <table className="w-full">
-                    <thead className="text-gray-400 text-sm border-b border-white/10 bg-white/5 uppercase tracking-wider">
-                        <tr>
-                            <th className="p-4 text-left font-semibold">Nama Kos</th>
-                            <th className="p-4 text-left font-semibold">Alamat</th>
-                            <th className="p-4 text-left font-semibold">Kota</th>
-                            <th className="p-4 text-left font-semibold">Nama Pemilik</th>
-                            <th className="p-4 text-center font-semibold">Action</th>
+                    <thead className="uppercase tracking-wider">
+                        <tr className="border-b border-mint-200 dark:border-dark-border/20">
+                            <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">Nama Kos</th>
+                            <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">Alamat</th>
+                            <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">Kota</th>
+                            <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">Nama Pemilik</th>
+                            <th className="p-4 text-center text-xs font-medium text-kost-muted dark:text-mint-100/40">Action</th>
                         </tr>
                     </thead>
 
@@ -21,23 +25,31 @@ export default function TableProperties({ properties }) {
                             properties.map((property) => (
                                 <tr
                                     key={property.id}
-                                    className="border-t border-white/10 hover:bg-white/5 transition"
+                                    className="border-b last:border-0
+                                            border-mint-200 dark:border-dark-border/20
+                                            hover:bg-mint-50 dark:hover:bg-dark-bg
+                                            transition"
                                 >
                                     <td className="p-4">
-                                        <span className="font-medium text-white">
+                                        <span className="w-8 h-8 rounded-lg flex-shrink-0
+                                                    flex items-center justify-center
+                                                    bg-mint-100      dark:bg-mint-200/10
+                                                    border
+                                                    border-mint-200  dark:border-mint-300/20
+                                                    text-mint-300    dark:text-mint-200">
                                             {property.name}
                                         </span>
                                     </td>
 
-                                    <td className="p-4 text-gray-400 text-sm">
+                                    <td className="p-4 text-sm text-kost-muted dark:text-mint-100/50">
                                         {property.address}
                                     </td>
 
-                                    <td className="p-4 text-gray-400 text-sm">
+                                    <td className="p-4 text-sm text-kost-muted dark:text-mint-100/50">
                                         {property.city}
                                     </td>
 
-                                    <td className="p-4 text-gray-400 text-sm">
+                                    <td className="p-4 text-sm text-kost-muted dark:text-mint-100/50">
                                         {property.owner.name}
                                     </td>
 
@@ -55,9 +67,12 @@ export default function TableProperties({ properties }) {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5" className="text-center py-16">
+                                <td colSpan="5" className="text-center py-14">
                                     <div className="flex flex-col items-center gap-2">
-                                        <span className="text-gray-500 text-sm">Tidak Ada Data</span>
+                                        <Home className="w-8 h-8 text-mint-200 dark:text-mint-200/30" />
+                                        <p className="text-sm text-kost-muted dark:text-mint-100/30">
+                                            Tidak ada data kos
+                                        </p>
                                     </div>
                                 </td>
                             </tr>
