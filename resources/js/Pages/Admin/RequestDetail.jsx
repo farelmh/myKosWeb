@@ -192,14 +192,12 @@ export default function RequestDetail({ application }) {
                         <button 
                             className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl border border-red-500/30 bg-red-500/10 text-red-500 font-bold hover:bg-red-500 hover:text-white transition-all shadow-lg"
                             onClick={handleReject}
-                            disabled={processing}
                         >
                             <X className="w-5 h-5" /> TOLAK PENGAJUAN
                         </button>
                         <button 
                             className="flex-[2] flex items-center justify-center gap-3 py-4 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/20"
                             onClick={handleApprove}
-                            disabled={processing}
                         >
                             <Check className="w-5 h-5" /> KONFIRMASI & PUBLIKASIKAN
                         </button>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "@/Components/Admin/Sidebar";
 import Topbar from "@/Components/Admin/Topbar";
+import FlashAlert from "@/Components/FlashAlert";
 
 export default function AdminLayout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -16,6 +17,8 @@ export default function AdminLayout({ children }) {
 
     return (
         <div className="flex h-screen bg-[#0b0b1a] text-white overflow-hidden">
+
+        <FlashAlert />
 
             {sidebarOpen && (
                 <div
