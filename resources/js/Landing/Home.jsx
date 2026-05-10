@@ -13,8 +13,6 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { usePage, router } from "@inertiajs/react";
 
-/* ================= COMPONENTS ================= */
-
 const StatusBadge = memo(() => (
     <div data-aos="fade-down" data-aos-delay="200">
         <div className="relative inline-block group">
@@ -67,9 +65,12 @@ const SearchKos = () => {
     const [location, setLocation] = useState("");
 
     const handleSearch = () => {
-        if (!location) return;
+        if (!location.trim()) return;
+        router.get("/search", { q: location.trim() });
+    };
 
-        router.get("/search", { q: location });
+    const handleFocus = () => {
+        router.get("/search");
     };
 
     return (
@@ -79,21 +80,23 @@ const SearchKos = () => {
             className="w-full max-w-2xl"
         >
             <div className="flex items-center bg-white rounded-2xl shadow-md overflow-hidden">
-                {/* ICON */}
-                <div className="px-4 flex items-center text-gray-400">
+
+                <div
+                    className="px-4 flex items-center text-gray-400 cursor-pointer"
+                    onClick={handleFocus}
+                >
                     <MapPin className="w-5 h-5" />
                 </div>
 
-                {/* INPUT */}
                 <input
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
+                    onFocus={handleFocus}              // ← klik input = navigasi
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     placeholder="Cari kos di sekitar Unej, Polije..."
                     className="flex-1 py-3 px-2 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none border-none focus:ring-0"
                 />
 
-                {/* BUTTON */}
                 <button
                     onClick={handleSearch}
                     className="px-6 py-3 flex items-center gap-2 text-sm font-medium text-white bg-gradient-to-r from-[#93BFC7] to-[#ABE7B2]"
@@ -105,7 +108,6 @@ const SearchKos = () => {
         </div>
     );
 };
-
 
 /* ================= DATA ================= */
 
@@ -124,7 +126,8 @@ const FEATURES = [
 /* ================= MAIN ================= */
 
 const Home = () => {
-    const { auth } = usePage().props; // ✅ FIX AUTH
+    const { auth } = usePage().props;
+    const isOwner = auth?.user?.role === "owner"; 
 
     const [text, setText] = useState("");
     const [isTyping, setIsTyping] = useState(true);
@@ -200,12 +203,7 @@ const Home = () => {
                                 ))}
                             </div>
 
-                            {/* ✅ CONDITIONAL SEARCH */}
-                            {auth?.user ? (
-                                <SearchKos />
-                            ) : (
-                                <div></div>
-                            )}
+                            {auth?.user ? <SearchKos /> : <div></div>}
 
                             {/* CTA */}
                             <div className="flex gap-3">
@@ -219,11 +217,13 @@ const Home = () => {
                                     text="Contact"
                                     icon={Mail}
                                 />
-                                <CTAButton 
-                                    href="/form-pengajuan"
-                                    text="Daftarkan Kos"
-                                    icon={HomeIcon}
-                                />
+                                {auth?.user?.role === "owner" && (
+                                    <CTAButton
+                                        href="/form-pengajuan"
+                                        text="Daftarkan Kos"
+                                        icon={HomeIcon}
+                                    />
+                                )}
                             </div>
                         </div>
 

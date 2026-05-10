@@ -25,6 +25,8 @@ class AuthController extends Controller
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
+        $user->tokens()->delete();
+
         $token = $user->createToken('flutter-app')->plainTextToken;
 
         return response()->json([
@@ -35,7 +37,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role'  => $user->role ?? 'tenant',
             ],
-        ], 200);
+        ]);
     }
 
     public function register(Request $request)
@@ -44,37 +46,50 @@ class AuthController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
+            'role'     => 'sometimes|in:tenant,owner',
         ]);
 
-        User::create([
+        $role = $request->input('role', 'tenant');
+
+        $user = User::create([
             'name'              => $request->name,
             'email'             => $request->email,
             'password'          => Hash::make($request->password),
-            'role'              => 'tenant',
+            'role'              => $role,
             'email_verified_at' => now(),
         ]);
 
-        return response()->json(['message' => 'Pendaftaran berhasil'], 201);
+        $token = $user->createToken('flutter-app')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Pendaftaran berhasil',
+            'token'   => $token,
+            'user'    => [
+                'name'  => $user->name,
+                'email' => $user->email,
+                'role'  => $user->role,
+            ],
+        ], 201);
     }
 
     public function sendOtp(Request $request)
     {
         $request->validate(['email' => 'required|email|exists:users,email']);
 
-        $otp = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+        $otp = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+
         Cache::put('otp_' . $request->email, $otp, now()->addMinutes(10));
 
         return response()->json([
             'message' => 'Kode OTP telah dikirim ke ' . $request->email,
-            'otp'     => $otp,
-        ], 200);
+        ]);
     }
 
     public function verifyOtp(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
-            'otp'   => 'required|size:4',
+            'otp'   => 'required|digits:4',
         ]);
 
         $cachedOtp = Cache::get('otp_' . $request->email);
@@ -83,7 +98,10 @@ class AuthController extends Controller
             return response()->json(['message' => 'OTP tidak valid atau sudah kadaluarsa'], 400);
         }
 
-        return response()->json(['message' => 'OTP terverifikasi'], 200);
+        Cache::put('otp_verified_' . $request->email, true, now()->addMinutes(10));
+        Cache::forget('otp_' . $request->email);
+
+        return response()->json(['message' => 'OTP terverifikasi']);
     }
 
     public function resetPassword(Request $request)
@@ -93,19 +111,27 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
+        if (!Cache::get('otp_verified_' . $request->email)) {
+            return response()->json([
+                'message' => 'Verifikasi OTP diperlukan sebelum reset password'
+            ], 403);
+        }
+
         $user = User::where('email', $request->email)->first();
         $user->password = Hash::make($request->password);
         $user->save();
 
-        Cache::forget('otp_' . $request->email);
+        $user->tokens()->delete();
+        Cache::forget('otp_verified_' . $request->email);
 
-        return response()->json(['message' => 'Password berhasil diubah'], 200);
+        return response()->json(['message' => 'Password berhasil diubah']);
     }
 
     public function redirectToGoogle(Request $request)
     {
         $platform = $request->query('platform', 'web');
-        $state = Str::random(40);
+        $state    = Str::random(40);
+
         Cache::put('oauth_platform_' . $state, $platform, now()->addMinutes(10));
 
         $url = Socialite::driver('google')
@@ -120,9 +146,11 @@ class AuthController extends Controller
 
     public function handleGoogleCallback(Request $request)
     {
-        $state = $request->query('state');
+        $state    = $request->query('state');
         $platform = Cache::get('oauth_platform_' . $state, 'web');
         Cache::forget('oauth_platform_' . $state);
+
+        $flutterUrl = config('app.flutter_url'); 
 
         try {
             $googleUser = Socialite::driver('google')
@@ -130,10 +158,9 @@ class AuthController extends Controller
                 ->redirectUrl(url('/api/auth/google/mobile/callback'))
                 ->user();
         } catch (\Exception $e) {
-            if ($platform === 'mobile') {
-                return redirect('mykost://auth/callback?error=gagal');
-            }
-            return redirect(env('FLUTTER_URL') . '/#/login?error=gagal');
+            return $platform === 'mobile'
+                ? redirect('mykost://auth/callback?error=gagal')
+                : redirect($flutterUrl . '/#/login?error=gagal');
         }
 
         $user = User::firstOrCreate(
@@ -141,26 +168,34 @@ class AuthController extends Controller
             [
                 'name'              => $googleUser->getName(),
                 'password'          => null,
+                'role'              => 'tenant', 
                 'email_verified_at' => now(),
             ]
         );
 
-        $token = $user->createToken('flutter-app')->plainTextToken;
-        $params = '?token=' . $token .
-            '&name=' . urlencode($user->name) .
-            '&email=' . urlencode($user->email) .
-            '&role=' . urlencode($user->role ?? 'tenant');
+        $user->tokens()->delete();
 
-        if ($platform === 'mobile') {
-            return redirect('mykost://auth/callback' . $params);
-        }
+        $token  = $user->createToken('flutter-app')->plainTextToken;
+        $params = http_build_query([  
+            'token' => $token,
+            'name'  => $user->name,
+            'email' => $user->email,
+            'role'  => $user->role ?? 'tenant',
+        ]);
 
-        return redirect(env('FLUTTER_URL') . '/#/auth/callback' . $params);
+        return $platform === 'mobile'
+            ? redirect('mykost://auth/callback?' . $params)
+            : redirect($flutterUrl . '/#/auth/callback?' . $params);
     }
 
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json([
+            'name'  => $request->user()->name,
+            'email' => $request->user()->email,
+            'role'  => $request->user()->role ?? 'tenant',
+            'phone' => $request->user()->phone,
+        ]);
     }
 
     public function logout(Request $request)
@@ -170,20 +205,25 @@ class AuthController extends Controller
     }
 
     public function updateProfile(Request $request)
-{
-    $request->validate([
-        'name'  => 'required|string|max:255',
-        'phone' => 'nullable|string|max:20',
-    ]);
+    {
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+        ]);
 
-    $user = $request->user();
-    $user->name  = $request->name;
-    $user->phone = $request->phone;
-    $user->save();
+        $user        = $request->user();
+        $user->name  = $request->name;
+        $user->phone = $request->phone;
+        $user->save();
 
-    return response()->json([
-        'message' => 'Profil berhasil diperbarui',
-        'user'    => $user,
-    ], 200);
-}
+        return response()->json([
+            'message' => 'Profil berhasil diperbarui',
+            'user'    => [
+                'name'  => $user->name,
+                'email' => $user->email,
+                'role'  => $user->role ?? 'tenant',
+                'phone' => $user->phone,
+            ],
+        ]);
+    }
 }

@@ -122,6 +122,13 @@ export default function Topbar({ setOpen }) {
                                     Settings
                                 </button>
                                 <div className="border-t border-white/10"></div>
+                                <Link
+                                    href={route('landing')}
+                                    as="button"
+                                    className="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-white/5 transition"
+                                >
+                                    Landing
+                                </Link>
 
                                 <Link
                                     href={route('logout')}

@@ -16,15 +16,15 @@ export default function TopBar({ setOpen }) {
         const delayDebounceFn = setTimeout(() => {
             const currentPath = window.location.pathname;
 
-            if (currentPath.startsWith('/owner')) {
+            if (currentPath.startsWith("/owner")) {
                 router.get(
                     currentPath,
-                    {search: searchTerm},
+                    { search: searchTerm },
                     {
                         preserveState: true,
                         replace: true,
-                        preserveScroll: true
-                    }
+                        preserveScroll: true,
+                    },
                 );
             }
         }, 400);
@@ -34,10 +34,8 @@ export default function TopBar({ setOpen }) {
 
     return (
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0b0b1a] sticky top-0 z-40">
-
             {/* LEFT */}
             <div className="flex items-center gap-4">
-                
                 {/* MOBILE MENU */}
                 <button
                     onClick={() => setOpen(true)}
@@ -45,12 +43,10 @@ export default function TopBar({ setOpen }) {
                 >
                     <Menu />
                 </button>
-
             </div>
 
             {/* RIGHT */}
             <div className="flex items-center gap-4">
-
                 {/* SEARCH */}
                 <div className="relative hidden md:block">
                     <Search className="absolute left-3 top-3 w-4 h-4 text-gray-500" />
@@ -124,7 +120,15 @@ export default function TopBar({ setOpen }) {
                                 <div className="border-t border-white/10"></div>
 
                                 <Link
-                                    href={route('logout')}
+                                    href={route("landing")}
+                                    as="button"
+                                    className="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-white/5 transition"
+                                >
+                                    Landing
+                                </Link>
+
+                                <Link
+                                    href={route("logout")}
                                     method="post"
                                     as="button"
                                     className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition"
@@ -135,7 +139,6 @@ export default function TopBar({ setOpen }) {
                         )}
                     </AnimatePresence>
                 </div>
-
             </div>
         </div>
     );

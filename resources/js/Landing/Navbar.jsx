@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, LogOut, User, ChevronDown } from "lucide-react";
+import { Menu, X, LogOut, User, ChevronDown, LayoutDashboard } from "lucide-react";
 import logo from "../../assets/logo.png";
 import { Link, usePage } from "@inertiajs/react";
 import LoginModal from "./LoginModal";
 
 const Navbar = () => {
+    const { auth } = usePage().props; 
+    const isAdmin = auth?.user?.role === "admin";
+    const isOwner = auth?.user?.role === "owner";
+
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState("Home");
     const [openLogin, setOpenLogin] = useState(false);
     const [openProfile, setOpenProfile] = useState(false);
-
-    const { auth } = usePage().props;
 
     const navItems = [
         { href: "#Home", label: "Home" },
@@ -133,7 +135,7 @@ const Navbar = () => {
                                     onClick={() => setOpenLogin(true)}
                                     className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#93BFC7] to-[#ABE7B2] text-white text-sm font-medium shadow-sm hover:opacity-90 transition"
                                 >
-                                    Login
+                                    Masuk / Daftar
                                 </button>
                             ) : (
                                 <div className="relative">
@@ -143,7 +145,6 @@ const Navbar = () => {
                                         onClick={() => setOpenProfile(!openProfile)}
                                         className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/50 transition"
                                     >
-                                        {/* AVATAR */}
                                         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#93BFC7] to-[#ABE7B2] flex items-center justify-center text-white text-sm font-bold">
                                             {auth.user.name.charAt(0)}
                                         </div>
@@ -157,10 +158,11 @@ const Navbar = () => {
 
                                     {/* DROPDOWN */}
                                     {openProfile && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50 animate-fade-in">
+                                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-fade-in">
 
-                                            <div className="px-4 py-3 border-b">
-                                                <p className="text-sm font-medium text-gray-800">
+                                            {/* HEADER */}
+                                            <div className="px-4 py-3 border-b bg-gray-50">
+                                                <p className="text-sm font-semibold text-gray-800">
                                                     {auth.user.name}
                                                 </p>
                                                 <p className="text-xs text-gray-500">
@@ -168,6 +170,32 @@ const Navbar = () => {
                                                 </p>
                                             </div>
 
+                                            {/* ADMIN MENU */}
+                                            {isAdmin && (
+                                                <>
+                                                    <Link
+                                                        href="/admin/dashboard"
+                                                        className="flex items-center gap-2 px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50"
+                                                    >
+                                                        <LayoutDashboard className="w-4 h-4" />
+                                                        Dashboard Admin
+                                                    </Link>
+                                                </>
+                                            )}
+
+                                            {isOwner && (
+                                                <>
+                                                    <Link
+                                                        href="/owner/dashboard"
+                                                        className="flex items-center gap-2 px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50"
+                                                    >
+                                                        <LayoutDashboard className="w-4 h-4" />
+                                                        Dashboard Owner
+                                                    </Link>
+                                                </>
+                                            )}
+
+                                            {/* PROFILE */}
                                             <Link
                                                 href="/profile"
                                                 className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
@@ -230,10 +258,19 @@ const Navbar = () => {
                                 }}
                                 className="w-full py-2 rounded-lg bg-[#ABE7B2]"
                             >
-                                Login
+                                Masuk
                             </button>
                         ) : (
                             <>
+                                {isAdmin && (
+                                    <Link
+                                        href="/admin/dashboard"
+                                        className="block text-indigo-600 font-medium"
+                                    >
+                                        Dashboard Admin
+                                    </Link>
+                                )}
+
                                 <div className="text-sm text-gray-700">
                                     {auth.user.name}
                                 </div>

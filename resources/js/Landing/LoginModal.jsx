@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Home, X, Download } from "lucide-react";
+import { User, Home, X, LogIn } from "lucide-react";
 import { Link } from "@inertiajs/react";
 
 export default function LoginModal({ open, setOpen }) {
@@ -36,7 +36,7 @@ export default function LoginModal({ open, setOpen }) {
 
                             {/* TITLE */}
                             <h2 className="text-xl font-bold text-[#2f3e46] mb-2">
-                                Masuk ke MyKost
+                                Daftar ke MyKost
                             </h2>
                             <p className="text-sm text-gray-500 mb-6">
                                 Pilih jenis akun kamu
@@ -45,17 +45,15 @@ export default function LoginModal({ open, setOpen }) {
                             {/* OPTIONS */}
                             <div className="space-y-4">
 
-                                {/* USER */}
                                 <Link
-                                    href={route("login")}
+                                    href={route("register") + "?role=tenant"}
+                                    onClick={() => setOpen(false)}
                                     className="group block"
                                 >
                                     <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-[#ABE7B2] hover:bg-[#f8fff9] transition">
-                                        
                                         <div className="p-3 rounded-lg bg-[#ABE7B2]/20">
                                             <User className="text-[#2f3e46]" />
                                         </div>
-
                                         <div>
                                             <h3 className="font-semibold text-[#2f3e46]">
                                                 Pencari Kos
@@ -67,40 +65,45 @@ export default function LoginModal({ open, setOpen }) {
                                     </div>
                                 </Link>
 
-                                {/* OWNER */}
-                                <a
-                                    href="#"
-                                    onClick={() => {
-                                        window.open(
-                                            "https://play.google.com/store",
-                                            "_blank"
-                                        );
-                                    }}
+                                {/* OWNER — register sebagai owner */}
+                                <Link
+                                    href={route("register") + "?role=owner"}
+                                    onClick={() => setOpen(false)}
                                     className="group block"
                                 >
                                     <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-[#93BFC7] hover:bg-[#f5fbfc] transition">
-                                        
                                         <div className="p-3 rounded-lg bg-[#93BFC7]/20">
                                             <Home className="text-[#2f3e46]" />
                                         </div>
-
                                         <div className="flex-1">
                                             <h3 className="font-semibold text-[#2f3e46]">
                                                 Owner Kos
                                             </h3>
                                             <p className="text-sm text-gray-500">
-                                                Kelola kos lewat aplikasi mobile
+                                                Daftarkan dan kelola kos kamu
                                             </p>
                                         </div>
-
-                                        <Download className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition" />
                                     </div>
-                                </a>
+                                </Link>
+                            </div>
+
+                            {/* SUDAH PUNYA AKUN — tambahan baru */}
+                            <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+                                <p className="text-sm text-gray-500">
+                                    Sudah punya akun?{" "}
+                                    <Link
+                                        href={route("login")}
+                                        onClick={() => setOpen(false)}
+                                        className="text-[#93BFC7] font-medium hover:underline"
+                                    >
+                                        Masuk di sini
+                                    </Link>
+                                </p>
                             </div>
 
                             {/* FOOTER */}
-                            <p className="text-xs text-gray-400 mt-6 text-center">
-                                Dengan masuk, kamu menyetujui syarat & ketentuan
+                            <p className="text-xs text-gray-400 mt-4 text-center">
+                                Dengan mendaftar, kamu menyetujui syarat & ketentuan
                             </p>
                         </div>
                     </motion.div>
