@@ -8,6 +8,9 @@ class Facility extends Model
 {
     protected $fillable = [
         'name',
+        'type',
+        'icon',
+        'created_by'
     ];
 
     public function properties() {

@@ -31,11 +31,11 @@ export default function TableProperties({ properties }) {
                                             transition"
                                 >
                                     <td className="p-4">
-                                        <span className="w-8 h-8 rounded-lg flex-shrink-0
-                                                    flex items-center justify-center
-                                                    bg-mint-100      dark:bg-mint-200/10
-                                                    border
-                                                    border-mint-200  dark:border-mint-300/20
+                                        <span className="rounded-lg flex-shrink-0
+                                                 justify-center
+                                                    text-left
+                                                   
+                                                   
                                                     text-mint-300    dark:text-mint-200">
                                             {property.name}
                                         </span>

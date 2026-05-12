@@ -18,25 +18,20 @@ class PropertyFacilityController extends Controller
     }
 
     public function editFacilities($id)
-{
+    {
+        $property = Property::with('facilities')
+            ->where('owner_id', auth()->id())
+            ->findOrFail($id);
 
+        $facilities = Facility::where('type', 'property')
+            ->get();
 
-    $property = Property::with('facilities')
-        ->where('owner_id', auth()->id())
-        ->findOrFail($id);
-
-    $facilities = Facility::where('type', 'property')->get();
-
-    return Inertia::render('Owner/PropertyFacilities', [
-        'property' => $property,
-
-        // semua master fasilitas
-        'facilities' => $facilities,
-
-        // fasilitas yang sudah dipilih property
-        'selectedFacilities' => $property->facilities,
-    ]);
-}
+        return Inertia::render('Owner/PropertyFacilities', [
+            'property' => $property,
+            'facilities' => $facilities,
+            'selectedFacilities' => $property->facilities,
+        ]);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -57,14 +52,15 @@ class PropertyFacilityController extends Controller
         foreach ($customFacilities as $facilityName) {
 
             $facility = Facility::firstOrCreate(
-        [
-            'name' => $facilityName,
-        ],
-        [
-            'type' => 'property',
-            'icon' => 'check_circle',
-        ]
-    );
+                [
+                    'name' => $facilityName,
+                    'type' => 'property',
+                ],
+                [
+                    'icon' => 'check_circle',
+                    'created_by' => auth()->id(),
+                ]
+            );
 
             $property->facilities()->attach($facility->id);
         }

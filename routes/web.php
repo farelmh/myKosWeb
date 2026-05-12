@@ -6,9 +6,9 @@ use App\Http\Controllers\PropertyApplicationController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyFacilityController;
 use App\Http\Controllers\roomTypeControler;
+use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
-use App\Models\Property;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -121,13 +121,35 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
         PropertyFacilityController::class, 'store'
         ])->name('owner.property.facilities.store');
 
-    Route::get('/room-types/{property}', [
-        roomTypeControler::class, 'index']
-    )->name('owner.room-types');
-    
     Route::get('/room-types/create', [
-        roomTypeControler::class, 'create']
-    )->name('owner.room-types.create');
+            RoomTypeController::class, 'create']
+        )->name('owner.room-types.create');
+        
+    Route::post('/room-types/store', [
+            RoomTypeController::class, 'store'
+        ])->name('owner.room-types.store');
+
+    Route::get('/room-types/edit/{id}', [
+            RoomTypeController::class, 'edit'
+        ])->name('owner.room-types.edit');
+
+    Route::get('/room-types/{property}', [
+        RoomTypeController::class, 'index']
+    )->name('owner.room-types');
+
+    Route::put('/room-types/update/{id}', [
+        RoomTypeController::class, 'update'
+    ])->name('owner.room-type.update');
+    
+    Route::delete('/room-types/delete/{id}', [
+        RoomTypeController::class, 'destroy'
+    ])->name('owner.room-type.delete');
+
+    Route::delete('/room-types-image/delete/{id}', [
+        RoomTypeController::class, 'deleteImage'
+    ])->name('owner.room-type-image.delete');
+
+    
 
 });
 
