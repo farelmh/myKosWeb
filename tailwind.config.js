@@ -21,7 +21,7 @@ export default {
                 primary:    "#ABE7B2",
                 secondary:  "#93BFC7",
                 light:      "#CBF3BB",
-                background: "#ECF4E8",
+                background: "#ECF4E8",  
 
                 mint: {
                     50:  "#ECF4E8", 
