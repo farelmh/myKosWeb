@@ -1,17 +1,27 @@
 import OwnerLayout from "@/Layouts/OwnerLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 
 import {
     Plus,
     BedDouble,
     Users,
-    Wallet,
     Pencil,
-    Eye,
     Sparkles,
+    Trash2,
 } from "lucide-react";
 
 export default function RoomTypes({ roomTypes }) {
+
+    const handleDelete = (id) => {
+    if (confirm("Apakah Anda yakin ingin menghapus tipe kamar ini? Semua data terkait tipe ini akan hilang.")) {
+        router.delete(route("owner.room-type.delete", id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Opsional: tambahkan notifikasi sukses di sini
+            }
+        });
+    }
+};
 
     return (
         <OwnerLayout>
@@ -280,7 +290,7 @@ export default function RoomTypes({ roomTypes }) {
                                             "
                                         >
                                             <p className="text-xs text-cyan-300 font-semibold">
-                                                / bulan
+                                                {roomType.rental_type === "monthly"  ? "/Bulan" : "/Hari"}
                                             </p>
                                         </div>
 
@@ -323,14 +333,14 @@ export default function RoomTypes({ roomTypes }) {
                                         >
 
                                             <div className="flex items-center gap-2 text-gray-400 mb-2">
-                                                <Wallet className="w-4 h-4" />
+                                                <BedDouble className="w-4 h-4" />
                                                 <span className="text-xs">
                                                     Total Kamar
                                                 </span>
                                             </div>
 
                                             <h4 className="text-lg font-bold text-white">
-                                                {roomType.rooms_count || 0}
+                                                {roomType.total_rooms || 0}
                                             </h4>
 
                                         </div>
@@ -391,34 +401,6 @@ export default function RoomTypes({ roomTypes }) {
 
                                         <Link
                                             href={route(
-                                                "owner.room-types.show",
-                                                roomType.id
-                                            )}
-                                            className="
-                                                flex
-                                                items-center
-                                                justify-center
-                                                gap-2
-                                                px-4
-                                                py-3
-                                                rounded-2xl
-                                                bg-white/5
-                                                border
-                                                border-white/10
-                                                text-gray-300
-                                                hover:bg-white/10
-                                                transition-all
-                                            "
-                                        >
-
-                                            <Eye className="w-4 h-4" />
-
-                                            Detail
-
-                                        </Link>
-
-                                        <Link
-                                            href={route(
                                                 "owner.room-types.edit",
                                                 roomType.id
                                             )}
@@ -430,12 +412,16 @@ export default function RoomTypes({ roomTypes }) {
                                                 px-4
                                                 py-3
                                                 rounded-2xl
-                                                bg-gradient-to-r
-                                                from-cyan-500
-                                                to-violet-500
-                                                text-white
-                                                hover:opacity-90
+                                                bg-blue-500/10
+                                                border
+                                                border-blue-500/20
+                                                text-blue-400
+                                                hover:bg-blue-500
+                                                hover:text-white
                                                 transition-all
+                                                duration-300
+                                                group
+                                                shadow-lg shadow-blue-500.10
                                             "
                                         >
 
@@ -444,6 +430,33 @@ export default function RoomTypes({ roomTypes }) {
                                             Edit
 
                                         </Link>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDelete(roomType.id)}
+                                            className="
+                                                flex
+                                                items-center
+                                                justify-center
+                                                gap-2
+                                                px-4
+                                                py-3
+                                                rounded-2xl
+                                                bg-red-500/10
+                                                border
+                                                border-red-500/20
+                                                text-red-400
+                                                hover:bg-red-500
+                                                hover:text-white
+                                                transition-all
+                                                duration-300
+                                                group
+                                                shadow-lg shadow-red-500.10
+                                            "
+                                        >
+                                            <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                            <span className="font-semibold text-sm">Hapus</span>
+                                        </button>
 
                                     </div>
 

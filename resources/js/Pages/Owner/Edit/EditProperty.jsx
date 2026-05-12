@@ -69,12 +69,12 @@ export default function EditProperty({ property }) {
     };
 
    const removeImageFromDB = (id) => {
-    if (confirm("Hapus foto ini secara permanen?")) {
-        router.delete(route("owner.propertyImage.delete", id), {
-            preserveScroll: true,
-        });
-    }
-};
+        if (confirm("Hapus foto ini secara permanen?")) {
+            router.delete(route("owner.propertyImage.delete", id), {
+                preserveScroll: true,
+            });
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -84,8 +84,6 @@ export default function EditProperty({ property }) {
         });
     };
 
-    console.log(property);
-    
     return (
         <OwnerLayout>
             <Head title={`Edit ${property.name}`} />
