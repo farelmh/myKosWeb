@@ -1,7 +1,8 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\PasswordResetOtpNotification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 
 test('reset password link screen can be rendered', function () {
@@ -17,44 +18,42 @@ test('reset password link can be requested', function () {
 
     $this->post('/forgot-password', ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class);
+    Notification::assertSentTo($user, PasswordResetOtpNotification::class);
 });
 
-test('reset password screen can be rendered', function () {
+test('otp verification screen can be rendered', function () {
     Notification::fake();
 
     $user = User::factory()->create();
 
     $this->post('/forgot-password', ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-        $response = $this->get('/reset-password/'.$notification->token);
-
-        $response->assertStatus(200);
-
-        return true;
-    });
+    $response = $this->get('/forgot-password/otp?email=' . urlencode($user->email));
+    $response->assertStatus(200);
 });
 
-test('password can be reset with valid token', function () {
+test('password can be reset with valid otp', function () {
     Notification::fake();
 
     $user = User::factory()->create();
 
     $this->post('/forgot-password', ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-        $response = $this->post('/reset-password', [
-            'token' => $notification->token,
-            'email' => $user->email,
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
+    $otp = Cache::get('otp_' . $user->email);
+    expect($otp)->not->toBeNull();
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('login'));
+    $this->post('/forgot-password/otp', [
+        'email' => $user->email,
+        'otp' => $otp,
+    ])->assertRedirect('/reset-password/otp?email=' . urlencode($user->email));
 
-        return true;
-    });
+    $response = $this->post('/reset-password/otp', [
+        'email' => $user->email,
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('login'));
 });
