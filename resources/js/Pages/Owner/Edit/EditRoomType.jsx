@@ -8,56 +8,107 @@ import {
     Plus,
     Check,
     Trash2,
+    ArrowLeft,
+    X,
 } from "lucide-react";
 import { useState } from "react";
 
-export default function EditRoomType({ roomType, facilities, selectedFacilities = [] }) {
+/* ================= SECTION CARD ================= */
+const SectionCard = ({ icon: Icon, title, subtitle, children }) => (
+    <div className="
+        rounded-2xl p-6
+        bg-white        dark:bg-dark-card
+        border
+        border-mint-200 dark:border-dark-border/20
+        transition-colors duration-300
+    ">
+        <div className="flex items-center gap-3 mb-6">
+            {Icon && (
+                <div className="
+                    p-2.5 rounded-xl
+                    bg-mint-100      dark:bg-mint-200/10
+                    border border-mint-200 dark:border-mint-300/20
+                    text-mint-300    dark:text-mint-200
+                ">
+                    <Icon size={18} />
+                </div>
+            )}
+            <div>
+                <h2 className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                    {title}
+                </h2>
+                {subtitle && (
+                    <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-0.5">
+                        {subtitle}
+                    </p>
+                )}
+            </div>
+        </div>
+        {children}
+    </div>
+);
 
+/* ================= INPUT CLASS ================= */
+const inputClass = (error) => `
+    w-full px-4 py-3 rounded-xl text-sm outline-none transition
+    bg-mint-50       dark:bg-dark-bg
+    border
+    ${error
+        ? "border-red-300 dark:border-red-500/40 focus:ring-2 focus:ring-red-200"
+        : "border-mint-200 dark:border-dark-border/20 focus:ring-2 focus:ring-mint-200 dark:focus:ring-mint-300/30"
+    }
+    text-kost-dark   dark:text-mint-50
+    placeholder-kost-muted dark:placeholder-mint-100/30
+`;
+
+const LabelText = ({ children }) => (
+    <label className="text-sm font-medium text-kost-dark dark:text-mint-100/70">
+        {children}
+    </label>
+);
+
+/* ================= MAIN ================= */
+export default function EditRoomType({
+    roomType,
+    facilities,
+    selectedFacilities = [],
+}) {
     const { auth } = usePage().props;
-
-    const storageKey = `selectedProperty_${auth.user.id}`;
-
-    const propertyId = Number(localStorage.getItem(storageKey));
+    const storageKey  = `selectedProperty_${auth.user.id}`;
+    const propertyId  = Number(localStorage.getItem(storageKey));
 
     const { data, setData, put, processing, errors } = useForm({
-        property_id: propertyId,
-        name: roomType.name || "",
-        room_width: roomType.room_width || "",
-        room_length: roomType.room_length || "",
-        price: roomType.price || "",
-        capacity: roomType.capacity || "",
-        total_rooms: roomType.total_rooms || "",
-        rental_type: roomType.rental_type || "",
-        images: [],
-        facilities: selectedFacilities || [],
-        custom_facility: "",
+        property_id:       propertyId,
+        name:              roomType.name         || "",
+        room_width:        roomType.room_width    || "",
+        room_length:       roomType.room_length   || "",
+        price:             roomType.price         || "",
+        capacity:          roomType.capacity      || "",
+        total_rooms:       roomType.total_rooms   || "",
+        rental_type:       roomType.rental_type   || "",
+        images:            [],
+        facilities:        selectedFacilities     || [],
+        custom_facility:   "",
         custom_facilities: [],
     });
 
     const [previewImages, setPreviewImages] = useState([]);
 
     const toggleFacility = (id) => {
-        if (data.facilities.includes(id)) {
-            setData(
-                "facilities",
-                data.facilities.filter((item) => item !== id)
-            );
-        } else {
-            setData(
-                "facilities",
-                [...data.facilities, id]
-            );
-        }
+        setData(
+            "facilities",
+            data.facilities.includes(id)
+                ? data.facilities.filter((item) => item !== id)
+                : [...data.facilities, id]
+        );
     };
 
     const addCustomFacility = () => {
         if (!data.custom_facility.trim()) return;
-
         setData("custom_facilities", [
             ...data.custom_facilities,
-            data.custom_facility,
+            data.custom_facility.trim(),
         ]);
-
         setData("custom_facility", "");
     };
 
@@ -70,22 +121,20 @@ export default function EditRoomType({ roomType, facilities, selectedFacilities 
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        
         setData("images", [...data.images, ...files]);
-
-        const newPreviews = files.map((file) => ({
-            url: URL.createObjectURL(file),
-            name: file.name
-        }));
-
-        setPreviewImages((prev) => [...prev, ...newPreviews]);
-        e.target.value = null; // Reset agar bisa pilih file yang sama
+        setPreviewImages((prev) => [
+            ...prev,
+            ...files.map((file) => ({
+                url:  URL.createObjectURL(file),
+                name: file.name,
+            })),
+        ]);
+        e.target.value = null;
     };
 
     const removePreview = (index) => {
         setPreviewImages((prev) => prev.filter((_, i) => i !== index));
-        const updatedFiles = data.images.filter((_, i) => i !== index);
-        setData("images", updatedFiles);
+        setData("images", data.images.filter((_, i) => i !== index));
     };
 
     const removeImageFromDB = (id) => {
@@ -100,489 +149,382 @@ export default function EditRoomType({ roomType, facilities, selectedFacilities 
         e.preventDefault();
         put(route("owner.room-type.update", roomType.id), {
             forceFormData: true,
-            onSuccess: () => setPreviewImages([]), // Bersihkan preview setelah berhasil
+            onSuccess: () => setPreviewImages([]),
         });
     };
-    
+
     return (
         <OwnerLayout>
+            <div className="max-w-4xl mx-auto space-y-6 pb-20">
 
-            <div className="max-w-6xl mx-auto space-y-8 pb-20">
-                {/* HEADER */}
-                <div className="rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-xl">
-                    <h1 className="text-4xl font-bold text-white tracking-tight">Tambah Tipe Kamar</h1>
+                <div className="
+                    rounded-2xl p-6
+                    bg-white        dark:bg-dark-card
+                    border
+                    border-mint-200 dark:border-dark-border/20
+                    transition-colors duration-300
+                ">
+                    <button
+                        type="button"
+                        onClick={() => window.history.back()}
+                        className="
+                            flex items-center gap-2 mb-4 text-sm transition
+                            text-kost-muted dark:text-mint-100/50
+                            hover:text-kost-dark dark:hover:text-mint-50
+                        "
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        Kembali
+                    </button>
+
+                    <h1 className="text-lg font-medium text-kost-dark dark:text-mint-50">
+                        Edit Tipe Kamar
+                    </h1>
+                    <p className="text-sm text-kost-muted dark:text-mint-100/40 mt-1">
+                        Perbarui informasi tipe kamar kos Anda.
+                    </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* INFORMASI DASAR */}
-                    <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
 
-                        <div className="flex items-center gap-3 mb-8">
-                            <div className="p-3 rounded-2xl bg-cyan-500/10 text-cyan-400">
-                                <FileText size={22} />
-                            </div>
-
-                            <div>
-                                <h2 className="text-xl font-semibold text-white">
-                                    Informasi Dasar
-                                </h2>
-
-                                <p className="text-sm text-gray-400 mt-1">
-                                    Lengkapi informasi tipe kamar kos.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <SectionCard
+                        icon={FileText}
+                        title="Informasi Dasar"
+                        subtitle="Lengkapi informasi tipe kamar kos."
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                             {/* NAMA */}
-                            <div className="space-y-2">
-                                <label className="text-sm text-gray-400 ml-1">
-                                    Nama Tipe Kamar
-                                </label>
-
+                            <div className="space-y-1.5">
+                                <LabelText>Nama Tipe Kamar</LabelText>
                                 <input
                                     type="text"
                                     placeholder="Reguler"
                                     value={data.name}
-                                    onChange={(e) =>
-                                        setData("name", e.target.value)
-                                    }
-                                    className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
+                                    onChange={(e) => setData("name", e.target.value)}
+                                    className={inputClass(errors.name)}
                                 />
-
-                                {errors.name && (
-                                    <p className="text-red-400 text-xs">
-                                        {errors.name}
-                                    </p>
-                                )}
+                                {errors.name && <p className="text-xs text-red-400">{errors.name}</p>}
                             </div>
 
                             {/* UKURAN */}
-                            <div className="space-y-2">
-                                <label className="text-sm text-gray-400 ml-1">
-                                    Ukuran Kamar ( Meter )
-                                </label>
-
+                            <div className="space-y-1.5">
+                                <LabelText>Ukuran Kamar (Meter)</LabelText>
                                 <div className="flex items-center gap-3">
-
                                     <input
                                         type="number"
                                         placeholder="4"
                                         value={data.room_width}
-                                        onChange={(e) =>
-                                            setData("room_width", e.target.value)
-                                        }
-                                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
+                                        onChange={(e) => setData("room_width", e.target.value)}
+                                        className={inputClass(errors.room_width)}
                                     />
-
-                                    <span className="text-gray-400 text-lg">
-                                        ×
-                                    </span>
-
+                                    <span className="text-kost-muted dark:text-mint-100/40">×</span>
                                     <input
                                         type="number"
                                         placeholder="4"
                                         value={data.room_length}
-                                        onChange={(e) =>
-                                            setData("room_length", e.target.value)
-                                        }
-                                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
+                                        onChange={(e) => setData("room_length", e.target.value)}
+                                        className={inputClass(errors.room_length)}
                                     />
-
                                 </div>
-
                                 {(errors.room_width || errors.room_length) && (
-                                    <p className="text-red-400 text-xs">
+                                    <p className="text-xs text-red-400">
                                         {errors.room_width || errors.room_length}
                                     </p>
                                 )}
                             </div>
 
                             {/* HARGA */}
-                            <div className="space-y-2">
-                                <label className="text-sm text-gray-400 ml-1">
-                                    Harga Sewa
-                                </label>
-
+                            <div className="space-y-1.5">
+                                <LabelText>Harga Sewa</LabelText>
                                 <input
                                     type="number"
                                     placeholder="500000"
                                     value={data.price}
-                                    onChange={(e) =>
-                                        setData("price", e.target.value)
-                                    }
-                                    className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
+                                    onChange={(e) => setData("price", e.target.value)}
+                                    className={inputClass(errors.price)}
                                 />
-
-                                {errors.price && (
-                                    <p className="text-red-400 text-xs">
-                                        {errors.price}
-                                    </p>
-                                )}
+                                {errors.price && <p className="text-xs text-red-400">{errors.price}</p>}
                             </div>
 
                             {/* KAPASITAS */}
-                            <div className="space-y-2">
-                                <label className="text-sm text-gray-400 ml-1">
-                                    Kapasitas Orang
-                                </label>
-
+                            <div className="space-y-1.5">
+                                <LabelText>Kapasitas Orang</LabelText>
                                 <input
                                     type="number"
                                     placeholder="1"
                                     value={data.capacity}
-                                    onChange={(e) =>
-                                        setData("capacity", e.target.value)
-                                    }
-                                    className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
+                                    onChange={(e) => setData("capacity", e.target.value)}
+                                    className={inputClass(errors.capacity)}
                                 />
-
-                                {errors.capacity && (
-                                    <p className="text-red-400 text-xs">
-                                        {errors.capacity}
-                                    </p>
-                                )}
+                                {errors.capacity && <p className="text-xs text-red-400">{errors.capacity}</p>}
                             </div>
 
-                            {/* TOTAL ROOM */}
-                            <div className="space-y-2">
-                                <label className="text-sm text-gray-400 ml-1">
-                                    Total Kamar
-                                </label>
-
+                            {/* TOTAL KAMAR */}
+                            <div className="space-y-1.5">
+                                <LabelText>Total Kamar</LabelText>
                                 <input
                                     type="number"
                                     placeholder="20"
                                     value={data.total_rooms}
-                                    onChange={(e) =>
-                                        setData("total_rooms", e.target.value)
-                                    }
-                                    className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
+                                    onChange={(e) => setData("total_rooms", e.target.value)}
+                                    className={inputClass(errors.total_rooms)}
                                 />
-
-                                {errors.total_rooms && (
-                                    <p className="text-red-400 text-xs">
-                                        {errors.total_rooms}
-                                    </p>
-                                )}
+                                {errors.total_rooms && <p className="text-xs text-red-400">{errors.total_rooms}</p>}
                             </div>
 
-                            {/* RENTAL TYPE */}
-                            <div className="space-y-2">
-                                <label className="text-sm text-gray-400 ml-1">
-                                    Tipe Sewa
-                                </label>
-
+                            {/* TIPE SEWA */}
+                            <div className="space-y-1.5">
+                                <LabelText>Tipe Sewa</LabelText>
                                 <select
                                     value={data.rental_type}
-                                    onChange={(e) =>
-                                        setData("rental_type", e.target.value)
-                                    }
-                                    className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-cyan-500 outline-none"
+                                    onChange={(e) => setData("rental_type", e.target.value)}
+                                    className={inputClass(errors.rental_type)}
                                 >
-                                    <option value="" disabled>
-                                        Pilih tipe sewa
-                                    </option>
-
-                                    <option value="monthly">
-                                        Bulanan
-                                    </option>
-
-                                    <option value="daily">
-                                        Harian
-                                    </option>
+                                    <option value="" disabled>Pilih tipe sewa</option>
+                                    <option value="monthly">Bulanan</option>
+                                    <option value="daily">Harian</option>
                                 </select>
-
-                                {errors.rental_type && (
-                                    <p className="text-red-400 text-xs">
-                                        {errors.rental_type}
-                                    </p>
-                                )}
+                                {errors.rental_type && <p className="text-xs text-red-400">{errors.rental_type}</p>}
                             </div>
-
                         </div>
-                    </div>
+                    </SectionCard>
 
-                    {/* FACILITY LIST */}
-                    <div
-                        className="
-                            rounded-3xl
-                            border
-                            border-white/10
-                            bg-white/5
-                            backdrop-blur-xl
-                            p-8
-                        "
-                    >
-
-                        <div className="mb-8">
-
-                            <h2 className="text-xl font-semibold text-white mb-2">
-                                Pilih Fasilitas
-                            </h2>
-
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-
+                    <SectionCard title="Pilih Fasilitas">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             {facilities.map((facility) => {
-
-                                const active = data.facilities.includes(
-                                    facility.id
-                                );
-
+                                const active = data.facilities.includes(facility.id);
                                 return (
                                     <button
                                         type="button"
                                         key={facility.id}
-                                        onClick={() =>
-                                            toggleFacility(facility.id)
-                                        }
+                                        onClick={() => toggleFacility(facility.id)}
                                         className={`
-                                            relative
-                                            p-5
-                                            rounded-2xl
-                                            border
-                                            transition-all
-                                            duration-300
-                                            text-left
-
-                                            ${
-                                                active
-                                                    ? `
-                                                        border-cyan-500/50
-                                                        bg-cyan-500/10
-                                                    `
-                                                    : `
-                                                        border-white/10
-                                                        bg-white/5
-                                                        hover:bg-white/10
-                                                    `
+                                            relative p-4 rounded-xl text-left text-sm border transition
+                                            ${active
+                                                ? "bg-mint-200 dark:bg-mint-200/20 border-mint-200 dark:border-mint-300/30 text-kost-dark dark:text-mint-50"
+                                                : "bg-mint-50 dark:bg-dark-bg border-mint-200 dark:border-dark-border/20 text-kost-muted dark:text-mint-100/50 hover:bg-mint-100 dark:hover:bg-dark-card"
                                             }
                                         `}
                                     >
-
-                                        <h3 className="text-white font-medium text-sm">
-                                            {facility.name}
-                                        </h3>
-
+                                        <span className="font-medium">{facility.name}</span>
                                         {active && (
-                                            <div
-                                                className="
-                                                    absolute
-                                                    top-3
-                                                    right-3
-                                                    w-6
-                                                    h-6
-                                                    rounded-full
-                                                    bg-cyan-500
-                                                    flex
-                                                    items-center
-                                                    justify-center
-                                                "
-                                            >
-
-                                                <Check className="w-4 h-4 text-white" />
-
+                                            <div className="
+                                                absolute top-2 right-2 w-5 h-5 rounded-full
+                                                flex items-center justify-center
+                                                bg-mint-300 dark:bg-mint-300/60
+                                            ">
+                                                <Check className="w-3 h-3 text-white" />
                                             </div>
                                         )}
-
                                     </button>
                                 );
                             })}
-
                         </div>
-
-                    </div>
-
-                    {/* CUSTOM FACILITY */}
-                    <div
-                        className="
-                            rounded-3xl
-                            border
-                            border-white/10
-                            bg-white/5
-                            backdrop-blur-xl
-                            p-8
-                        "
-                    >
-
-                        <div className="mb-6">
-
-                            <h2 className="text-xl font-semibold text-white mb-2">
-                                Tambah Fasilitas Lain
-                            </h2>
-
-                            <p className="text-sm text-gray-400">
-                                Tambahkan fasilitas custom jika belum tersedia.
+                        {data.facilities.length > 0 && (
+                            <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-4">
+                                {data.facilities.length} fasilitas dipilih
                             </p>
+                        )}
+                    </SectionCard>
 
-                        </div>
-
+                    <SectionCard
+                        title="Tambah Fasilitas Lain"
+                        subtitle="Tambahkan fasilitas custom jika belum tersedia."
+                    >
                         <div className="flex gap-3">
-
                             <input
                                 type="text"
                                 value={data.custom_facility}
-                                onChange={(e) =>
-                                    setData(
-                                        "custom_facility",
-                                        e.target.value
-                                    )
-                                }
+                                onChange={(e) => setData("custom_facility", e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomFacility())}
                                 placeholder="Contoh: Rooftop"
-                                className="
-                                    flex-1
-                                    px-4
-                                    py-3
-                                    rounded-2xl
-                                    bg-white/5
-                                    border
-                                    border-white/10
-                                    text-white
-                                    placeholder:text-gray-500
-                                    focus:outline-none
-                                    focus:ring-2
-                                    focus:ring-cyan-500
-                                "
+                                className={inputClass(false)}
                             />
-
                             <button
                                 type="button"
                                 onClick={addCustomFacility}
                                 className="
-                                    px-5
-                                    rounded-2xl
-                                    bg-cyan-500
-                                    text-white
-                                    hover:opacity-90
-                                    transition
+                                    px-4 py-2.5 rounded-xl transition flex-shrink-0
+                                    bg-mint-200      dark:bg-mint-200/20
+                                    border border-mint-200 dark:border-mint-300/20
+                                    text-kost-dark   dark:text-mint-50
+                                    hover:bg-mint-300 dark:hover:bg-mint-300/30
                                 "
                             >
-
-                                <Plus className="w-5 h-5" />
-
+                                <Plus className="w-4 h-4" />
                             </button>
-
                         </div>
 
-                        {/* LIST */}
                         {data.custom_facilities.length > 0 && (
-
-                            <div className="flex flex-wrap gap-3 mt-6">
-
+                            <div className="flex flex-wrap gap-2 mt-4">
                                 {data.custom_facilities.map((facility, index) => (
-
                                     <div
                                         key={index}
                                         className="
-                                            flex
-                                            items-center
-                                            gap-2
-                                            px-4
-                                            py-2
-                                            rounded-xl
-                                            bg-cyan-500/10
-                                            border
-                                            border-cyan-500/20
+                                            flex items-center gap-1.5
+                                            px-3 py-1.5 rounded-lg text-sm
+                                            bg-mint-100      dark:bg-mint-200/10
+                                            border border-mint-200 dark:border-mint-300/20
+                                            text-kost-dark   dark:text-mint-100
                                         "
                                     >
-
-                                        <span className="text-sm text-cyan-300">
-                                            {facility}
-                                        </span>
-
+                                        <span>{facility}</span>
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                removeCustomFacility(index)
-                                            }
-                                            className="
-                                                text-red-400
-                                                hover:text-red-300
-                                            "
+                                            onClick={() => removeCustomFacility(index)}
+                                            className="text-kost-muted dark:text-mint-100/40 hover:text-red-400 transition"
                                         >
-
-                                            ✕
-
+                                            <X size={12} />
                                         </button>
-
                                     </div>
                                 ))}
-
                             </div>
                         )}
 
                         {errors.facilities && (
-                            <p className="text-red-400 text-sm mt-4">
-                                {errors.facilities}
-                            </p>
+                            <p className="text-xs text-red-400 mt-3">{errors.facilities}</p>
+                        )}
+                    </SectionCard>
+
+                    <SectionCard icon={ImageIcon} title="Galeri Foto">
+
+                        {/* Foto dari database */}
+                        {roomType.images?.length > 0 && (
+                            <div className="mb-6">
+                                <p className="text-xs font-medium text-kost-muted dark:text-mint-100/40 mb-3">
+                                    Foto saat ini
+                                </p>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    {roomType.images.map((image) => (
+                                        <div
+                                            key={image.id}
+                                            className="
+                                                relative aspect-video rounded-xl overflow-hidden
+                                                border border-mint-200 dark:border-dark-border/20
+                                                group
+                                            "
+                                        >
+                                            <img
+                                                src={`/storage/${image.image_path}`}
+                                                className="w-full h-full object-cover group-hover:opacity-70 transition"
+                                            />
+                                            <div className="
+                                                absolute inset-0 flex items-center justify-center
+                                                opacity-0 group-hover:opacity-100 transition
+                                            ">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImageFromDB(image.id)}
+                                                    className="p-2 rounded-full bg-red-500 text-white hover:scale-110 transition"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                            <div className="
+                                                absolute top-2 left-2
+                                                px-2 py-0.5 rounded text-[10px] font-medium
+                                                bg-mint-200/80 dark:bg-mint-200/20
+                                                text-kost-dark dark:text-mint-50
+                                            ">
+                                                Tersimpan
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         )}
 
-                    </div>
+                        {/* Upload foto baru */}
+                        <div className="space-y-4">
+                            <p className="text-xs font-medium text-kost-muted dark:text-mint-100/40">
+                                Tambah foto baru
+                            </p>
 
-                    {/* GALERI FOTO */}
-                    <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-                        <div className="flex items-center gap-3 mb-8 text-orange-400">
-                            <ImageIcon size={22} />
-                            <h2 className="text-xl font-semibold text-white">Galeri Foto</h2>
-                        </div>
-
-                        {/* Foto yang Sudah Ada di Database */}
-                        <div className="mb-8">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Foto Saat Ini</p>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {roomType.images?.map((image) => (
-                                    <div key={image.id} className="relative rounded-2xl overflow-hidden border border-white/10 aspect-video group">
-                                        <img src={`/storage/${image.image_path}`} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <button type="button" onClick={() => removeImageFromDB(image.id)} className="p-2 bg-red-500 text-white rounded-full hover:scale-110 transition">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        <div className="absolute top-2 left-2 bg-black/50 px-2 py-0.5 rounded text-[10px] text-white">DATABASE</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Input Gambar Baru */}
-                        <div className="space-y-6">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Tambah Foto Baru</p>
-                            <input type="file" multiple id="multi-upload" onChange={handleImageChange} className="hidden" />
-                            <label htmlFor="multi-upload" className="flex flex-col items-center justify-center w-full h-32 rounded-2xl border-2 border-dashed border-white/10 bg-white/5 hover:border-cyan-500/50 transition-all cursor-pointer group">
-                                <ImageIcon className="text-gray-500 group-hover:text-cyan-400 mb-2" />
-                                <span className="text-sm text-gray-400">Klik untuk memilih foto tambahan</span>
+                            <input
+                                type="file"
+                                multiple
+                                id="room-upload"
+                                onChange={handleImageChange}
+                                className="hidden"
+                            />
+                            <label
+                                htmlFor="room-upload"
+                                className="
+                                    flex flex-col items-center justify-center
+                                    w-full h-28 rounded-xl cursor-pointer transition
+                                    border border-dashed
+                                    border-mint-200  dark:border-dark-border/30
+                                    hover:bg-mint-50 dark:hover:bg-dark-bg
+                                    hover:border-mint-300 dark:hover:border-mint-300/40
+                                    group
+                                "
+                            >
+                                <ImageIcon className="w-6 h-6 mb-2 text-mint-200 dark:text-mint-200/40 group-hover:text-mint-300 transition" />
+                                <span className="text-sm text-kost-muted dark:text-mint-100/40">
+                                    Klik untuk memilih foto tambahan
+                                </span>
                             </label>
 
-                            {/* Preview Foto Baru */}
                             {previewImages.length > 0 && (
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                     {previewImages.map((image, index) => (
-                                        <div key={index} className="relative aspect-video rounded-2xl overflow-hidden border border-cyan-500/30 group">
-                                            <img src={image.url} className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <button type="button" onClick={() => removePreview(index)} className="p-2 bg-red-500 text-white rounded-full hover:scale-110 transition">
-                                                    <Trash2 size={16} />
+                                        <div
+                                            key={index}
+                                            className="
+                                                relative aspect-video rounded-xl overflow-hidden
+                                                border border-mint-300/40 dark:border-mint-300/20
+                                                group
+                                            "
+                                        >
+                                            <img
+                                                src={image.url}
+                                                className="w-full h-full object-cover group-hover:opacity-70 transition"
+                                            />
+                                            <div className="
+                                                absolute inset-0 flex items-center justify-center
+                                                opacity-0 group-hover:opacity-100 transition
+                                            ">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePreview(index)}
+                                                    className="p-2 rounded-full bg-red-500 text-white hover:scale-110 transition"
+                                                >
+                                                    <Trash2 size={14} />
                                                 </button>
                                             </div>
-                                            <div className="absolute bottom-2 left-2 bg-cyan-600 px-2 py-0.5 rounded text-[10px] text-white font-bold">BARU</div>
+                                            <div className="
+                                                absolute top-2 left-2
+                                                px-2 py-0.5 rounded text-[10px] font-medium
+                                                bg-mint-300/80 dark:bg-mint-300/20
+                                                text-kost-dark dark:text-mint-50
+                                            ">
+                                                Baru
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </SectionCard>
 
-                    {/* SUBMIT BUTTON */}
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-500 text-white font-bold hover:shadow-lg hover:shadow-cyan-500/20 transition-all disabled:opacity-50"
+                        className="
+                            w-full flex items-center justify-center gap-2
+                            px-6 py-3 rounded-xl text-sm font-medium transition
+                            bg-mint-200      dark:bg-mint-200/20
+                            border border-mint-200 dark:border-mint-300/20
+                            text-kost-dark   dark:text-mint-50
+                            hover:bg-mint-300 dark:hover:bg-mint-300/30
+                            disabled:opacity-50 disabled:cursor-not-allowed
+                        "
                     >
-                        {processing ? <LoaderCircle className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        {processing ? "Menyimpan Perubahan..." : "Simpan Perubahan"}
+                        {processing
+                            ? <><LoaderCircle className="w-4 h-4 animate-spin" /> Menyimpan...</>
+                            : <><Save className="w-4 h-4" /> Simpan Perubahan</>
+                        }
                     </button>
                 </form>
             </div>

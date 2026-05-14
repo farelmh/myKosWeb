@@ -4,7 +4,6 @@ export default function TableTenants({ tenants }) {
     return (
 
         <div className="mt-8">
-
             {/* WRAPPER */}
             <div
                 className="

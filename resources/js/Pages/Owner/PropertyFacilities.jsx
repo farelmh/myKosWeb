@@ -1,50 +1,64 @@
 import OwnerLayout from "@/Layouts/OwnerLayout";
 import { Head, useForm } from "@inertiajs/react";
-import { useState } from "react";
-
 import {
     Plus,
     Check,
     Sparkles,
     LoaderCircle,
+    X,
+    ArrowLeft,
 } from "lucide-react";
 
+/* ================= SECTION CARD ================= */
+const SectionCard = ({ title, subtitle, children }) => (
+    <div className="
+        rounded-2xl p-6
+        bg-white        dark:bg-dark-card
+        border
+        border-mint-200 dark:border-dark-border/20
+        transition-colors duration-300
+    ">
+        <div className="mb-5">
+            <h2 className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                {title}
+            </h2>
+            {subtitle && (
+                <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-0.5">
+                    {subtitle}
+                </p>
+            )}
+        </div>
+        {children}
+    </div>
+);
+
+/* ================= MAIN ================= */
 export default function PropertyFacilities({
     property,
     facilities,
     selectedFacilities = [],
 }) {
-
     const { data, setData, post, processing, errors } = useForm({
-        facilities: selectedFacilities.map((f) => f.id),
-        custom_facility: "",
+        facilities:        selectedFacilities.map((f) => f.id),
+        custom_facility:   "",
         custom_facilities: [],
     });
 
     const toggleFacility = (id) => {
-
-        if (data.facilities.includes(id)) {
-            setData(
-                "facilities",
-                data.facilities.filter((item) => item !== id)
-            );
-        } else {
-            setData(
-                "facilities",
-                [...data.facilities, id]
-            );
-        }
+        setData(
+            "facilities",
+            data.facilities.includes(id)
+                ? data.facilities.filter((item) => item !== id)
+                : [...data.facilities, id]
+        );
     };
 
     const addCustomFacility = () => {
-
         if (!data.custom_facility.trim()) return;
-
         setData("custom_facilities", [
             ...data.custom_facilities,
-            data.custom_facility,
+            data.custom_facility.trim(),
         ]);
-
         setData("custom_facility", "");
     };
 
@@ -57,328 +71,186 @@ export default function PropertyFacilities({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         post(route("owner.property.facilities.store", property.id));
     };
 
     return (
         <OwnerLayout>
-
             <Head title="Fasilitas Kos" />
 
-            <div className="max-w-6xl mx-auto space-y-8">
+            <div className="max-w-4xl mx-auto space-y-6 pb-20">
 
-                {/* HEADER */}
-                <div
-                    className="
-                        rounded-[2rem]
-                        border
-                        border-white/10
-                        bg-white/5
-                        backdrop-blur-xl
-                        p-8
-                    "
-                >
+                <div className="
+                    rounded-2xl p-6
+                    bg-white        dark:bg-dark-card
+                    border
+                    border-mint-200 dark:border-dark-border/20
+                    transition-colors duration-300
+                ">
 
-                    <div
-                        className="
-                            inline-flex
-                            items-center
-                            gap-2
-                            px-4
-                            py-1.5
-                            rounded-full
-                            bg-cyan-500/10
-                            border
-                            border-cyan-500/20
-                            text-cyan-300
-                            text-sm
-                            mb-5
-                        "
-                    >
-
-                        <Sparkles size={16} />
-
+                    <div className="
+                        inline-flex items-center gap-1.5
+                        px-3 py-1 rounded-full text-xs font-medium mb-3
+                        bg-mint-100      dark:bg-mint-200/10
+                        border border-mint-200 dark:border-mint-300/20
+                        text-kost-dark   dark:text-mint-100
+                    ">
+                        <Sparkles size={12} />
                         Fasilitas Properti
-
                     </div>
 
-                    <h1 className="text-4xl font-bold text-white">
+                    <h1 className="text-lg font-medium text-kost-dark dark:text-mint-50">
                         {property.name}
                     </h1>
-
-                    <p className="text-gray-400 mt-3">
+                    <p className="text-sm text-kost-muted dark:text-mint-100/40 mt-1">
                         Pilih fasilitas yang tersedia di kos Anda.
                     </p>
-
                 </div>
 
-                <form
-                    onSubmit={handleSubmit}
-                    className="space-y-8"
-                >
+                <form onSubmit={handleSubmit} className="space-y-6">
 
-                    {/* FACILITY LIST */}
-                    <div
-                        className="
-                            rounded-3xl
-                            border
-                            border-white/10
-                            bg-white/5
-                            backdrop-blur-xl
-                            p-8
-                        "
-                    >
-
-                        <div className="mb-8">
-
-                            <h2 className="text-xl font-semibold text-white mb-2">
-                                Pilih Fasilitas
-                            </h2>
-
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-
+                    <SectionCard title="Pilih Fasilitas">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             {facilities.map((facility) => {
-
-                                const active = data.facilities.includes(
-                                    facility.id
-                                );
+                                const active = data.facilities.includes(facility.id);
 
                                 return (
                                     <button
                                         type="button"
                                         key={facility.id}
-                                        onClick={() =>
-                                            toggleFacility(facility.id)
-                                        }
+                                        onClick={() => toggleFacility(facility.id)}
                                         className={`
-                                            relative
-                                            p-5
-                                            rounded-2xl
-                                            border
-                                            transition-all
-                                            duration-300
-                                            text-left
-
-                                            ${
-                                                active
-                                                    ? `
-                                                        border-cyan-500/50
-                                                        bg-cyan-500/10
-                                                    `
-                                                    : `
-                                                        border-white/10
-                                                        bg-white/5
-                                                        hover:bg-white/10
-                                                    `
+                                            relative p-4 rounded-xl text-left
+                                            border transition text-sm
+                                            ${active
+                                                ? "bg-mint-200      dark:bg-mint-200/20 border-mint-200 dark:border-mint-300/30 text-kost-dark dark:text-mint-50"
+                                                : "bg-mint-50       dark:bg-dark-bg    border-mint-200 dark:border-dark-border/20 text-kost-muted dark:text-mint-100/50 hover:bg-mint-100 dark:hover:bg-dark-card"
                                             }
                                         `}
                                     >
-
-                                        <h3 className="text-white font-medium text-sm">
+                                        <span className="font-medium">
                                             {facility.name}
-                                        </h3>
+                                        </span>
 
+                                        {/* Check indicator */}
                                         {active && (
-                                            <div
-                                                className="
-                                                    absolute
-                                                    top-3
-                                                    right-3
-                                                    w-6
-                                                    h-6
-                                                    rounded-full
-                                                    bg-cyan-500
-                                                    flex
-                                                    items-center
-                                                    justify-center
-                                                "
-                                            >
-
-                                                <Check className="w-4 h-4 text-white" />
-
+                                            <div className="
+                                                absolute top-2 right-2
+                                                w-5 h-5 rounded-full
+                                                flex items-center justify-center
+                                                bg-mint-300 dark:bg-mint-300/60
+                                            ">
+                                                <Check className="w-3 h-3 text-white" />
                                             </div>
                                         )}
-
                                     </button>
                                 );
                             })}
-
                         </div>
 
-                    </div>
-
-                    {/* CUSTOM FACILITY */}
-                    <div
-                        className="
-                            rounded-3xl
-                            border
-                            border-white/10
-                            bg-white/5
-                            backdrop-blur-xl
-                            p-8
-                        "
-                    >
-
-                        <div className="mb-6">
-
-                            <h2 className="text-xl font-semibold text-white mb-2">
-                                Tambah Fasilitas Lain
-                            </h2>
-
-                            <p className="text-sm text-gray-400">
-                                Tambahkan fasilitas custom jika belum tersedia.
+                        {/* Counter */}
+                        {data.facilities.length > 0 && (
+                            <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-4">
+                                {data.facilities.length} fasilitas dipilih
                             </p>
+                        )}
+                    </SectionCard>
 
-                        </div>
-
+                    <SectionCard
+                        title="Tambah Fasilitas Lain"
+                        subtitle="Tambahkan fasilitas custom jika belum tersedia."
+                    >
+                        {/* Input */}
                         <div className="flex gap-3">
-
                             <input
                                 type="text"
                                 value={data.custom_facility}
-                                onChange={(e) =>
-                                    setData(
-                                        "custom_facility",
-                                        e.target.value
-                                    )
-                                }
+                                onChange={(e) => setData("custom_facility", e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomFacility())}
                                 placeholder="Contoh: Rooftop"
                                 className="
-                                    flex-1
-                                    px-4
-                                    py-3
-                                    rounded-2xl
-                                    bg-white/5
+                                    flex-1 px-4 py-2.5 rounded-xl text-sm outline-none transition
+                                    bg-mint-50       dark:bg-dark-bg
                                     border
-                                    border-white/10
-                                    text-white
-                                    placeholder:text-gray-500
-                                    focus:outline-none
+                                    border-mint-200  dark:border-dark-border/20
+                                    text-kost-dark   dark:text-mint-50
+                                    placeholder-kost-muted dark:placeholder-mint-100/30
                                     focus:ring-2
-                                    focus:ring-cyan-500
+                                    focus:ring-mint-200 dark:focus:ring-mint-300/30
                                 "
                             />
-
                             <button
                                 type="button"
                                 onClick={addCustomFacility}
                                 className="
-                                    px-5
-                                    rounded-2xl
-                                    bg-cyan-500
-                                    text-white
-                                    hover:opacity-90
-                                    transition
+                                    px-4 py-2.5 rounded-xl transition
+                                    bg-mint-200      dark:bg-mint-200/20
+                                    border border-mint-200 dark:border-mint-300/20
+                                    text-kost-dark   dark:text-mint-50
+                                    hover:bg-mint-300 dark:hover:bg-mint-300/30
                                 "
                             >
-
-                                <Plus className="w-5 h-5" />
-
+                                <Plus className="w-4 h-4" />
                             </button>
-
                         </div>
 
-                        {/* LIST */}
+                        {/* Custom list */}
                         {data.custom_facilities.length > 0 && (
-
-                            <div className="flex flex-wrap gap-3 mt-6">
-
+                            <div className="flex flex-wrap gap-2 mt-4">
                                 {data.custom_facilities.map((facility, index) => (
-
                                     <div
                                         key={index}
                                         className="
-                                            flex
-                                            items-center
-                                            gap-2
-                                            px-4
-                                            py-2
-                                            rounded-xl
-                                            bg-cyan-500/10
-                                            border
-                                            border-cyan-500/20
+                                            flex items-center gap-1.5
+                                            px-3 py-1.5 rounded-lg text-sm
+                                            bg-mint-100      dark:bg-mint-200/10
+                                            border border-mint-200 dark:border-mint-300/20
+                                            text-kost-dark   dark:text-mint-100
                                         "
                                     >
-
-                                        <span className="text-sm text-cyan-300">
-                                            {facility}
-                                        </span>
-
+                                        <span>{facility}</span>
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                removeCustomFacility(index)
-                                            }
+                                            onClick={() => removeCustomFacility(index)}
                                             className="
-                                                text-red-400
-                                                hover:text-red-300
+                                                text-kost-muted dark:text-mint-100/40
+                                                hover:text-red-400 transition
                                             "
                                         >
-
-                                            ✕
-
+                                            <X size={12} />
                                         </button>
-
                                     </div>
                                 ))}
-
                             </div>
                         )}
 
                         {errors.facilities && (
-                            <p className="text-red-400 text-sm mt-4">
+                            <p className="text-xs text-red-400 mt-3">
                                 {errors.facilities}
                             </p>
                         )}
+                    </SectionCard>
 
-                    </div>
-
-                    {/* SUBMIT */}
                     <button
                         type="submit"
                         disabled={processing}
                         className="
-                            w-full
-                            flex
-                            items-center
-                            justify-center
-                            gap-3
-                            px-6
-                            py-4
-                            rounded-2xl
-                            bg-gradient-to-r
-                            from-cyan-500
-                            to-violet-500
-                            text-white
-                            font-semibold
-                            hover:opacity-90
-                            transition-all
-                            duration-300
-                            disabled:opacity-50
+                            w-full flex items-center justify-center gap-2
+                            px-6 py-3 rounded-xl text-sm font-medium transition
+                            bg-mint-200      dark:bg-mint-200/20
+                            border border-mint-200 dark:border-mint-300/20
+                            text-kost-dark   dark:text-mint-50
+                            hover:bg-mint-300 dark:hover:bg-mint-300/30
+                            disabled:opacity-50 disabled:cursor-not-allowed
                         "
                     >
-
-                        {processing ? (
-                            <>
-                                <LoaderCircle className="w-5 h-5 animate-spin" />
-                                Menyimpan...
-                            </>
-                        ) : (
-                            <>
-                                <Check className="w-5 h-5" />
-                                Simpan Fasilitas
-                            </>
-                        )}
-
+                        {processing
+                            ? <><LoaderCircle className="w-4 h-4 animate-spin" /> Menyimpan...</>
+                            : <><Check className="w-4 h-4" /> Simpan Fasilitas</>
+                        }
                     </button>
-
                 </form>
-
             </div>
-
         </OwnerLayout>
     );
 }

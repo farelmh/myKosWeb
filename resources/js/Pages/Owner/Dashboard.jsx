@@ -13,7 +13,7 @@ export default function Dashboard() {
         <OwnerLayout>
 
             {/* TITLE */}
-            <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+            <h1 className="text-2xl font-bold mb-6 text-kost-dark dark:text-mint-50">Dashboard</h1>
 
             {/* STATS */}
             <div className="grid md:grid-cols-3 gap-6 mb-8">
