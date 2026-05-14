@@ -44,7 +44,7 @@ export default function ForgotPassword({ status }) {
 
                     {/* DESC */}
                     <p className="text-xs text-gray-500 text-center mb-5 leading-relaxed">
-                        Masukkan email kamu, kami akan kirim link untuk reset password.
+                        Masukkan email kamu, kami akan kirim kode OTP untuk reset password.
                     </p>
 
                     {/* STATUS */}
@@ -77,7 +77,7 @@ export default function ForgotPassword({ status }) {
                             disabled={processing}
                             className="w-full py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-medium hover:opacity-90 transition"
                         >
-                            Kirim Link Reset
+                            Kirim OTP
                         </button>
                     </form>
 

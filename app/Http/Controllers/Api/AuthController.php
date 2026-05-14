@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\PasswordResetOtpNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
@@ -76,9 +77,32 @@ class AuthController extends Controller
     {
         $request->validate(['email' => 'required|email|exists:users,email']);
 
+        $expiresMinutes = 10;
+
         $otp = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
 
-        Cache::put('otp_' . $request->email, $otp, now()->addMinutes(10));
+        Cache::put('otp_' . $request->email, $otp, now()->addMinutes($expiresMinutes));
+
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            $smtpUsername = (string) config('mail.mailers.smtp.username');
+            $smtpPassword = (string) config('mail.mailers.smtp.password');
+
+            if (config('mail.default') === 'smtp' && ($smtpUsername === '' || $smtpPassword === '')) {
+                return response()->json([
+                    'message' => 'Konfigurasi email belum lengkap. Isi MAIL_USERNAME dan MAIL_PASSWORD (App Password Gmail) di .env.'
+                ], 500);
+            }
+
+            try {
+                $user->notify(new PasswordResetOtpNotification($otp, $expiresMinutes));
+            } catch (\Throwable $e) {
+                report($e);
+                return response()->json([
+                    'message' => 'Gagal mengirim OTP ke email. Silakan coba lagi.'
+                ], 500);
+            }
+        }
 
         return response()->json([
             'message' => 'Kode OTP telah dikirim ke ' . $request->email,
