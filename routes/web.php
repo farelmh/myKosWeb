@@ -64,6 +64,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
         return Inertia::render('Admin/Transaksi');
     })->name('admin.transaksi');
 
+    Route::put('/users/{user}/role', [UserController::class, 'updateRole'])
+    ->name('admin.users.updateRole');
+
+Route::delete('/users/{user}', [UserController::class, 'destroy'])
+    ->name('admin.users.destroy');
+
     Route::get('/properties', [PropertyController::class, 'index'])->name('admin.properties');
 
     Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('admin.properties.detail');
@@ -96,6 +102,10 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
     Route::get('/tenants/{id}', [
         TenantController::class, 'tenants'
     ])->name('owner.tenants');
+
+    Route::get('/owner/messages', function () {
+        return Inertia::render('Owner/Messages');
+    })->name('owner.messages');
 
     Route::get('/property/detail/{id}', [
         PropertyController::class, 'detail'
@@ -148,7 +158,7 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
     Route::delete('/room-types-image/delete/{id}', [
         RoomTypeController::class, 'deleteImage'
     ])->name('owner.room-type-image.delete');
-    
+
     Route::get('/search', [SearchController::class, 'index'])->name('search');
 
     

@@ -14,12 +14,12 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = User::query()
-        ->when($request->search, function ($query, $search) {
-            $query->where('name', 'like', "%{$search}%")
-            ->orWhere('email', 'like', "{$search}")
-            ->orWhere('role', 'like', "{$search}")
-            ->orWhere('phone', 'like', "{$search}");
-        })->paginate(10)->withQueryString();
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "{$search}")
+                    ->orWhere('role', 'like', "{$search}")
+                    ->orWhere('phone', 'like', "{$search}");
+            })->paginate(10)->withQueryString();
 
         return Inertia::render('Admin/Users', [
             'users' => $users,
@@ -46,16 +46,30 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function updateRole(Request $request, User $user)
     {
-        //
+
+        $request->validate([
+            'role' => 'required|in:tenant,owner,admin',
+        ]);
+
+        $user->update([
+            'role' => $request->role,
+        ]);
+
+        return back()->with('success', 'Role user berhasil diubah.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        //
+        if (auth()->id() === $user->id) {
+            return back()->withErrors([
+                'user' => 'Kamu tidak bisa menghapus akun sendiri.',
+            ]);
+        }
+
+        $user->delete();
+
+        return back()->with('success', 'User berhasil dihapus.');
     }
 }

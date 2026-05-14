@@ -1,7 +1,8 @@
-import { Menu, Search, Bell, ChevronDown, Moon, Sun } from "lucide-react";
+import { Menu, Search, Bell, ChevronDown, Moon, Sun, MessageCircleIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, usePage, router } from "@inertiajs/react";
+import { Button } from "@headlessui/react";
 
 export default function Topbar({ setOpen }) {
     const [openProfile, setOpenProfile] = useState(false);
@@ -111,6 +112,12 @@ export default function Topbar({ setOpen }) {
                     }
                 </button>
 
+                <Link
+    href={route("owner.messages")}
+    className="p-2 rounded-lg bg-mint-50 dark:bg-dark-card border border-mint-200 dark:border-dark-border/20 text-kost-muted dark:text-mint-100/60 hover:bg-mint-100 dark:hover:bg-dark-card/60 transition"
+>
+    <MessageCircleIcon className="w-4 h-4" />
+</Link>
                 {/* NOTIFICATION */}
                 <button className="
                     relative p-2 rounded-lg
