@@ -8,6 +8,7 @@ use App\Http\Controllers\PropertyFacilityController;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -147,6 +148,8 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
     Route::delete('/room-types-image/delete/{id}', [
         RoomTypeController::class, 'deleteImage'
     ])->name('owner.room-type-image.delete');
+    
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
 
     
 

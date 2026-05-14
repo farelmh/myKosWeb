@@ -1,364 +1,222 @@
 import { Pencil, Trash2, Phone, CalendarDays } from "lucide-react";
 
-export default function TableTenants({ tenants }) {
-    return (
+const getStatusColor = (status) => {
+    switch (status) {
+        case "active":
+            return "bg-mint-200/60 text-kost-dark dark:bg-mint-200/20 dark:text-mint-100";
+        case "pending":
+            return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400";
+        case "expired":
+            return "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400";
+        default:
+            return "bg-mint-50 text-kost-muted dark:bg-dark-bg dark:text-mint-100/60";
+    }
+};
 
+export default function TableTenants({ tenants = [] }) {
+    return (
         <div className="mt-8">
-            {/* WRAPPER */}
             <div
                 className="
-                    bg-[#0f172a]
+                    rounded-xl overflow-hidden
+                    bg-white dark:bg-dark-card
                     border
-                    border-white/10
-                    rounded-3xl
-                    overflow-hidden
-                    shadow-xl
+                    border-mint-200 dark:border-dark-border/20
+                    transition-colors duration-300
                 "
             >
-
-                {/* HEADER */}
-                <div
-                    className="
-                        flex
-                        items-center
-                        justify-between
-                        px-6
-                        py-5
-                        border-b
-                        border-white/10
-                        bg-white/[0.03]
-                    "
-                >
-
+                <div className="flex items-center justify-between px-4 py-4 border-b border-mint-200 dark:border-dark-border/20">
                     <div>
-
-                        <h2 className="text-lg font-semibold text-white">
+                        <h2 className="text-sm font-semibold text-kost-dark dark:text-mint-50">
                             Daftar Penyewa
                         </h2>
-
-                        <p className="text-sm text-gray-400 mt-1">
+                        <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-1">
                             Semua data penghuni kos aktif.
                         </p>
-
                     </div>
 
-                    <div
+                    <span
                         className="
-                            px-3
-                            py-1.5
-                            rounded-xl
-                            bg-cyan-500/10
-                            border
-                            border-cyan-500/20
-                            text-cyan-400
-                            text-sm
-                            font-medium
+                            px-3 py-1 rounded-full text-xs font-medium
+                            bg-mint-200/60 text-kost-dark
+                            dark:bg-mint-200/20 dark:text-mint-100
                         "
                     >
                         {tenants.length} Penyewa
-                    </div>
-
+                    </span>
                 </div>
 
-                {/* TABLE */}
                 <div className="overflow-x-auto">
-
                     <table className="w-full min-w-[900px]">
-
-                        {/* HEADER */}
-                        <thead
-                            className="
-                                bg-white/[0.02]
-                                text-gray-400
-                                text-sm
-                                border-b
-                                border-white/10
-                            "
-                        >
-
-                            <tr>
-
-                                <th className="p-5 text-left font-medium">
+                        <thead>
+                            <tr className="border-b border-mint-200 dark:border-dark-border/20">
+                                <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">
                                     Penyewa
                                 </th>
-
-                                <th className="p-5 text-left font-medium">
+                                <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">
                                     No. Telp
                                 </th>
-
-                                <th className="p-5 text-left font-medium">
+                                <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">
                                     Tipe Kamar
                                 </th>
-
-                                <th className="p-5 text-left font-medium">
+                                <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">
                                     Tanggal Sewa
                                 </th>
-                                
-                                <th className="p-5 text-left font-medium">
-                                    Tanggal Akhir
+                                <th className="p-4 text-left text-xs font-medium text-kost-muted dark:text-mint-100/40">
+                                    Status
                                 </th>
-
-                                <th className="p-5 text-right font-medium">
+                                <th className="p-4 text-right text-xs font-medium text-kost-muted dark:text-mint-100/40">
                                     Action
                                 </th>
-
                             </tr>
-
                         </thead>
 
-                        {/* BODY */}
                         <tbody>
-
                             {tenants.length > 0 ? (
-
-                                tenants.map((tenant) => {
-
-                                    return (
-
-                                        <tr
-                                            key={tenant.id}
-                                            className="
-                                                border-t
-                                                border-white/5
-                                                hover:bg-white/[0.03]
-                                                transition-all
-                                            "
-                                        >
-
-                                            {/* USER */}
-                                            <td className="p-5">
-
-                                                <div className="flex items-center gap-3">
-
-                                                    <div
-                                                        className="
-                                                            w-11
-                                                            h-11
-                                                            rounded-2xl
-                                                            bg-gradient-to-br
-                                                            from-cyan-500
-                                                            to-violet-500
-                                                            flex
-                                                            items-center
-                                                            justify-center
-                                                            text-white
-                                                            font-bold
-                                                            shrink-0
-                                                        "
-                                                    >
-                                                        {tenant.name?.charAt(0)}
-                                                    </div>
-
-                                                    <div>
-
-                                                        <h3 className="text-white font-medium">
-                                                            {tenant.name}
-                                                        </h3>
-
-                                                        <p className="text-xs text-gray-500 mt-0.5">
-                                                            {tenant.email}
-                                                        </p>
-
-                                                    </div>
-
-                                                </div>
-
-                                            </td>
-
-                                            {/* CONTACT */}
-                                            <td className="p-5">
-
-                                                <div
-                                                    className="
-                                                        flex
-                                                        items-center
-                                                        gap-2
-                                                        text-sm
-                                                        text-gray-300
-                                                    "
-                                                >
-
-                                                    <Phone className="w-4 h-4 text-cyan-400" />
-
-                                                    {tenant.phone || "-"}
-
-                                                </div>
-
-                                            </td>
-
-                                            {/* ROOM TYPE */}
-                                            <td className="p-5">
-
-                                                <div>
-
-                                                    <h4 className="text-white text-sm font-medium">
-                                                        {tenant.room_type?.name || "-"}
-                                                    </h4>
-
-                                                </div>
-
-                                            </td>
-
-                                            {/* CHECK IN */}
-                                            <td className="p-5">
-
-                                                <div
-                                                    className="
-                                                        flex
-                                                        items-center
-                                                        gap-2
-                                                        text-sm
-                                                        text-gray-300
-                                                    "
-                                                >
-
-                                                    <CalendarDays className="w-4 h-4 text-violet-400" />
-
-                                                    {tenant.check_in || "-"}
-
-                                                </div>
-
-                                            </td>
-
-                                            {/* STATUS */}
-                                            <td className="p-5">
-
-                                                <span
-                                                    className={`
-                                                        inline-flex
-                                                        items-center
-                                                        px-3
-                                                        py-1
-                                                        rounded-xl
-                                                        border
-                                                        text-xs
-                                                        font-medium
-                                                        capitalize
-                                                        ${getStatusColor(tenant.status)}
-                                                    `}
-                                                >
-                                                    {tenant.status}
-                                                </span>
-
-                                            </td>
-
-                                            {/* ACTION */}
-                                            <td className="p-5">
-
-                                                <div className="flex justify-end gap-2">
-
-                                                    {/* EDIT */}
-                                                    <button
-                                                        className="
-                                                            p-2.5
-                                                            rounded-xl
-                                                            bg-white/5
-                                                            hover:bg-indigo-500/20
-                                                            border
-                                                            border-white/10
-                                                            transition-all
-                                                            group
-                                                        "
-                                                    >
-
-                                                        <Pencil
-                                                            className="
-                                                                w-4
-                                                                h-4
-                                                                text-gray-400
-                                                                group-hover:text-indigo-300
-                                                            "
-                                                        />
-
-                                                    </button>
-
-                                                    {/* DELETE */}
-                                                    <button
-                                                        className="
-                                                            p-2.5
-                                                            rounded-xl
-                                                            bg-white/5
-                                                            hover:bg-red-500/20
-                                                            border
-                                                            border-white/10
-                                                            transition-all
-                                                            group
-                                                        "
-                                                    >
-
-                                                        <Trash2
-                                                            className="
-                                                                w-4
-                                                                h-4
-                                                                text-gray-400
-                                                                group-hover:text-red-400
-                                                            "
-                                                        />
-
-                                                    </button>
-
-                                                </div>
-
-                                            </td>
-
-                                        </tr>
-                                    );
-                                })
-
-                            ) : (
-
-                                <tr>
-
-                                    <td
-                                        colSpan="6"
+                                tenants.map((tenant) => (
+                                    <tr
+                                        key={tenant.id}
                                         className="
-                                            text-center
-                                            py-16
-                                            text-gray-500
+                                            border-b last:border-0
+                                            border-mint-200 dark:border-dark-border/20
+                                            hover:bg-mint-50 dark:hover:bg-dark-bg
+                                            transition
                                         "
                                     >
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-3">
+                                                <div
+                                                    className="
+                                                        w-8 h-8 rounded-full flex-shrink-0
+                                                        flex items-center justify-center
+                                                        text-sm font-medium capitalize
+                                                        bg-mint-200 dark:bg-mint-200/20
+                                                        text-kost-dark dark:text-mint-50
+                                                    "
+                                                >
+                                                    {tenant.name?.charAt(0)}
+                                                </div>
 
+                                                <div>
+                                                    <p className="text-sm font-medium text-kost-dark dark:text-mint-50 capitalize">
+                                                        {tenant.name}
+                                                    </p>
+                                                    <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-0.5">
+                                                        {tenant.email || "-"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-2 text-sm text-kost-muted dark:text-mint-100/50">
+                                                <Phone className="w-4 h-4 text-kost-muted dark:text-mint-100/40" />
+                                                {tenant.phone || "-"}
+                                            </div>
+                                        </td>
+
+                                        <td className="p-4">
+                                            <span
+                                                className="
+                                                    px-3 py-1 rounded-full text-xs font-medium
+                                                    bg-mint-200/50 text-kost-dark
+                                                    dark:bg-mint-200/10 dark:text-mint-100
+                                                "
+                                            >
+                                                {tenant.room_type?.name || "-"}
+                                            </span>
+                                        </td>
+
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-2 text-sm text-kost-muted dark:text-mint-100/50">
+                                                <CalendarDays className="w-4 h-4 text-kost-muted dark:text-mint-100/40" />
+                                                {tenant.check_in || "-"}
+                                            </div>
+                                        </td>
+
+                                        <td className="p-4">
+                                            <span
+                                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
+                                                    tenant.status
+                                                )}`}
+                                            >
+                                                {tenant.status || "active"}
+                                            </span>
+                                        </td>
+
+                                        <td className="p-4">
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    className="
+                                                        p-2 rounded-lg transition group
+                                                        bg-mint-50 dark:bg-dark-bg
+                                                        border
+                                                        border-mint-200 dark:border-dark-border/20
+                                                        hover:bg-mint-200 dark:hover:bg-mint-200/20
+                                                    "
+                                                >
+                                                    <Pencil
+                                                        className="
+                                                            w-4 h-4
+                                                            text-kost-muted dark:text-mint-100/40
+                                                            group-hover:text-kost-dark
+                                                            dark:group-hover:text-mint-50
+                                                        "
+                                                    />
+                                                </button>
+
+                                                <button
+                                                    className="
+                                                        p-2 rounded-lg transition group
+                                                        bg-mint-50 dark:bg-dark-bg
+                                                        border
+                                                        border-mint-200 dark:border-dark-border/20
+                                                        hover:bg-red-50 dark:hover:bg-red-500/10
+                                                        hover:border-red-200 dark:hover:border-red-500/20
+                                                    "
+                                                >
+                                                    <Trash2
+                                                        className="
+                                                            w-4 h-4
+                                                            text-kost-muted dark:text-mint-100/40
+                                                            group-hover:text-red-400
+                                                        "
+                                                    />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" className="text-center py-12">
                                         <div className="flex flex-col items-center">
-
                                             <div
                                                 className="
-                                                    w-16
-                                                    h-16
-                                                    rounded-2xl
-                                                    bg-white/5
-                                                    flex
-                                                    items-center
-                                                    justify-center
-                                                    mb-4
+                                                    w-12 h-12 rounded-xl
+                                                    bg-mint-50 dark:bg-dark-bg
+                                                    flex items-center justify-center
+                                                    mb-3
                                                 "
                                             >
                                                 👥
                                             </div>
 
-                                            <h3 className="text-white font-medium">
+                                            <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
                                                 Belum Ada Penyewa
-                                            </h3>
-
-                                            <p className="text-sm text-gray-500 mt-1">
-                                                Data penghuni kos akan muncul di sini.
                                             </p>
 
+                                            <p className="text-sm text-kost-muted dark:text-mint-100/30 mt-1">
+                                                Data penghuni kos akan muncul di sini.
+                                            </p>
                                         </div>
-
                                     </td>
-
                                 </tr>
-
                             )}
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
         </div>
     );
 }

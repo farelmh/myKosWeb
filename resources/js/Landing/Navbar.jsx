@@ -135,7 +135,7 @@ const Navbar = () => {
                                     onClick={() => setOpenLogin(true)}
                                     className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#93BFC7] to-[#ABE7B2] text-white text-sm font-medium shadow-sm hover:opacity-90 transition"
                                 >
-                                    Masuk / Daftar
+                                    Sign in
                                 </button>
                             ) : (
                                 <div className="relative">
