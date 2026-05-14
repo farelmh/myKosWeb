@@ -5,6 +5,9 @@ import { Plus } from "lucide-react";
 import { Link } from "@inertiajs/react";
 
 export default function Facilities({ facilities }) {
+    console.log("Halaman Saat Ini:", facilities.current_page);
+    console.log("Data:", facilities.data);
+
     return (
         <AdminLayout>
 
@@ -43,7 +46,9 @@ export default function Facilities({ facilities }) {
                 </Link>
             </div>
 
-            <TableFacilities facilities={facilities.data} />
+            <TableFacilities
+             key={facilities.current_page}
+             facilities={facilities.data} />
             
             <Pagination links={facilities.links}/>
 

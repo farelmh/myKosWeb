@@ -1,6 +1,6 @@
 import { ChevronDown, Plus, Home } from "lucide-react";
 import { useState, useEffect } from "react";
-import { usePage, router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 
 export default function PropertySwitcher({ properties }) {
 
@@ -21,7 +21,14 @@ export default function PropertySwitcher({ properties }) {
     const handleSelect = (property) => {
         setSelectedPropertyId(property.id);
         setOpen(false);
+
+        router.get('/owner/dashboard');
+
     };
+
+    const handleAddProperty = () => {
+        router.get('/form-pengajuan');
+    }
 
     // Simpan ke localStorage
     useEffect(() => {
@@ -156,23 +163,33 @@ export default function PropertySwitcher({ properties }) {
                             })}
                         </div>
 
-                        {/* Footer — tambah properti */}
-                        <div className="border-t border-mint-200 dark:border-dark-border/20 p-1.5">
-                            <button
-                                onClick={() => router.get(route("form-pengajuan"))}
-                                className="
-                                    w-full flex items-center gap-2
-                                    p-2 rounded-lg transition
-                                    text-kost-dark dark:text-mint-50
-                                    hover:bg-mint-50 dark:hover:bg-dark-bg
-                                "
-                            >
-                                <Plus size={14} />
-                                <span className="text-xs font-medium">
-                                    Tambah Properti
-                                </span>
-                            </button>
-                        </div>
+                    {/* Footer */}
+                    <div className="border-t border-white/10 p-1.5">
+
+                        <button
+                            className="
+                                w-full
+                                flex
+                                items-center
+                                gap-2
+                                p-2
+                                rounded-lg
+                                text-cyan-400
+                                hover:bg-cyan-500/10
+                                transition-all
+                                duration-300
+                            "
+                            onClick={handleAddProperty}
+                        >
+
+                            <Plus size={14} />
+
+                            <span className="text-xs font-medium">
+                                Add Property
+                            </span>
+
+                        </button>
+
                     </div>
                 </>
             )}

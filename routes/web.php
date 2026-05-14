@@ -5,7 +5,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyApplicationController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyFacilityController;
-use App\Http\Controllers\roomTypeControler;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
@@ -93,8 +92,8 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
         return Inertia::render('Owner/Dashboard');
     })->name('owner.dashboard');
 
-    Route::get('/tenants', [
-        TenantController::class, 'index'
+    Route::get('/tenants/{id}', [
+        TenantController::class, 'tenants'
     ])->name('owner.tenants');
 
     Route::get('/property/detail/{id}', [
