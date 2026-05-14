@@ -30,13 +30,25 @@ export default function Topbar({ setOpen }) {
 
     // ── Debounce search ──────────────────────────────────────
     useEffect(() => {
+        // Ambil parameter page dari URL saat ini
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentPage = urlParams.get('page');
+
         const delayDebounceFn = setTimeout(() => {
             const currentPath = window.location.pathname;
+            
             if (currentPath.startsWith("/admin")) {
                 router.get(
                     currentPath,
-                    { search: searchTerm },
-                    { preserveState: true, replace: true, preserveScroll: true }
+                    { 
+                        search: searchTerm,
+                        page: searchTerm ? 1 : currentPage 
+                    },
+                    { 
+                        preserveState: true, 
+                        replace: true, 
+                        preserveScroll: true 
+                    }
                 );
             }
         }, 400);

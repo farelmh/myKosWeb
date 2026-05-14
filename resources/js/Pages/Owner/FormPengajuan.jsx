@@ -93,10 +93,6 @@ export default function FormPengajuan() {
             onSuccess: (page) => {
                 reset();
                 setPosition(null);
-                alert("Pengajuan kos berhasil dikirim!");
-            },
-            onError: (errors) => {
-                console.log(errors);
             },
         });
     };

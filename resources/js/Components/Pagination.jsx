@@ -45,6 +45,8 @@ export default function Pagination({ links }) {
                         href={link.url}
                         dangerouslySetInnerHTML={{ __html: link.label }}
                         preserveScroll
+                        preserveState
+                        replace
                         className="
                             px-4 py-2 rounded-lg text-sm transition
                             bg-mint-50       dark:bg-dark-bg

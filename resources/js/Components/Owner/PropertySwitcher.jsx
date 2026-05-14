@@ -1,6 +1,6 @@
 import { ChevronDown, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 
 export default function PropertySwitcher({ properties }) {
 
@@ -34,7 +34,13 @@ export default function PropertySwitcher({ properties }) {
 
         setOpen(false);
 
+        router.get('/owner/dashboard');
+
     };
+
+    const handleAddProperty = () => {
+        router.get('/form-pengajuan');
+    }
 
     // simpan ke localStorage
     useEffect(() => {
@@ -231,6 +237,7 @@ export default function PropertySwitcher({ properties }) {
                                 transition-all
                                 duration-300
                             "
+                            onClick={handleAddProperty}
                         >
 
                             <Plus size={14} />
