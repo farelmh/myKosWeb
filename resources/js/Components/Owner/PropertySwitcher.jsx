@@ -191,6 +191,8 @@ export default function PropertySwitcher({ properties }) {
                         </button>
 
                     </div>
+
+                    </div>
                 </>
             )}
         </div>
