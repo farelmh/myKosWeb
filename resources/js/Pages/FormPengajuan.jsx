@@ -2,69 +2,102 @@ import { useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { LocationMarker } from "@/Components/Map/LocationMarker";
-import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
+import { Upload, X, ArrowLeft } from "lucide-react";
 
-// --- PINDAHKAN KOMPONEN KE LUAR SINI ---
+/* ================= FILE INPUT ================= */
+const FileInput = ({ label, fileData, onChange, onRemove, error }) => (
+    <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium text-kost-dark dark:text-mint-100/70">
+            {label}
+        </label>
 
-const FileInput = ({ label, fileData, onChange, onRemove, error, hint }) => (
-    <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">{label}</label>
         {!fileData ? (
-            <div className={`relative border-2 border-dashed rounded-xl p-4 transition-all ${
-                error ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-indigo-400 bg-gray-50'
-            }`}>
-                <input 
-                    type="file" 
-                    onChange={onChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <div className="text-center">
-                    <p className="text-xs text-gray-600 font-medium">Klik untuk upload</p>
-                    {hint && <p className="text-[10px] text-gray-400 mt-1">{hint}</p>}
-                </div>
-            </div>
+            <label
+                className="
+                flex flex-col items-center gap-2
+                border border-dashed rounded-xl p-6
+                text-center cursor-pointer transition
+                border-mint-200  dark:border-dark-border/30
+                hover:bg-mint-50 dark:hover:bg-dark-bg
+            "
+            >
+                <Upload className="w-5 h-5 text-kost-muted dark:text-mint-100/30" />
+                <p className="text-sm text-kost-muted dark:text-mint-100/40">
+                    Upload file
+                </p>
+                <input type="file" onChange={onChange} className="hidden" />
+            </label>
         ) : (
-            <div className="flex items-center justify-between p-3 border-2 border-indigo-100 bg-indigo-50 rounded-xl">
-                <div className="flex items-center gap-2 overflow-hidden">
-                    <span className="text-lg">📄</span>
-                    <div className="flex flex-col min-w-0">
-                        <p className="text-xs font-medium text-indigo-700 truncate">{fileData.name}</p>
-                        <p className="text-[10px] text-indigo-400">{(fileData.size / 1024).toFixed(1)} KB</p>
-                    </div>
-                </div>
-                <button 
+            <div
+                className="
+                flex justify-between items-center gap-3
+                p-3 rounded-xl
+                bg-mint-50       dark:bg-dark-bg
+                border
+                border-mint-200  dark:border-dark-border/20
+            "
+            >
+                <span className="text-sm truncate text-kost-dark dark:text-mint-50">
+                    {fileData.name}
+                </span>
+                <button
                     type="button"
                     onClick={onRemove}
-                    className="p-1.5 hover:bg-red-100 text-red-500 rounded-lg transition-colors"
+                    className="flex-shrink-0 text-red-400 hover:text-red-500 transition"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <X size={14} />
                 </button>
             </div>
         )}
-        {error && <span className="text-xs text-red-500">{error}</span>}
+
+        {error && <span className="text-xs text-red-400">{error}</span>}
     </div>
 );
 
-const InputField = ({ label, type = "text", value, onChange, error, placeholder }) => (
+/* ================= INPUT FIELD ================= */
+const inputClass = (error) => `
+    w-full px-4 py-3 rounded-xl text-sm outline-none transition
+    bg-mint-50       dark:bg-dark-bg
+    border
+    ${
+        error
+            ? "border-red-300 dark:border-red-500/40 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-500/20"
+            : "border-mint-200 dark:border-dark-border/20 focus:ring-2 focus:ring-mint-200 dark:focus:ring-mint-300/30"
+    }
+    text-kost-dark   dark:text-mint-50
+    placeholder-kost-muted dark:placeholder-mint-100/30
+`;
+
+const InputField = ({ label, value, onChange, error, placeholder }) => (
     <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-gray-700">{label}</label>
-        <input 
-            type={type}
+        <label className="text-sm font-medium text-kost-dark dark:text-mint-100/70">
+            {label}
+        </label>
+        <input
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className={`px-4 py-2 rounded-lg border bg-white transition-all focus:ring-2 focus:ring-indigo-500 outline-none ${
-                error ? 'border-red-500' : 'border-gray-300 focus:border-indigo-500'
-            }`}
+            className={inputClass(error)}
         />
-        {error && <span className="text-xs text-red-500">{error}</span>}
+        {error && <span className="text-xs text-red-400">{error}</span>}
     </div>
 );
 
-// --- KOMPONEN UTAMA ---
+/* ================= SECTION TITLE ================= */
+const SectionTitle = ({ title, subtitle }) => (
+    <div className="pb-3 border-b border-mint-200 dark:border-dark-border/20">
+        <h3 className="text-sm font-medium text-kost-dark dark:text-mint-50">
+            {title}
+        </h3>
+        {subtitle && (
+            <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-0.5">
+                {subtitle}
+            </p>
+        )}
+    </div>
+);
 
+/* ================= MAIN ================= */
 export default function FormPengajuan() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
@@ -76,7 +109,7 @@ export default function FormPengajuan() {
         longitude: "",
         image_kos: null,
         image_ktp: null,
-        document_extra: null
+        document_extra: null,
     });
 
     const [position, setPosition] = useState(null);
@@ -93,135 +126,246 @@ export default function FormPengajuan() {
 
     const submit = (e) => {
         e.preventDefault();
-        post('/pengajuan-kos', {
-            onSuccess: (page) => {
+        post("/pengajuan-kos", {
+            onSuccess: () => {
                 reset();
                 setPosition(null);
-                alert('Pengajuan kos berhasil dikirim!');
             },
-            onError: (errors) => {
-                console.log(errors);
-            }
+            onError: (errs) => console.log(errs),
         });
-    }
-
-    console.log(position)
+    };
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                <div className="bg-indigo-600 p-6">
-                    <h2 className="text-2xl font-bold text-white">Pengajuan Kos Baru</h2>
-                    <p className="text-indigo-100 text-sm">Lengkapi data kos Anda untuk mulai memasarkan</p>
-                </div>
-
-                <form onSubmit={submit} className="p-8 flex flex-col gap-6">
-                    <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Informasi Umum</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <InputField 
-                            label="Nama Kos"
-                            placeholder="Contoh: Kos Mas Iqbal"
-                            value={data.name}
-                            onChange={e => setData('name', e.target.value)}
-                            error={errors.name}
-                        />
-                        <InputField 
-                            label="Kota"
-                            placeholder="Jember"
-                            value={data.city}
-                            onChange={e => setData('city', e.target.value)}
-                            error={errors.city}
-                        />
-                        <div className="md:col-span-2">
-                            <InputField 
-                                label="Alamat Lengkap"
-                                placeholder="Jozenji 1-128, Morioh, Japan"
-                                value={data.address}
-                                onChange={e => setData('address', e.target.value)}
-                                error={errors.address}
-                            />
-                        </div>
-                        {/* Textarea tetap di dalam karena tidak di-render ulang secara agresif oleh React sebagai komponen baru */}
-                        <div className="md:col-span-2 flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-gray-700">Deskripsi Kos</label>
-                            <textarea 
-                                value={data.description}
-                                onChange={e => setData('description', e.target.value)}
-                                rows="3"
-                                className="px-4 py-2 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                            />
-                        </div>
-                        <div className="md:col-span-2 flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-gray-700">Aturan Kos</label>
-                            <textarea 
-                                value={data.rules}
-                                onChange={e => setData('rules', e.target.value)}
-                                rows="5"
-                                className="px-4 py-2 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                            />
-                        </div>
+        <div
+            className="
+            min-h-screen py-10
+            px-[6%] lg:px-[10%]
+            bg-mint-50 dark:bg-dark-bg
+            transition-colors duration-300
+        "
+        >
+            <div className="max-w-4xl mx-auto">
+                <div
+                    className="
+                    rounded-2xl overflow-hidden
+                    bg-white        dark:bg-dark-card
+                    border
+                    border-mint-200 dark:border-dark-border/20
+                    shadow-sm
+                "
+                >
+                    {/* HEADER */}
+                    <div className="p-6 border-b border-mint-200 dark:border-dark-border/20">
+                        <button
+                            type="button"
+                            onClick={() => window.history.back()}
+                            className="
+        flex items-center gap-2 mb-4
+        text-sm text-kost-muted dark:text-mint-100/50
+        hover:text-kost-dark dark:hover:text-mint-50
+        transition
+    "
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            Kembali
+                        </button>
+                        <h2 className="text-base font-medium text-kost-dark dark:text-mint-50">
+                            Pengajuan Kos Baru
+                        </h2>
+                        <p className="text-sm text-kost-muted dark:text-mint-100/40 mt-0.5">
+                            Lengkapi data untuk mempublikasikan kos Anda
+                        </p>
                     </div>
 
-                    {/* Section Map */}
-                    <div className="space-y-3">
-                        <div className="flex justify-between items-end">
-                            <div>
-                                <h4 className="font-semibold text-gray-800">Lokasi Koordinat</h4>
-                                <p className="text-xs text-gray-500 italic">Klik pada peta untuk menentukan lokasi persis</p>
+                    <form onSubmit={submit} className="p-6 flex flex-col gap-8">
+                        <div className="flex flex-col gap-5">
+                            <SectionTitle title="Informasi Umum" />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <InputField
+                                    label="Nama Kos"
+                                    placeholder="Contoh: Kos Melati"
+                                    value={data.name}
+                                    onChange={(e) =>
+                                        setData("name", e.target.value)
+                                    }
+                                    error={errors.name}
+                                />
+                                <InputField
+                                    label="Kota"
+                                    placeholder="Jember"
+                                    value={data.city}
+                                    onChange={(e) =>
+                                        setData("city", e.target.value)
+                                    }
+                                    error={errors.city}
+                                />
+                                <div className="md:col-span-2">
+                                    <InputField
+                                        label="Alamat Lengkap"
+                                        placeholder="Jl. Mawar No. 10, Sumbersari"
+                                        value={data.address}
+                                        onChange={(e) =>
+                                            setData("address", e.target.value)
+                                        }
+                                        error={errors.address}
+                                    />
+                                </div>
+
+                                {/* DESKRIPSI */}
+                                <div className="md:col-span-2 flex flex-col gap-1.5">
+                                    <label className="text-sm font-medium text-kost-dark dark:text-mint-100/70">
+                                        Deskripsi Kos
+                                    </label>
+                                    <textarea
+                                        value={data.description}
+                                        onChange={(e) =>
+                                            setData(
+                                                "description",
+                                                e.target.value,
+                                            )
+                                        }
+                                        rows={3}
+                                        placeholder="Ceritakan tentang kos Anda..."
+                                        className={inputClass(
+                                            errors.description,
+                                        )}
+                                    />
+                                    {errors.description && (
+                                        <span className="text-xs text-red-400">
+                                            {errors.description}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="md:col-span-2 flex flex-col gap-1.5">
+                                    <label className="text-sm font-medium text-kost-dark dark:text-mint-100/70">
+                                        Aturan Kos
+                                    </label>
+                                    <textarea
+                                        value={data.rules}
+                                        onChange={(e) =>
+                                            setData("rules", e.target.value)
+                                        }
+                                        rows={3}
+                                        placeholder="Contoh: Tidak boleh merokok, tamu max jam 9 malam..."
+                                        className={inputClass(errors.rules)}
+                                    />
+                                    {errors.rules && (
+                                        <span className="text-xs text-red-400">
+                                            {errors.rules}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            <SectionTitle
+                                title="Lokasi Koordinat"
+                                subtitle="Klik pada peta untuk menentukan lokasi persis"
+                            />
+
+                            {/* Koordinat badge */}
                             {position && (
-                                <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-mono">
-                                    {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
+                                <span
+                                    className="
+                                    self-start px-3 py-1 rounded-full text-xs font-mono
+                                    bg-mint-100 dark:bg-mint-200/10
+                                    text-kost-dark dark:text-mint-100
+                                    border border-mint-200 dark:border-mint-300/20
+                                "
+                                >
+                                    {position.lat.toFixed(5)},{" "}
+                                    {position.lng.toFixed(5)}
                                 </span>
                             )}
-                        </div>
-                        <div className="h-[350px] w-full rounded-xl overflow-hidden border-2 border-gray-100 shadow-inner z-0">
-                            <MapContainer center={[-8.1724, 113.7005]} zoom={13} style={{ height: "100%" }}>
-                                <GoogleTileLayer />
-                                <LocationMarker position={position} setPosition={setPosition} />
-                            </MapContainer>
-                        </div>
-                        {errors.latitude && <p className="text-xs text-red-500">Anda belum memilih lokasi di peta.</p>}
-                    </div>
 
-                    {/* Bagian Dokumen */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-gray-800 border-b pb-2">Verifikasi & Dokumen</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <FileInput 
-                                label="Foto Kos"
-                                fileData={data.image_kos}
-                                onChange={e => setData('image_kos', e.target.files[0])}
-                                onRemove={() => setData('image_kos', null)}
-                                error={errors.image_kos}
-                            />
-                            <FileInput 
-                                label="Foto KTP"
-                                fileData={data.image_ktp}
-                                onChange={e => setData('image_ktp', e.target.files[0])}
-                                onRemove={() => setData('image_ktp', null)}
-                                error={errors.image_ktp}
-                            />
-                            <FileInput 
-                                label="Dokumen"
-                                fileData={data.document_extra}
-                                onChange={e => setData('document_extra', e.target.files[0])}
-                                onRemove={() => setData('document_extra', null)}
-                                error={errors.document_extra}
-                            />
-                        </div>
-                    </div>
+                            <div className="h-[350px] w-full rounded-xl overflow-hidden border border-mint-200 dark:border-dark-border/20">
+                                <MapContainer
+                                    center={[-8.1724, 113.7005]}
+                                    zoom={13}
+                                    style={{ height: "100%" }}
+                                >
+                                    <TileLayer
+                                        url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+                                        attribution="&copy; Google Maps"
+                                        maxZoom={20}
+                                    />
+                                    <LocationMarker
+                                        position={position}
+                                        setPosition={setPosition}
+                                    />
+                                </MapContainer>
+                            </div>
 
-                    <div className="pt-4 border-t border-gray-100">
-                        <button 
-                            type="submit" 
-                            disabled={processing}
-                            className="w-full md:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {processing ? "Memproses..." : "Ajukan Sekarang"}
-                        </button>
-                    </div>
-                </form>
+                            {errors.latitude && (
+                                <p className="text-xs text-red-400">
+                                    Anda belum memilih lokasi di peta.
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            <SectionTitle title="Verifikasi & Dokumen" />
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <FileInput
+                                    label="Foto Kos"
+                                    fileData={data.image_kos}
+                                    onChange={(e) =>
+                                        setData("image_kos", e.target.files[0])
+                                    }
+                                    onRemove={() => setData("image_kos", null)}
+                                    error={errors.image_kos}
+                                />
+                                <FileInput
+                                    label="Foto KTP"
+                                    fileData={data.image_ktp}
+                                    onChange={(e) =>
+                                        setData("image_ktp", e.target.files[0])
+                                    }
+                                    onRemove={() => setData("image_ktp", null)}
+                                    error={errors.image_ktp}
+                                />
+                                <FileInput
+                                    label="Dokumen Tambahan"
+                                    fileData={data.document_extra}
+                                    onChange={(e) =>
+                                        setData(
+                                            "document_extra",
+                                            e.target.files[0],
+                                        )
+                                    }
+                                    onRemove={() =>
+                                        setData("document_extra", null)
+                                    }
+                                    error={errors.document_extra}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-mint-200 dark:border-dark-border/20">
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="
+                                    px-8 py-2.5 rounded-xl text-sm font-medium transition
+                                    bg-mint-200      dark:bg-mint-200/20
+                                    border
+                                    border-mint-200  dark:border-mint-300/20
+                                    text-kost-dark   dark:text-mint-50
+                                    hover:bg-mint-300 dark:hover:bg-mint-300/30
+                                    disabled:opacity-50 disabled:cursor-not-allowed
+                                "
+                            >
+                                {processing
+                                    ? "Memproses..."
+                                    : "Ajukan Sekarang"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

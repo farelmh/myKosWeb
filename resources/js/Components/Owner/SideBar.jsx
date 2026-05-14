@@ -8,36 +8,52 @@ import {
     MessageSquareWarning,
     Star,
     Bed,
-    Box,
-    BadgeAlertIcon as ba
+    BedDouble,
+    Box
 } from "lucide-react";
 
 import { motion } from "framer-motion";
 import { Link, usePage } from "@inertiajs/react";
+import { useState, useEffect } from "react";
 import PropertySwitcher from "./PropertySwitcher";
 
 export default function SideBar() {
 
     const { url, props } = usePage();
-
     const { auth, ownerProperties } = props;
 
-    const storageKey = `selectedProperty_${auth.user.id}`;
+    /* ================= THEME ================= */
+    const [isDark, setIsDark] = useState(
+        () => localStorage.getItem("theme") === "dark"
+    );
 
+    useEffect(() => {
+        const root = document.documentElement;
+        if (isDark) {
+            root.classList.add("dark");
+            localStorage.setItem("theme", "dark");
+        } else {
+            root.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+        }
+    }, [isDark]);
+
+    /* ================= PROPERTY ================= */
+
+    const storageKey = `selectedProperty_${auth.user.id}`;
     const storedPropertyId = localStorage.getItem(storageKey);
 
-    // fallback ke property pertama
     const propertyId = storedPropertyId
         ? Number(storedPropertyId)
         : ownerProperties?.[0]?.id;
 
-    // ambil object property aktif
     const currentProperty = ownerProperties?.find(
         (property) => property.id === propertyId
     );
 
-    // kalau property tidak ditemukan
     const activePropertyId = currentProperty?.id;
+
+    /* ================= MENU ================= */
 
     const menuSections = [
         {
@@ -48,7 +64,6 @@ export default function SideBar() {
                     icon: LayoutDashboard,
                     href: "/owner/dashboard"
                 },
-
                 {
                     name: "Keluhan",
                     icon: MessageSquareWarning,
@@ -56,7 +71,6 @@ export default function SideBar() {
                         ? `/owner/complaints/${activePropertyId}`
                         : "#"
                 },
-
                 {
                     name: "Ulasan",
                     icon: Star,
@@ -66,7 +80,6 @@ export default function SideBar() {
                 },
             ],
         },
-
         {
             title: "MANAGEMENT",
             items: [
@@ -77,7 +90,6 @@ export default function SideBar() {
                         ? `/owner/tenants/${activePropertyId}`
                         : "#"
                 },
-
                 {
                     name: "Informasi Kos",
                     icon: Home,
@@ -85,7 +97,6 @@ export default function SideBar() {
                         ? `/owner/property/detail/${activePropertyId}`
                         : "#"
                 },
-                
                 {
                     name: "Fasilitas Kos",
                     icon: Box,
@@ -93,7 +104,6 @@ export default function SideBar() {
                         ? `/owner/facilities/${activePropertyId}`
                         : "#"
                 },
-
                 {
                     name: "Tipe Kamar",
                     icon: Bed,
@@ -101,15 +111,13 @@ export default function SideBar() {
                         ? `/owner/room-types/${activePropertyId}`
                         : "#"
                 },
-
                 {
-                    name: "Permintaan Sewa",
-                    icon: ba,
+                    name: "Kamar",
+                    icon: BedDouble,
                     href: activePropertyId
-                        ? `/owner/rental-request/${activePropertyId}`
+                        ? `/owner/rooms/${activePropertyId}`
                         : "#"
                 },
-
                 {
                     name: "Pembayaran",
                     icon: Wallet,
@@ -119,7 +127,6 @@ export default function SideBar() {
                 },
             ],
         },
-
         {
             title: "SYSTEM",
             items: [
@@ -136,44 +143,38 @@ export default function SideBar() {
         <motion.aside
             initial={{ x: -260 }}
             animate={{ x: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="
-                w-64
-                h-screen
-                bg-[#0b0b1a]
+                w-64 h-screen flex flex-col
+                bg-white dark:bg-dark-sidebar
                 border-r
-                border-white/10
-                flex
-                flex-col
+                border-mint-200 dark:border-dark-border/20
+                transition-colors duration-300
             "
         >
-
-            {/* LOGO */}
-            <div className="
-                p-6
-                text-lg
-                font-bold
-                bg-gradient-to-r
-                from-primary
-                to-secondary
-                bg-clip-text
-                text-transparent
-            ">
-                MyKost Owner
+            {/* HEADER */}
+            <div className="p-6 border-b border-mint-200 dark:border-dark-border/20">
+                <span className="text-lg font-bold">
+                    <span className="text-mint-300">MyKost</span>
+                    <span className="text-kost-dark dark:text-mint-50"> Owner</span>
+                </span>
             </div>
 
             {/* PROPERTY SWITCHER */}
-            <div className="mt-5 mb-3 mx-4 border-t border-white/10">
+            <div className="px-3 pt-4">
                 <PropertySwitcher properties={ownerProperties} />
             </div>
 
             {/* MENU */}
-            <div className="flex-1 px-4 space-y-6 overflow-y-auto">
+            <div className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
 
                 {menuSections.map((section, i) => (
-
                     <div key={i}>
 
-                        <p className="text-xs text-gray-500 px-2 mb-2">
+                        <p className="
+                            text-[11px] font-medium tracking-wider px-3 mb-1.5
+                            text-kost-muted dark:text-mint-100/40
+                        ">
                             {section.title}
                         </p>
 
@@ -185,6 +186,8 @@ export default function SideBar() {
                                 item.href !== "#" &&
                                 url.startsWith(item.href);
 
+                            const isDisabled = item.href === "#";
+
                             return (
                                 <Link
                                     key={j}
@@ -192,65 +195,56 @@ export default function SideBar() {
                                     preserveState
                                     preserveScroll
                                     className={`
-                                        flex
-                                        items-center
-                                        gap-3
-                                        px-4
-                                        py-3
-                                        rounded-xl
-                                        text-sm
-                                        transition
-                                        ${
-                                            isActive
-                                                ? "bg-primary/20 text-white"
-                                                : "text-gray-400 hover:bg-white/5 hover:text-white"
+                                        flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm
+                                        transition-all duration-150 mb-0.5
+                                        ${isDisabled
+                                            ? "opacity-40 cursor-not-allowed"
+                                            : ""
+                                        }
+                                        ${isActive
+                                            ? "bg-mint-200 dark:bg-mint-200/20 text-kost-dark dark:text-mint-50 font-medium"
+                                            : "text-kost-muted dark:text-mint-100/60 hover:bg-mint-50 dark:hover:bg-dark-card hover:text-kost-dark dark:hover:text-mint-50"
                                         }
                                     `}
                                 >
-
-                                    <Icon className="w-5 h-5" />
+                                    <Icon className={`w-4 h-4 flex-shrink-0 ${
+                                        isActive
+                                            ? "text-kost-dark dark:text-mint-200"
+                                            : "text-kost-muted dark:text-mint-100/40"
+                                    }`} />
 
                                     {item.name}
 
+                                    {isActive && (
+                                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-mint-300 dark:bg-mint-200" />
+                                    )}
                                 </Link>
                             );
                         })}
 
                     </div>
-
                 ))}
 
             </div>
 
             {/* LOGOUT */}
-            <div className="p-4 border-t border-white/10">
-
+            <div className="p-3 border-t border-mint-200 dark:border-dark-border/20">
                 <Link
                     href="/logout"
                     method="post"
                     as="button"
                     className="
-                        flex
-                        items-center
-                        gap-3
-                        w-full
-                        px-4
-                        py-3
-                        rounded-xl
+                        flex items-center gap-3 w-full
+                        px-3 py-2.5 rounded-xl text-sm
                         text-red-400
-                        hover:bg-red-500/10
+                        hover:bg-red-50 dark:hover:bg-red-500/10
                         transition
                     "
                 >
-
-                    <LogOut className="w-5 h-5" />
-
+                    <LogOut className="w-4 h-4 flex-shrink-0" />
                     Logout
-
                 </Link>
-
             </div>
-
         </motion.aside>
     );
 }
