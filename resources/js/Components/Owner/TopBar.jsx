@@ -1,4 +1,12 @@
-import { Menu, Search, Bell, ChevronDown, Moon, Sun, MessageCircleIcon } from "lucide-react";
+import {
+    Menu,
+    Search,
+    Bell,
+    ChevronDown,
+    Moon,
+    Sun,
+    MessageCircleIcon,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, usePage, router } from "@inertiajs/react";
@@ -15,7 +23,7 @@ export default function Topbar({ setOpen }) {
 
     // ── Dark mode ────────────────────────────────────────────
     const [isDark, setIsDark] = useState(
-        () => localStorage.getItem("theme") === "dark"
+        () => localStorage.getItem("theme") === "dark",
     );
 
     useEffect(() => {
@@ -37,7 +45,11 @@ export default function Topbar({ setOpen }) {
                 router.get(
                     currentPath,
                     { search: searchTerm },
-                    { preserveState: true, replace: true, preserveScroll: true }
+                    {
+                        preserveState: true,
+                        replace: true,
+                        preserveScroll: true,
+                    },
                 );
             }
         }, 400);
@@ -46,16 +58,17 @@ export default function Topbar({ setOpen }) {
     }, [searchTerm]);
 
     return (
-        <div className="
+        <div
+            className="
             flex items-center justify-between px-6 py-4 sticky top-0 z-40
             bg-white        dark:bg-dark-sidebar
             border-b
             border-mint-200 dark:border-dark-border/20
             transition-colors duration-300
-        ">
+        "
+        >
             {/* LEFT */}
             <div className="flex items-center gap-4">
-
                 {/* MOBILE MENU */}
                 <button
                     onClick={() => setOpen(true)}
@@ -63,12 +76,10 @@ export default function Topbar({ setOpen }) {
                 >
                     <Menu />
                 </button>
-
             </div>
 
             {/* RIGHT */}
             <div className="flex items-center gap-3">
-
                 {/* SEARCH */}
                 <div className="relative hidden md:block">
                     <Search className="absolute left-3 top-2.5 w-4 h-4 text-kost-muted dark:text-mint-100/40" />
@@ -106,27 +117,30 @@ export default function Topbar({ setOpen }) {
                     "
                     aria-label="Toggle dark mode"
                 >
-                    {isDark
-                        ? <Sun  className="w-4 h-4 text-mint-200" />
-                        : <Moon className="w-4 h-4" />
-                    }
+                    {isDark ? (
+                        <Sun className="w-4 h-4 text-mint-200" />
+                    ) : (
+                        <Moon className="w-4 h-4" />
+                    )}
                 </button>
 
                 <Link
-    href={route("owner.messages")}
-    className="p-2 rounded-lg bg-mint-50 dark:bg-dark-card border border-mint-200 dark:border-dark-border/20 text-kost-muted dark:text-mint-100/60 hover:bg-mint-100 dark:hover:bg-dark-card/60 transition"
->
-    <MessageCircleIcon className="w-4 h-4" />
-</Link>
+                    href={route("owner.messages")}
+                    className="p-2 rounded-lg bg-mint-50 dark:bg-dark-card border border-mint-200 dark:border-dark-border/20 text-kost-muted dark:text-mint-100/60 hover:bg-mint-100 dark:hover:bg-dark-card/60 transition"
+                >
+                    <MessageCircleIcon className="w-4 h-4" />
+                </Link>
                 {/* NOTIFICATION */}
-                <button className="
+                <button
+                    className="
                     relative p-2 rounded-lg
                     bg-mint-50      dark:bg-dark-card
                     border
                     border-mint-200 dark:border-dark-border/20
                     hover:bg-mint-100 dark:hover:bg-dark-card/60
                     transition
-                ">
+                "
+                >
                     <Bell className="w-4 h-4 text-kost-muted dark:text-mint-100/60" />
                     <span className="absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full" />
                 </button>
@@ -145,12 +159,14 @@ export default function Topbar({ setOpen }) {
                         "
                     >
                         {/* Avatar */}
-                        <div className="
+                        <div
+                            className="
                             w-7 h-7 rounded-full flex items-center justify-center
                             text-sm font-medium capitalize
                             bg-mint-200 dark:bg-mint-200/20
                             text-kost-dark dark:text-mint-50
-                        ">
+                        "
+                        >
                             {user.name.charAt(0)}
                         </div>
 
@@ -189,21 +205,25 @@ export default function Topbar({ setOpen }) {
                                         shadow-sm
                                     "
                                 >
-                                    <button className="
-                                        w-full text-left px-4 py-2.5 text-sm
+                                    <Link
+                                        as="button"
+                                        href={route("profile")}
+                                        className="w-full text-left px-4 py-2.5 text-sm
                                         text-kost-dark  dark:text-mint-50
                                         hover:bg-mint-50 dark:hover:bg-dark-sidebar
-                                        transition
-                                    ">
+                                        transition"
+                                    >
                                         Profile
-                                    </button>
+                                    </Link>
 
-                                    <button className="
+                                    <button
+                                        className="
                                         w-full text-left px-4 py-2.5 text-sm
                                         text-kost-dark  dark:text-mint-50
                                         hover:bg-mint-50 dark:hover:bg-dark-sidebar
                                         transition
-                                    ">
+                                    "
+                                    >
                                         Settings
                                     </button>
 
