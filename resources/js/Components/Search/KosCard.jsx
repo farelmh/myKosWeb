@@ -7,8 +7,7 @@ export default function KosCard ({ kos }) {
 
         return (
             <Link
-                // href={`/kos/${kos.id}`}
-                href={`/DetailKos`}
+                href={route("kos.detail", kos.id)}
                 className="
                     group flex bg-white dark:bg-dark-card rounded-2xl overflow-hidden
                     border border-mint-200 dark:border-dark-border/20

@@ -1,255 +1,525 @@
 import { useState } from "react";
 import {
-    MapPin,
-    Star,
-    Wifi,
-    Car,
-    Snowflake,
-    ArrowLeft,
-    Heart,
-    MessageCircle,
+    MapPin, Star, Wifi, Car, Snowflake, ArrowLeft,
+    Heart, MessageCircle, Bath, BedDouble, Users,
+    CheckCircle, ChevronLeft, ChevronRight, Share2,
 } from "lucide-react";
-import { router } from "@inertiajs/react";
+import { router, Link, usePage } from "@inertiajs/react";
 
-const kos = {
-    name: "Kos Exclusive Unej",
-    location: "Jalan Kalimantan No.45, Jember",
-    price: 2500000,
-    rating: 4.8,
-    images: [
-        "https://source.unsplash.com/800x500/?room",
-        "https://source.unsplash.com/800x500/?apartment",
-        "https://source.unsplash.com/800x500/?bedroom",
-    ],
-    facilities: ["AC", "Wifi", "Parkir"],
-    description:
-        "Kos eksklusif di pusat kota Jakarta dengan fasilitas lengkap, keamanan 24 jam, dan lokasi strategis dekat perkantoran.",
+/* ================= FACILITY ICON MAP ================= */
+const FACILITY_ICONS = {
+    "WiFi":              <Wifi       className="w-4 h-4" />,
+    "Wifi":              <Wifi       className="w-4 h-4" />,
+    "AC":                <Snowflake  className="w-4 h-4" />,
+    "Parkir":            <Car        className="w-4 h-4" />,
+    "Kamar Mandi Dalam": <Bath       className="w-4 h-4" />,
 };
 
-const rekomendasiKos = [
-    {
-        id: 1,
-        name: "Kos Nyaman Mastrip",
-        location: "Jalan Mastrip, Jember",
-        price: 1800000,
-        rating: 4.6,
-        image: "https://source.unsplash.com/400x300/?apartment",
-    },
-    {
-        id: 2,
-        name: "Kos Minimalis Sumatra",
-        location: "Jalan Sumatra, Jember",
-        price: 2200000,
-        rating: 4.7,
-        image: "https://source.unsplash.com/400x300/?bedroom",
-    },
-    {
-        id: 3,
-        name: "Kos Dekat Unej",
-        location: "Jalan Kalimantan, Jember",
-        price: 2000000,
-        rating: 4.5,
-        image: "https://source.unsplash.com/400x300/?room",
-    },
-];
-
-const RecomCard = ({ kos }) => (
-    <div className="min-w-[220px] bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden">
-        <img src={kos.image} className="w-full h-32 object-cover" />
-
-        <div className="p-3 space-y-1">
-            <h3 className="text-sm font-semibold text-gray-800 line-clamp-1">
-                {kos.name}
-            </h3>
-
-            <p className="text-xs text-gray-500 flex items-center">
-                <MapPin className="w-3 h-3 mr-1" />
-                {kos.location}
+/* ================= ROOM TYPE CARD ================= */
+const RoomTypeCard = ({ room, onBook }) => (
+    <div className="
+        rounded-xl p-4
+        bg-mint-50       dark:bg-dark-bg
+        border border-mint-200 dark:border-dark-border/20
+        flex items-center justify-between gap-4
+    ">
+        <div className="space-y-1">
+            <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                {room.name}
             </p>
-
-            <div className="flex items-center justify-between mt-1">
-                <span className="text-sm font-bold text-[#2f3e46]">
-                    Rp {kos.price.toLocaleString()}
+            <div className="flex items-center gap-3 text-xs text-kost-muted dark:text-mint-100/50">
+                {room.room_width && room.room_length && (
+                    <span className="flex items-center gap-1">
+                        <BedDouble className="w-3 h-3" />
+                        {room.room_width}×{room.room_length} m
+                    </span>
+                )}
+                {room.capacity && (
+                    <span className="flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        {room.capacity} orang
+                    </span>
+                )}
+                <span className="
+                    px-2 py-0.5 rounded-full text-xs
+                    bg-mint-100 dark:bg-mint-200/10
+                    text-kost-dark dark:text-mint-100
+                    border border-mint-200 dark:border-mint-300/20
+                ">
+                    {room.total_rooms} kamar
                 </span>
-
-                <div className="flex items-center text-yellow-500 text-xs">
-                    <Star className="w-3 h-3 mr-1" />
-                    {kos.rating}
-                </div>
             </div>
+        </div>
+        <div className="text-right flex-shrink-0">
+            <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                Rp {Number(room.price).toLocaleString("id-ID")}
+            </p>
+            <p className="text-xs text-kost-muted dark:text-mint-100/40">
+                /{room.rental_type === "monthly" ? "bulan" : "hari"}
+            </p>
         </div>
     </div>
 );
 
-export default function DetailKos() {
-    const [activeImage, setActiveImage] = useState(0);
+/* ================= RECOM CARD ================= */
+const RecomCard = ({ item }) => (
+    <Link
+        href={route("kos.detail", item.id)}
+        className="
+            min-w-[210px] rounded-2xl overflow-hidden flex-shrink-0
+            bg-white        dark:bg-dark-card
+            border border-mint-200 dark:border-dark-border/20
+            hover:border-mint-300 dark:hover:border-mint-300/30
+            hover:shadow-sm transition group
+        "
+    >
+        <div className="overflow-hidden h-32">
+            <img
+                src={
+                    item.images?.[0]
+                        ? `/storage/${item.images[0].image_path}`
+                        : "https://placehold.co/400x300/ECF4E8/93BFC7?text=Kos"
+                }
+                className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            />
+        </div>
+        <div className="p-3 space-y-1">
+            <h3 className="text-sm font-medium text-kost-dark dark:text-mint-50 line-clamp-1">
+                {item.name}
+            </h3>
+            <p className="text-xs text-kost-muted dark:text-mint-100/50 flex items-center gap-1 truncate">
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                {item.city}
+            </p>
+            <div className="flex items-center justify-between pt-1">
+                <span className="text-xs font-medium text-kost-dark dark:text-mint-50">
+                    Rp {Number(item.room_types?.[0]?.price ?? 0).toLocaleString("id-ID")}
+                </span>
+                {item.rating && (
+                    <div className="flex items-center gap-0.5 text-yellow-500 text-xs">
+                        <Star className="w-3 h-3 fill-yellow-400 stroke-yellow-500" />
+                        {item.rating}
+                    </div>
+                )}
+            </div>
+        </div>
+    </Link>
+);
+
+/* ================= SECTION CARD ================= */
+const SectionCard = ({ title, children }) => (
+    <div className="
+        rounded-2xl p-6
+        bg-white        dark:bg-dark-card
+        border border-mint-200 dark:border-dark-border/20
+        space-y-4 transition-colors duration-300
+    ">
+        {title && (
+            <h2 className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                {title}
+            </h2>
+        )}
+        {children}
+    </div>
+);
+
+/* ================= MAIN ================= */
+
+export default function DetailKos({ property = null, similar = [] }) {
+
+    console.log("=== PROPERTY DATA ===", property);
+    console.log("=== PROPERTY KEYS ===", property ? Object.keys(property) : "null");
+
+    const images     = property.images     ?? [];
+    const roomTypes  = property.room_types ?? [];
+    const facilities = property.facilities ?? [];
+
+    const [activeImage,  setActiveImage]  = useState(0);
+    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [selectedRoom, setSelectedRoom] = useState(roomTypes[0] ?? null);
+
+    const prevImage = () => setActiveImage((prev) => (prev - 1 + images.length) % images.length);
+    const nextImage = () => setActiveImage((prev) => (prev + 1) % images.length);
+
+    const lowestPrice = roomTypes.length > 0
+        ? Math.min(...roomTypes.map((r) => Number(r.price)))
+        : null;
 
     return (
-        <div className="min-h-screen bg-[#ECF4E8] pb-16">
-            {/* ================= NAV TOP ================= */}
-            <div className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b px-[6%] lg:px-[10%] py-3 flex items-center justify-between">
+        <div className="min-h-screen bg-mint-50 dark:bg-dark-bg pb-20 transition-colors duration-300">
+
+            {/* ── NAVBAR ──────────────────────────────── */}
+            <div className="
+                sticky top-0 z-50
+                bg-white/90 dark:bg-dark-card/90
+                backdrop-blur border-b
+                border-mint-200 dark:border-dark-border/20
+                px-[6%] lg:px-[10%] py-3
+                flex items-center justify-between
+            ">
                 <button
-                    onClick={() => router.visit("/search")}
-                    className="flex items-center gap-2 text-sm text-gray-600 hover:text-black"
+                    onClick={() => window.history.back()}
+                    className="
+                        flex items-center gap-2 text-sm transition
+                        text-kost-muted dark:text-mint-100/50
+                        hover:text-kost-dark dark:hover:text-mint-50
+                    "
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Kembali
                 </button>
 
-                <div className="flex items-center gap-3">
-                    <button className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-                        <Heart className="w-4 h-4" />
+                <p className="text-sm font-medium text-kost-dark dark:text-mint-50 truncate max-w-[200px] hidden sm:block">
+                    {property.name}
+                </p>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => navigator.share?.({ title: property.name, url: window.location.href })}
+                        className="
+                            p-2 rounded-lg transition
+                            bg-mint-50 dark:bg-dark-bg
+                            border border-mint-200 dark:border-dark-border/20
+                            text-kost-muted dark:text-mint-100/40
+                            hover:text-kost-dark dark:hover:text-mint-50
+                        "
+                    >
+                        <Share2 className="w-4 h-4" />
                     </button>
-                    <button className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-                        <MessageCircle className="w-4 h-4" />
+                    <button
+                        onClick={() => setIsWishlisted(!isWishlisted)}
+                        className="
+                            p-2 rounded-lg transition
+                            bg-mint-50 dark:bg-dark-bg
+                            border border-mint-200 dark:border-dark-border/20
+                        "
+                    >
+                        <Heart className={`w-4 h-4 transition ${isWishlisted ? "fill-red-400 stroke-red-400" : "text-kost-muted dark:text-mint-100/40"}`} />
                     </button>
                 </div>
             </div>
 
-            {/* ================= HERO IMAGE ================= */}
-            <div className="px-[6%] lg:px-[10%] mt-6">
-                <div className="grid lg:grid-cols-3 gap-4">
-                    {/* MAIN */}
-                    <img
-                        src={kos.images[activeImage]}
-                        className="lg:col-span-2 w-full h-[320px] object-cover rounded-2xl"
-                    />
+            <div className="px-[6%] lg:px-[10%] mt-6 space-y-6">
 
-                    {/* THUMB */}
-                    <div className="grid grid-cols-3 lg:grid-cols-1 gap-3">
-                        {kos.images.map((img, i) => (
-                            <img
+                <div className="grid lg:grid-cols-3 gap-3">
+
+                    {/* Main image */}
+                    <div className="lg:col-span-2 relative rounded-2xl overflow-hidden h-[320px] group">
+                        <img
+                            src={
+                                images[activeImage]
+                                    ? `/storage/${images[activeImage].image_path}`
+                                    : "https://placehold.co/800x500/ECF4E8/93BFC7?text=Kos"
+                            }
+                            alt={property.name}
+                            className="w-full h-full object-cover"
+                        />
+
+                        {/* Prev/Next */}
+                        {images.length > 1 && (
+                            <>
+                                <button
+                                    onClick={prevImage}
+                                    className="
+                                        absolute left-3 top-1/2 -translate-y-1/2
+                                        p-1.5 rounded-full transition
+                                        bg-white/80 dark:bg-dark-card/80
+                                        text-kost-dark dark:text-mint-50
+                                        opacity-0 group-hover:opacity-100
+                                        hover:bg-white dark:hover:bg-dark-card
+                                    "
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={nextImage}
+                                    className="
+                                        absolute right-3 top-1/2 -translate-y-1/2
+                                        p-1.5 rounded-full transition
+                                        bg-white/80 dark:bg-dark-card/80
+                                        text-kost-dark dark:text-mint-50
+                                        opacity-0 group-hover:opacity-100
+                                        hover:bg-white dark:hover:bg-dark-card
+                                    "
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+
+                                {/* Counter */}
+                                <div className="
+                                    absolute bottom-3 right-3
+                                    px-2 py-1 rounded-full text-xs
+                                    bg-black/40 text-white backdrop-blur-sm
+                                ">
+                                    {activeImage + 1}/{images.length}
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Thumbnails */}
+                    <div className="grid grid-cols-3 lg:grid-cols-1 gap-2">
+                        {images.slice(0, 3).map((img, i) => (
+                            <div
                                 key={i}
-                                src={img}
                                 onClick={() => setActiveImage(i)}
-                                className={`h-24 w-full object-cover rounded-xl cursor-pointer border-2 ${
-                                    activeImage === i
-                                        ? "border-[#ABE7B2]"
-                                        : "border-transparent"
-                                }`}
-                            />
+                                className={`
+                                    relative h-24 rounded-xl overflow-hidden cursor-pointer
+                                    border-2 transition
+                                    ${activeImage === i
+                                        ? "border-mint-300"
+                                        : "border-transparent hover:border-mint-200"
+                                    }
+                                `}
+                            >
+                                <img
+                                    src={`/storage/${img.image_path}`}
+                                    className="w-full h-full object-cover"
+                                />
+                                {/* More overlay */}
+                                {i === 2 && images.length > 3 && (
+                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                        <span className="text-white text-sm font-medium">
+                                            +{images.length - 3}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         ))}
                     </div>
                 </div>
-            </div>
 
-            {/* ================= CONTENT ================= */}
-            <div className="px-[6%] lg:px-[10%] mt-8 grid lg:grid-cols-3 gap-10">
-                {/* LEFT */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* TITLE */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm space-y-3">
-                        <div className="flex items-center gap-2">
-                            <span className="px-2 py-1 text-xs bg-[#ABE7B2]/40 text-[#2f3e46] rounded-full">
-                                ⭐ Best Choice
-                            </span>
-                        </div>
+                <div className="grid lg:grid-cols-3 gap-6">
 
-                        <h1 className="text-2xl font-bold text-[#2f3e46]">
-                            {kos.name}
-                        </h1>
+                    {/* LEFT */}
+                    <div className="lg:col-span-2 space-y-5">
 
-                        <div className="flex items-center text-gray-500 text-sm">
-                            <MapPin className="w-4 h-4 mr-1" />
-                            {kos.location}
-                        </div>
+                        {/* JUDUL */}
+                        <SectionCard>
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="space-y-2">
+                                    <div className="flex flex-wrap gap-2">
+                                        {property.type && (
+                                            <span className="
+                                                px-2.5 py-1 rounded-full text-xs font-medium capitalize
+                                                bg-mint-50 dark:bg-dark-bg
+                                                text-kost-muted dark:text-mint-100/60
+                                                border border-mint-200 dark:border-dark-border/20
+                                            ">
+                                                Kos {property.type}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h1 className="text-xl font-medium text-kost-dark dark:text-mint-50">
+                                        {property.name}
+                                    </h1>
+                                    <p className="flex items-center gap-1.5 text-sm text-kost-muted dark:text-mint-100/50">
+                                        <MapPin className="w-4 h-4 flex-shrink-0" />
+                                        {property.address}, {property.city}
+                                    </p>
+                                </div>
 
-                        <div className="flex items-center gap-2 text-yellow-500">
-                            <Star className="w-4 h-4" />
-                            {kos.rating}
-                        </div>
+                                {property.rating && (
+                                    <div className="flex items-center gap-1 text-yellow-500 flex-shrink-0">
+                                        <Star className="w-4 h-4 fill-yellow-400 stroke-yellow-500" />
+                                        <span className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                                            {property.rating}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </SectionCard>
+
+                        {/* TIPE KAMAR */}
+                        {roomTypes.length > 0 && (
+                            <SectionCard title="Tipe Kamar">
+                                <div className="space-y-3">
+                                    {roomTypes.map((room) => (
+                                        <div
+                                            key={room.id}
+                                            onClick={() => setSelectedRoom(room)}
+                                            className={`
+                                                cursor-pointer rounded-xl p-4 border transition
+                                                ${selectedRoom?.id === room.id
+                                                    ? "bg-mint-100 dark:bg-mint-200/10 border-mint-300 dark:border-mint-300/30"
+                                                    : "bg-mint-50 dark:bg-dark-bg border-mint-200 dark:border-dark-border/20 hover:bg-mint-100 dark:hover:bg-mint-200/10"
+                                                }
+                                            `}
+                                        >
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        {selectedRoom?.id === room.id && (
+                                                            <CheckCircle className="w-4 h-4 text-mint-300" />
+                                                        )}
+                                                        <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                                                            {room.name}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-3 text-xs text-kost-muted dark:text-mint-100/50">
+                                                        {room.room_width && room.room_length && (
+                                                            <span>{room.room_width}×{room.room_length} m</span>
+                                                        )}
+                                                        {room.capacity && (
+                                                            <span className="flex items-center gap-1">
+                                                                <Users className="w-3 h-3" />
+                                                                {room.capacity} orang
+                                                            </span>
+                                                        )}
+                                                        <span className="
+                                                            px-2 py-0.5 rounded-full
+                                                            bg-mint-200/60 dark:bg-mint-200/20
+                                                            text-kost-dark dark:text-mint-100
+                                                        ">
+                                                            {room.total_rooms} unit
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right flex-shrink-0">
+                                                    <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                                                        Rp {Number(room.price).toLocaleString("id-ID")}
+                                                    </p>
+                                                    <p className="text-xs text-kost-muted dark:text-mint-100/40">
+                                                        /{room.rental_type === "monthly" ? "bulan" : "hari"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </SectionCard>
+                        )}
+
+                        {/* FASILITAS */}
+                        {facilities.length > 0 && (
+                            <SectionCard title="Fasilitas">
+                                <div className="flex flex-wrap gap-2">
+                                    {facilities.map((f) => (
+                                        <div
+                                            key={f.id}
+                                            className="
+                                                flex items-center gap-2
+                                                px-3 py-2 rounded-xl text-sm
+                                                bg-mint-50 dark:bg-dark-bg
+                                                border border-mint-200 dark:border-dark-border/20
+                                                text-kost-muted dark:text-mint-100/60
+                                            "
+                                        >
+                                            {FACILITY_ICONS[f.name] ?? null}
+                                            {f.name}
+                                        </div>
+                                    ))}
+                                </div>
+                            </SectionCard>
+                        )}
+
+                        {/* DESKRIPSI */}
+                        {property.description && (
+                            <SectionCard title="Deskripsi">
+                                <p className="text-sm text-kost-muted dark:text-mint-100/60 leading-relaxed whitespace-pre-line">
+                                    {property.description}
+                                </p>
+                            </SectionCard>
+                        )}
+
+                        {/* PERATURAN */}
+                        {property.rules && (
+                            <SectionCard title="Peraturan Kos">
+                                <p className="text-sm text-kost-muted dark:text-mint-100/60 leading-relaxed whitespace-pre-line">
+                                    {property.rules}
+                                </p>
+                            </SectionCard>
+                        )}
+
+                        {/* MAP */}
+                        {property.latitude && property.longitude && (
+                            <SectionCard title="Lokasi">
+                                <div className="rounded-xl overflow-hidden h-56 border border-mint-200 dark:border-dark-border/20">
+                                    <iframe
+                                        src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=16&output=embed`}
+                                        className="w-full h-full border-0"
+                                    />
+                                </div>
+                                <p className="text-xs text-kost-muted dark:text-mint-100/40 flex items-center gap-1 mt-2">
+                                    <MapPin className="w-3 h-3" />
+                                    {property.address}, {property.city}
+                                </p>
+                            </SectionCard>
+                        )}
                     </div>
 
-                    {/* FASILITAS */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm">
-                        <h2 className="font-semibold mb-4">
-                            Fasilitas Unggulan
-                        </h2>
+                    {/* RIGHT — BOOKING CARD ─────────────────── */}
+                    <div className="sticky top-20 h-fit space-y-3">
+                        <SectionCard>
+                            <div>
+                                <p className="text-xs text-kost-muted dark:text-mint-100/40 mb-0.5">
+                                    Mulai dari
+                                </p>
+                                <p className="text-xl font-medium text-kost-dark dark:text-mint-50">
+                                    Rp {Number(selectedRoom?.price ?? lowestPrice ?? 0).toLocaleString("id-ID")}
+                                    <span className="text-xs text-kost-muted dark:text-mint-100/40 font-normal ml-1">
+                                        /{selectedRoom?.rental_type === "monthly" ? "bulan" : "hari"}
+                                    </span>
+                                </p>
+                                {selectedRoom && (
+                                    <p className="text-xs text-mint-300 mt-0.5">
+                                        Tipe: {selectedRoom.name}
+                                    </p>
+                                )}
+                            </div>
 
-                        <div className="flex flex-wrap gap-3">
-                            {kos.facilities.map((f) => (
-                                <div className="px-4 py-2 rounded-xl bg-[#ECF4E8] text-sm flex items-center gap-2">
-                                    {f === "Wifi" && (
-                                        <Wifi className="w-4 h-4" />
-                                    )}
-                                    {f === "AC" && (
-                                        <Snowflake className="w-4 h-4" />
-                                    )}
-                                    {f === "Parkir" && (
-                                        <Car className="w-4 h-4" />
-                                    )}
-                                    {f}
-                                </div>
+                            <div className="space-y-2 pt-2 border-t border-mint-200 dark:border-dark-border/20">
+                                <button className="
+                                    w-full py-2.5 rounded-xl text-sm font-medium transition
+                                    bg-mint-200      dark:bg-mint-200/20
+                                    border border-mint-200 dark:border-mint-300/20
+                                    text-kost-dark   dark:text-mint-50
+                                    hover:bg-mint-300 dark:hover:bg-mint-300/30
+                                ">
+                                    Booking Sekarang
+                                </button>
+
+                                <button className="
+                                    w-full py-2.5 rounded-xl text-sm transition
+                                    flex items-center justify-center gap-2
+                                    bg-mint-50 dark:bg-dark-bg
+                                    border border-mint-200 dark:border-dark-border/20
+                                    text-kost-muted dark:text-mint-100/50
+                                    hover:bg-mint-100 dark:hover:bg-dark-card
+                                    hover:text-kost-dark dark:hover:text-mint-50
+                                ">
+                                    <MessageCircle className="w-4 h-4" />
+                                    Chat Pemilik
+                                </button>
+                            </div>
+
+                            <p className="text-xs text-kost-muted dark:text-mint-100/30 text-center">
+                                Pembayaran aman & terpercaya
+                            </p>
+                        </SectionCard>
+                    </div>
+                </div>
+
+                {similar.length > 0 && (
+                    <div className="space-y-4 mt-2">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                                Kos Serupa di Sekitar
+                            </h2>
+                            <Link
+                                href="/search"
+                                className="text-xs text-mint-300 hover:underline"
+                            >
+                                Lihat semua
+                            </Link>
+                        </div>
+                        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                            {similar.map((item) => (
+                                <RecomCard key={item.id} item={item} />
                             ))}
                         </div>
                     </div>
-
-                    {/* DESKRIPSI */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm">
-                        <h2 className="font-semibold mb-3">Deskripsi</h2>
-                        <p className="text-gray-600 leading-relaxed">
-                            {kos.description}
-                        </p>
-                    </div>
-
-                    {/* MAP */}
-                    <div className="bg-white p-4 rounded-2xl shadow-sm">
-                        <iframe
-                            src="https://www.google.com/maps?q=Jakarta&output=embed"
-                            className="w-full h-64 rounded-xl border-0"
-                        />
-                    </div>
-                </div>
-
-                
-                {/* RIGHT (BOOKING CARD) */}
-                <div className="sticky top-24 h-fit">
-                    <div className="bg-white p-6 rounded-2xl shadow-md space-y-4">
-                        <div>
-                            <p className="text-gray-500 text-sm">Harga</p>
-                            <p className="text-2xl font-bold text-[#2f3e46]">
-                                Rp {kos.price.toLocaleString()}
-                            </p>
-                        </div>
-
-                        <button className="w-full py-3 rounded-xl bg-gradient-to-r from-[#93BFC7] to-[#ABE7B2] text-white font-medium hover:opacity-90">
-                            Booking Sekarang
-                        </button>
-
-                        <button className="w-full py-3 rounded-xl border text-[#2f3e46] flex items-center justify-center gap-2">
-                            <MessageCircle className="w-4 h-4" />
-                            Chat Pemilik
-                        </button>
-
-                        <div className="text-xs text-gray-400 text-center">
-                            Pembayaran aman & terpercaya
-                        </div>
-                    </div>
-                </div>
-
-
-                {/* ================= REKOMENDASI ================= */}
-                <div className="px-[6%] lg:px-[10%] mt-12">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-[#2f3e46]">
-                            Kos Serupa di Sekitar
-                        </h2>
-
-                        <button
-                            onClick={() => router.visit("/search")}
-                            className="text-sm text-[#93BFC7] hover:underline"
-                        >
-                            Lihat semua
-                        </button>
-                    </div>
-
-                    <div className="flex gap-4 overflow-x-auto pb-2">
-                        {rekomendasiKos.map((item) => (
-                            <RecomCard key={item.id} kos={item} />
-                        ))}
-                    </div>
-                </div>
-
+                )}
             </div>
         </div>
     );

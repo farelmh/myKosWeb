@@ -1,20 +1,33 @@
-export default function RecentActivity() {
-    const logs = [
-        { text: "User Budi mendaftar",      color: "bg-mint-200" },
-        { text: "Booking baru dibuat",       color: "bg-mint-300" },
-        { text: "Admin update data kos",     color: "bg-mint-200" },
-        { text: "Kos Melati disetujui",      color: "bg-mint-300" },
-        { text: "Transaksi dibatalkan",      color: "bg-red-400"  },
-    ];
+export default function RecentActivity({ activities = [] }) {
+
+    const getColor = (type) => {
+        switch (type) {
+            case "user":
+                return "bg-mint-200";
+
+            case "booking":
+                return "bg-mint-300";
+
+            case "property":
+                return "bg-secondary";
+
+            case "transaction":
+                return "bg-red-400";
+
+            default:
+                return "bg-mint-200";
+        }
+    };
 
     return (
         <div className="
             rounded-xl p-5
-            bg-white        dark:bg-dark-card
+            bg-white dark:bg-dark-card
             border
             border-mint-200 dark:border-dark-border/20
             transition-colors duration-300
         ">
+
             <h3 className="
                 text-sm font-medium mb-4
                 text-kost-dark dark:text-mint-50
@@ -22,21 +35,57 @@ export default function RecentActivity() {
                 Recent Activity
             </h3>
 
-            <ul className="space-y-3">
-                {logs.map((log, i) => (
-                    <li key={i} className="flex items-center gap-3">
+            <ul className="space-y-4">
 
-                        {/* Dot */}
-                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${log.color}`} />
+                {activities.length > 0 ? (
+                    activities.map((activity, i) => (
 
-                        {/* Text */}
-                        <span className="text-sm text-kost-muted dark:text-mint-100/70">
-                            {log.text}
-                        </span>
+                        <li
+                            key={i}
+                            className="flex items-start gap-3"
+                        >
 
-                    </li>
-                ))}
+                            {/* DOT */}
+                            <span
+                                className={`
+                                    w-2 h-2 mt-2 rounded-full flex-shrink-0
+                                    ${getColor(activity.type)}
+                                `}
+                            />
+
+                            {/* CONTENT */}
+                            <div className="flex-1">
+
+                                <p className="
+                                    text-sm
+                                    text-kost-dark dark:text-mint-50
+                                ">
+                                    {activity.text}
+                                </p>
+
+                                <p className="
+                                    text-xs mt-1
+                                    text-kost-muted dark:text-mint-100/40
+                                ">
+                                    {activity.time}
+                                </p>
+
+                            </div>
+
+                        </li>
+
+                    ))
+                ) : (
+                    <p className="
+                        text-sm
+                        text-kost-muted dark:text-mint-100/40
+                    ">
+                        Belum ada aktivitas terbaru
+                    </p>
+                )}
+
             </ul>
+
         </div>
     );
 }

@@ -10,6 +10,8 @@ use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\KosController;
+use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -53,9 +55,8 @@ require __DIR__ . '/auth.php';
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(function () {
 
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('admin.dashboard');
+   Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('admin.dashboard');
 
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');
 
@@ -68,10 +69,10 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     })->name('admin.transaksi');
 
     Route::put('/users/{user}/role', [UserController::class, 'updateRole'])
-    ->name('admin.users.updateRole');
+        ->name('admin.users.updateRole');
 
-Route::delete('/users/{user}', [UserController::class, 'destroy'])
-    ->name('admin.users.destroy');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])
+        ->name('admin.users.destroy');
 
     Route::get('/properties', [PropertyController::class, 'index'])->name('admin.properties');
 
@@ -84,17 +85,16 @@ Route::delete('/users/{user}', [UserController::class, 'destroy'])
     Route::put('/request/update/{id}', [PropertyApplicationController::class, 'update'])->name('admin.request.update');
 
     Route::get('/facilities', [FacilityController::class, 'index'])->name('admin.facilities');
-    
+
     Route::get('/facilities/create', [FacilityController::class, 'create'])->name('admin.facilities.create');
-    
+
     Route::get('/facilities/edit', [FacilityController::class, 'edit'])->name('admin.facilities.edit');
-    
+
     Route::post('/facilities/store', [FacilityController::class, 'store'])->name('admin.facilities.store');
-    
+
     Route::get('/settings', function () {
         return Inertia::render('Admin/Settings');
     })->name('admin.settings');
-
 });
 
 Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(function () {
@@ -103,7 +103,8 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
     })->name('owner.dashboard');
 
     Route::get('/tenants/{id}', [
-        TenantController::class, 'tenants'
+        TenantController::class,
+        'tenants'
     ])->name('owner.tenants');
 
     Route::get('/owner/messages', function () {
@@ -111,76 +112,97 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
     })->name('owner.messages');
 
     Route::get('/property/detail/{id}', [
-        PropertyController::class, 'detail'
+        PropertyController::class,
+        'detail'
     ])->name('owner.property.detail');
 
     Route::put('/property/update/{id}', [
-        PropertyController::class, 'update'
+        PropertyController::class,
+        'update'
     ])->name('owner.property.update');
 
     Route::get('/property/edit/{id}', [
-        PropertyController::class, 'edit'
+        PropertyController::class,
+        'edit'
     ])->name('owner.property.edit');
 
     Route::delete('/property-image/delete/{id}', [
-        PropertyController::class, 'deleteImage'
+        PropertyController::class,
+        'deleteImage'
     ])->name('owner.propertyImage.delete');
 
     Route::get('/facilities/{id}', [
-        PropertyFacilityController::class, 'editFacilities'
-        ])->name('owner.property.facilities');
+        PropertyFacilityController::class,
+        'editFacilities'
+    ])->name('owner.property.facilities');
 
     Route::post('/facilities/{property}', [
-        PropertyFacilityController::class, 'store'
-        ])->name('owner.property.facilities.store');
+        PropertyFacilityController::class,
+        'store'
+    ])->name('owner.property.facilities.store');
 
-    Route::get('/room-types/create', [
-            RoomTypeController::class, 'create']
-        )->name('owner.room-types.create');
-        
+    Route::get(
+        '/room-types/create',
+        [
+            RoomTypeController::class,
+            'create'
+        ]
+    )->name('owner.room-types.create');
+
     Route::post('/room-types/store', [
-            RoomTypeController::class, 'store'
-        ])->name('owner.room-types.store');
+        RoomTypeController::class,
+        'store'
+    ])->name('owner.room-types.store');
 
     Route::get('/room-types/edit/{id}', [
-            RoomTypeController::class, 'edit'
-        ])->name('owner.room-types.edit');
+        RoomTypeController::class,
+        'edit'
+    ])->name('owner.room-types.edit');
 
-    Route::get('/room-types/{property}', [
-        RoomTypeController::class, 'index']
+    Route::get(
+        '/room-types/{property}',
+        [
+            RoomTypeController::class,
+            'index'
+        ]
     )->name('owner.room-types');
 
     Route::put('/room-types/update/{id}', [
-        RoomTypeController::class, 'update'
+        RoomTypeController::class,
+        'update'
     ])->name('owner.room-type.update');
-    
+
     Route::delete('/room-types/delete/{id}', [
-        RoomTypeController::class, 'destroy'
+        RoomTypeController::class,
+        'destroy'
     ])->name('owner.room-type.delete');
 
     Route::delete('/room-types-image/delete/{id}', [
-        RoomTypeController::class, 'deleteImage'
+        RoomTypeController::class,
+        'deleteImage'
     ])->name('owner.room-type-image.delete');
 
-    
+
     Route::get('/rental-request/{property}', [
-        RentalRequestController::class, 'index'
-        ])->name('owner.rental-request');
-        
+        RentalRequestController::class,
+        'index'
+    ])->name('owner.rental-request');
 });
-        
-    Route::get('/DetailKos', function () {
-        return Inertia::render('DetailKos');
-    })->name('detail.kos');
+
+Route::get('/DetailKos', function () {
+    return Inertia::render('DetailKos');
+})->name('detail.kos');
+
+Route::get('/kos/{id}', [KosController::class, 'detail'])->name('kos.detail');
 
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', function () {
         return Inertia::render('Profile');
-        })->name('profile');
-        
+    })->name('profile');
+
     Route::get('/search', [SearchController::class, 'index'])->name('search');
-    
+
     Route::post('/profile/update', [ProfileController::class, 'update'])
         ->name('profile.update');
 
@@ -193,5 +215,4 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/pengajuan-kos', [PropertyApplicationController::class, 'store'])
         ->name('pengajuan-kos.store');
-
 });

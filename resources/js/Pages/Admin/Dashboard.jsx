@@ -4,7 +4,7 @@ import Charts from "../../Components/Admin/Charts";
 import Activity from "../../Components/Admin/Activity";
 
 
-export default function Dashboard() {
+export default function Dashboard({ stats,chartData, activities }) {
     return (
         <AdminLayout>
 
@@ -13,17 +13,16 @@ export default function Dashboard() {
 
             {/* STATS */}
             <div className="grid md:grid-cols-3 gap-6 mb-8">
-                <Card title="Users" value="120" />
-                <Card title="Kos Listed" value="54" />
-                <Card title="Bookings" value="89" />
+                <Card title="Users" value={stats.users} />
+                <Card title="Kos Listed" value={stats.kos} />
+                <Card title="Bookings" value={stats.contracts} />
             </div>
 
-            {/* CHART + ACTIVITY */}
             <div className="grid lg:grid-cols-3 gap-6 mb-8">
                 <div className="lg:col-span-2">
-                    <Charts />
+                    <Charts data={chartData || []} />
                 </div>
-                <Activity />
+                <Activity activities={activities || []} />
             </div>
 
         </AdminLayout>

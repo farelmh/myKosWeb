@@ -220,6 +220,7 @@ export default function Topbar({ setOpen }) {
 
                                     <Link
                                         as="button"
+                                        href={route("landing")}
                                         onClick={() => setOpenProfile(false)}
                                         className="
                                             w-full text-left px-4 py-2.5 text-sm

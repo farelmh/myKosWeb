@@ -9,76 +9,305 @@ import FilterChips from "@/Components/Search/FilterChips";
 import MobileFilterDrawer from "@/Components/Search/MobileFilterDrawer";
 import SkeletonCard from "@/Components/Search/SkeletonCard";
 import SortDropdown from "@/Components/Search/SortDropdown";
-import { MapContainer, Marker, Popup, Circle } from "react-leaflet";
-
-import useSearchFilter from "@/hooks/useSearchFilter";
-import { Home, Loader2 } from "lucide-react";
-import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
 import Pagination from "@/Components/Pagination";
+import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
 import { createLocationIcon } from "@/Components/Map/CustomMarker";
+import useSearchFilter from "@/hooks/useSearchFilter";
 
-export default function SearchPage({ properties = [], query = "", facilities = [] }) {
+import { MapContainer, Marker, Popup, Circle } from "react-leaflet";
+import {
+    Home,
+    Loader2,
+    SlidersHorizontal,
+    MapPin,
+    X,
+    Navigation,
+    ArrowLeft,
+} from "lucide-react";
 
-        const defaultFilters = {
-            type: "all",
-            maxPrice: 2000000,
-            facilities: [],
-        };
+/* ================================================================
+   MAP VIEW
+================================================================ */
+const MapView = ({ properties, position, radius }) => {
+    const icon = createLocationIcon();
 
-        const [keyword, setKeyword] = useState(query);
-        const [sortBy, setSortBy] = useState("relevance");
-        const [showFilter, setShowFilter] = useState(false);
-        const [isLoading, setIsLoading] = useState(false);
-
-        const [filters, setFilters] = useState(defaultFilters);
-        const [applied, setApplied] = useState(defaultFilters);
-        const [appliedKeyword, setAppliedKeyword] = useState(query);
-
-        const [radius, setRadius] = useState(5);
-        const [position, setPosition] = useState(null);
-        const [selectedLocation, setSelectedLocation] = useState(null);
-
-        const handleApply = () => {
-            setApplied(filters);
-            setAppliedKeyword(keyword);
-            setShowFilter(false);
-        };
-
-        const handleSearch = () => {
-            setIsLoading(true);
-            setAppliedKeyword(keyword);
-
-            router.get(
-                "/search",
-                { q: keyword },
-                {
-                    preserveState: true,
-                    replace: true,
-                    onFinish: () => setIsLoading(false),
+    return (
+        <div className="w-full h-full rounded-2xl overflow-hidden border border-mint-200 dark:border-dark-border/20">
+            <MapContainer
+                center={
+                    position
+                        ? [position.lat, position.lng]
+                        : [-8.159822347307612, 113.72309285357674]
                 }
-            );
-        };
+                zoom={15}
+                style={{ height: "100%", width: "100%" }}
+            >
+                <GoogleTileLayer />
 
-        const handleClear = () => {
-            setAppliedKeyword("");
-            setKeyword("");
-            setPosition(null);
-        }
+                {position && (
+                    <>
+                        <Circle
+                            center={[position.lat, position.lng]}
+                            radius={radius * 1000}
+                            pathOptions={{
+                                color: "#93BFC7",
+                                fillColor: "#ABE7B2",
+                                fillOpacity: 0.15,
+                                weight: 1.5,
+                                dashArray: "6 4",
+                            }}
+                        />
+                        <Marker position={[position.lat, position.lng]}>
+                            <Popup>Lokasi pencarian</Popup>
+                        </Marker>
+                    </>
+                )}
 
-        const handleReset = () => {
-            setKeyword("");
-            setFilters(defaultFilters);
-            setApplied(defaultFilters);
-            setAppliedKeyword("");
-            setShowFilter(false);
-        };
+                {properties.map((p) =>
+                    p.latitude && p.longitude ? (
+                        <Marker
+                            key={p.id}
+                            icon={icon}
+                            position={[p.latitude, p.longitude]}
+                        >
+                            <Popup>
+                                <div className="space-y-1 min-w-[150px]">
+                                    <p className="font-medium text-sm">
+                                        {p.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500 truncate">
+                                        {p.address}
+                                    </p>
+                                    <p className="text-xs font-medium text-green-600">
+                                        Rp{" "}
+                                        {Number(
+                                            p.room_types?.[0]?.price ?? 0,
+                                        ).toLocaleString("id-ID")}
+                                    </p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    ) : null,
+                )}
+            </MapContainer>
+        </div>
+    );
+};
 
-        const patchApplied = (patch) => {
-            const next = { ...applied, ...patch };
-            setApplied(next);
-            setFilters(next);
-        };
+/* ================================================================
+   RADIUS CONTROL
+================================================================ */
+const QUICK_MARKS = [1, 3, 5, 10, 20];
 
+const RadiusControl = ({ radius, setRadius, position, onClearPosition }) => {
+    const pct = ((radius - 1) / 19) * 100;
+
+    return (
+        <div
+            className="
+            flex items-center gap-3 px-4 py-2.5 rounded-xl
+            bg-white        dark:bg-dark-card
+            border border-mint-200 dark:border-dark-border/20
+            transition-colors duration-300
+        "
+        >
+            {/* Label */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+                <Navigation className="w-3.5 h-3.5 text-mint-300" />
+                <span className="text-xs font-medium text-kost-dark dark:text-mint-50 hidden sm:inline">
+                    Radius
+                </span>
+            </div>
+
+            {/* Slider */}
+            <div className="flex-1 flex items-center gap-3 min-w-0">
+                <input
+                    type="range"
+                    min="1"
+                    max="20"
+                    step="1"
+                    value={radius}
+                    onChange={(e) => setRadius(Number(e.target.value))}
+                    className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer outline-none"
+                    style={{
+                        background: `linear-gradient(to right, #93BFC7 ${pct}%, #ECF4E8 ${pct}%)`,
+                    }}
+                />
+
+                {/* Value badge */}
+                <span
+                    className="
+                    flex-shrink-0 min-w-[52px] text-center
+                    px-2 py-0.5 rounded-lg text-xs font-medium
+                    bg-mint-200      dark:bg-mint-200/20
+                    border border-mint-200 dark:border-mint-300/20
+                    text-kost-dark   dark:text-mint-50
+                "
+                >
+                    {radius} km
+                </span>
+            </div>
+
+            {/* Quick marks */}
+            <div className="hidden md:flex items-center gap-1 flex-shrink-0">
+                {QUICK_MARKS.map((m) => (
+                    <button
+                        key={m}
+                        onClick={() => setRadius(m)}
+                        className={`
+                            px-2 py-0.5 rounded-md text-xs transition border
+                            ${
+                                radius === m
+                                    ? "bg-mint-300 dark:bg-mint-300/40 text-white border-mint-300 dark:border-mint-300/40"
+                                    : "bg-mint-50 dark:bg-dark-bg text-kost-muted dark:text-mint-100/40 border-mint-200 dark:border-dark-border/20 hover:bg-mint-100 dark:hover:bg-dark-card"
+                            }
+                        `}
+                    >
+                        {m}
+                    </button>
+                ))}
+            </div>
+
+            {/* Clear position */}
+            {position && (
+                <button
+                    onClick={onClearPosition}
+                    title="Hapus lokasi"
+                    className="
+                        flex-shrink-0 flex items-center gap-1
+                        px-2 py-1 rounded-lg text-xs transition
+                        text-red-400 hover:text-red-500
+                        bg-red-50 dark:bg-red-500/10
+                        border border-red-200 dark:border-red-500/20
+                    "
+                >
+                    <X className="w-3 h-3" />
+                    <span className="hidden sm:inline">Hapus</span>
+                </button>
+            )}
+        </div>
+    );
+};
+
+/* ================================================================
+   EMPTY STATE
+================================================================ */
+const EmptyState = ({ onReset, keyword }) => (
+    <div
+        className="
+        flex flex-col items-center justify-center py-20 gap-3
+        rounded-2xl border border-dashed
+        border-mint-200 dark:border-dark-border/20
+        bg-white dark:bg-dark-card
+        transition-colors duration-300
+    "
+    >
+        <div
+            className="
+            w-16 h-16 rounded-2xl flex items-center justify-center
+            bg-mint-50 dark:bg-dark-bg
+            border border-mint-200 dark:border-dark-border/20
+        "
+        >
+            <Home className="w-7 h-7 text-mint-200 dark:text-mint-200/50" />
+        </div>
+        <div className="text-center px-4">
+            <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                Kos tidak ditemukan
+            </p>
+            <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-1">
+                {keyword
+                    ? `Tidak ada hasil untuk "${keyword}"`
+                    : "Coba ubah atau hapus filter yang aktif"}
+            </p>
+        </div>
+        <button
+            onClick={onReset}
+            className="
+                px-5 py-2 rounded-xl text-xs font-medium transition
+                bg-mint-200      dark:bg-mint-200/20
+                border border-mint-200 dark:border-mint-300/20
+                text-kost-dark   dark:text-mint-50
+                hover:bg-mint-300 dark:hover:bg-mint-300/30
+            "
+        >
+            Reset Filter
+        </button>
+    </div>
+);
+
+/* ================================================================
+   ACTIVE FILTER COUNT
+================================================================ */
+const countActiveFilters = (applied) =>
+    (applied.type !== "all" ? 1 : 0) +
+    (applied.maxPrice !== 2000000 ? 1 : 0) +
+    applied.facilities.length;
+
+/* ================================================================
+   MAIN
+================================================================ */
+export default function SearchPage({
+    properties = [],
+    query = "",
+    facilities = [],
+}) {
+    const defaultFilters = { type: "all", maxPrice: 2000000, facilities: [] };
+
+    const [keyword, setKeyword] = useState(query);
+    const [sortBy, setSortBy] = useState("relevance");
+    const [showFilter, setShowFilter] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [filters, setFilters] = useState(defaultFilters);
+    const [applied, setApplied] = useState(defaultFilters);
+    const [appliedKeyword, setAppliedKeyword] = useState(query);
+    const [radius, setRadius] = useState(5);
+    const [position, setPosition] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState(null);
+
+    /* ── Handlers ──────────────────────────── */
+    const handleApply = () => {
+        setApplied(filters);
+        setAppliedKeyword(keyword);
+        setShowFilter(false);
+    };
+
+    const handleSearch = () => {
+        setIsLoading(true);
+        setAppliedKeyword(keyword);
+        router.get(
+            "/search",
+            { q: keyword },
+            {
+                preserveState: true,
+                replace: true,
+                onFinish: () => setIsLoading(false),
+            },
+        );
+    };
+
+    const handleClear = () => {
+        setAppliedKeyword("");
+        setKeyword("");
+        setPosition(null);
+        setSelectedLocation(null);
+    };
+
+    const handleReset = () => {
+        setKeyword("");
+        setFilters(defaultFilters);
+        setApplied(defaultFilters);
+        setAppliedKeyword("");
+        setShowFilter(false);
+    };
+
+    const patchApplied = (patch) => {
+        const next = { ...applied, ...patch };
+        setApplied(next);
+        setFilters(next);
+    };
+
+    /* ── Derived ───────────────────────────── */
     const filtered = useSearchFilter({
         properties,
         applied,
@@ -86,8 +315,10 @@ export default function SearchPage({ properties = [], query = "", facilities = [
         sortBy,
         position,
         radius,
-        selectedLocation
+        selectedLocation,
     });
+
+    const activeCount = countActiveFilters(applied);
 
     const sidebar = (
         <FilterSidebar
@@ -101,136 +332,55 @@ export default function SearchPage({ properties = [], query = "", facilities = [
         />
     );
 
-    const redIcon = createLocationIcon();
-    
-    const MapView = ({ properties }) => (
-        <div className="w-full h-full rounded-2xl overflow-hidden border border-mint-200 dark:border-dark-border/20">
-            <MapContainer center={position? [position.lat, position.lng]: [-8.159822347307612, 113.72309285357674]}
-                zoom={15}
-                style={{ height: "100%", width: "100%" }}
-            >
-                <GoogleTileLayer />
-
-                {position && (
-                    <Circle
-                        center={[position.lat, position.lng]}
-                        radius={radius * 1000}
-                        pathOptions={{
-                            color: "#4ade80",
-                            fillColor: "#86efac",
-                            fillOpacity: 0.2,
-                        }}
-                    />
-                )}
-
-                {position && (
-                    <Marker position={[position.lat, position.lng]}>
-                        <Popup>
-                            Lokasi pencarian
-                        </Popup>
-                    </Marker>
-                )}
-                
-
-                {/* Marker semua kos */}
-                {properties.map((property) => (
-
-                    <Marker key={property.id} 
-                            icon={redIcon}
-                            position={[ property.latitude, property.longitude ]} >
-                                
-                        <Popup>
-                            <div className="space-y-1">
-
-                                <h3 className="font-semibold">
-                                    {property.name}
-                                </h3>
-
-                                <p className="text-xs text-gray-500">
-                                    {property.address}
-                                </p>
-
-                                <p className="text-sm font-medium text-green-600">
-                                    Rp {Number(property.room_types?.[0]?.price ?? 0)
-                                        .toLocaleString("id-ID")}
-                                </p>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
-    </div>
-);
-
-    /* ================= EMPTY STATE ================= */
-
-    const EmptyState = ({ onReset, keyword }) => (
-        <div className="flex flex-col items-center justify-center py-20 gap-3 rounded-2xl border-2 border-dashed border-mint-200 dark:border-dark-border/20 bg-white dark:bg-dark-card">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-mint-50 dark:bg-dark-bg border border-mint-200 dark:border-dark-border/20">
-                <Home className="w-7 h-7 text-mint-300" />
-            </div>
-
-            <div className="text-center">
-                <p className="text-sm font-semibold text-kost-dark dark:text-mint-50">
-                    Kos tidak ditemukan
-                </p>
-                <p className="text-xs text-kost-muted dark:text-mint-100/40 mt-1">
-                    {keyword
-                        ? `Tidak ada hasil untuk "${keyword}".`
-                        : "Coba ubah atau hapus filter yang aktif."}
-                </p>
-            </div>
-
-            <button
-                onClick={onReset}
-                className="px-5 py-2 rounded-xl text-xs font-bold bg-mint-300 hover:bg-secondary text-white transition"
-            >
-                Reset Filter
-            </button>
-        </div>
-    );
-
     return (
-        <div className="min-h-screen bg-background dark:bg-dark-bg px-[5%] lg:px-[8%] py-6 transition-colors duration-300">
-            {/* TOP BAR */}
-            <div className="sticky top-0 z-20 bg-background/95 dark:bg-dark-bg/95 backdrop-blur-md pb-3 pt-1">
+        <div
+            className="
+            min-h-screen
+            bg-mint-50 dark:bg-dark-bg
+            px-[5%] lg:px-[8%] py-2
+            transition-colors duration-300
+        "
+        >
+            <button
+                onClick={() => window.history.back()}
+                className="
+                                        flex items-center gap-2 text-sm transition
+                                        text-kost-muted dark:text-mint-100/50
+                                        hover:text-kost-dark dark:hover:text-mint-50
+                                       py-2"
+            >
+                <ArrowLeft className="w-4 h-4" />
+                Kembali
+            </button>
+
+            <div
+                className="
+                sticky top-0 z-20 space-y-2 pb-3 pt-1
+                bg-mint-50/95 dark:bg-dark-bg/95 backdrop-blur-md
+            "
+            >
+                {/* Search input */}
                 <SearchBar
                     keyword={keyword}
                     setKeyword={setKeyword}
                     onSearch={handleSearch}
                     onClear={handleClear}
-                    onSelectLocation={(location) => {
-                        setPosition({
-                            lat: location.lat,
-                            lng: location.lng
-                        });
-
-                        setSelectedLocation(location);
+                    onSelectLocation={(loc) => {
+                        setPosition({ lat: loc.lat, lng: loc.lng });
+                        setSelectedLocation(loc);
                     }}
                 />
 
-                {/* RADIUS */}
-                <div className="mt-3 flex items-center gap-3">
+                {/* Radius control */}
+                <RadiusControl
+                    radius={radius}
+                    setRadius={setRadius}
+                    position={position}
+                    onClearPosition={handleClear}
+                />
 
-                    <span className="text-sm">
-                        Radius:
-                    </span>
-
-                    <input
-                        type="range"
-                        min="1"
-                        max="20"
-                        value={radius}
-                        onChange={(e) => setRadius(Number(e.target.value))}
-                    />
-
-                    <span className="text-sm font-semibold">
-                        {radius} km
-                    </span>
-
-                </div>
-
-                <div className="flex items-center justify-between mt-3 lg:hidden">
+                {/* Mobile: result count + filter toggle */}
+                <div className="flex items-center justify-between lg:hidden">
                     <p className="text-xs text-kost-muted dark:text-mint-100/50">
                         {isLoading ? (
                             <span className="flex items-center gap-1 text-mint-300">
@@ -242,13 +392,40 @@ export default function SearchPage({ properties = [], query = "", facilities = [
                                 <strong className="text-kost-dark dark:text-mint-50">
                                     {filtered.length}
                                 </strong>{" "}
-                                kos
+                                kos ditemukan
                             </>
                         )}
                     </p>
+
+                    <button
+                        onClick={() => setShowFilter(true)}
+                        className="
+                            flex items-center gap-1.5 px-3 py-1.5
+                            rounded-lg text-xs transition
+                            bg-white dark:bg-dark-card
+                            border border-mint-200 dark:border-dark-border/20
+                            text-kost-dark dark:text-mint-50
+                            hover:bg-mint-50 dark:hover:bg-dark-bg
+                        "
+                    >
+                        <SlidersHorizontal className="w-3.5 h-3.5" />
+                        Filter
+                        {activeCount > 0 && (
+                            <span
+                                className="
+                                w-4 h-4 rounded-full text-[10px] font-medium
+                                flex items-center justify-center
+                                bg-mint-300 text-white
+                            "
+                            >
+                                {activeCount}
+                            </span>
+                        )}
+                    </button>
                 </div>
             </div>
 
+            {/* Mobile drawer */}
             <MobileFilterDrawer
                 open={showFilter}
                 onClose={() => setShowFilter(false)}
@@ -257,44 +434,45 @@ export default function SearchPage({ properties = [], query = "", facilities = [
             </MobileFilterDrawer>
 
             <div className="flex gap-5 mt-4">
+                {/* Filter — desktop */}
                 <aside className="hidden lg:block w-[256px] flex-shrink-0">
                     {sidebar}
                 </aside>
 
-                <main className="flex-1 min-w-0">
-
-                    <div className="flex items-center gap-2 mb-3">
+                {/* Results */}
+                <main className="flex-1 min-w-0 space-y-3">
+                    {/* Sort + header */}
+                    <div className="flex items-center justify-between gap-3">
+                        <ResultHeader
+                            count={filtered.length}
+                            keyword={appliedKeyword}
+                            isLoading={isLoading}
+                        />
                         <SortDropdown value={sortBy} onChange={setSortBy} />
                     </div>
 
-                    <ResultHeader
-                        count={filtered.length}
-                        keyword={appliedKeyword}
-                        sortBy={sortBy}
-                        setSortBy={setSortBy}
-                        isLoading={isLoading}
-                    />
-
+                    {/* Active filter chips */}
                     <FilterChips
                         applied={applied}
                         onRemoveType={() => patchApplied({ type: "all" })}
                         onRemovePrice={() =>
                             patchApplied({ maxPrice: 2000000 })
                         }
-                        onRemoveFacility={(facility) =>
+                        onRemoveFacility={(f) =>
                             patchApplied({
                                 facilities: applied.facilities.filter(
-                                    (item) => item !== facility
+                                    (x) => x !== f,
                                 ),
                             })
                         }
                         onClearAll={handleReset}
                     />
 
+                    {/* List */}
                     {isLoading ? (
                         <div className="space-y-3">
-                            {[...Array(4)].map((_, index) => (
-                                <SkeletonCard key={index} />
+                            {[...Array(4)].map((_, i) => (
+                                <SkeletonCard key={i} />
                             ))}
                         </div>
                     ) : filtered.length > 0 ? (
@@ -312,8 +490,13 @@ export default function SearchPage({ properties = [], query = "", facilities = [
                     )}
                 </main>
 
-                <aside className="hidden lg:block w-[32%] flex-shrink-0 h-[680px] sticky top-24">
-                    <MapView properties={filtered} />
+                {/* Map — desktop */}
+                <aside className="hidden lg:block w-[32%] flex-shrink-0 h-[680px] sticky top-28">
+                    <MapView
+                        properties={filtered}
+                        position={position}
+                        radius={radius}
+                    />
                 </aside>
             </div>
         </div>
