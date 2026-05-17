@@ -27,6 +27,7 @@
     "dependencies": {
         "@lottiefiles/dotlottie-react": "^0.19.2",
         "aos": "^2.3.4",
+        "axios": "^1.16.1",
         "framer-motion": "^12.38.0",
         "leaflet": "^1.9.4",
         "lucide-react": "^1.8.0",

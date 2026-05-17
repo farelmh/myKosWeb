@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyApplicationController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyFacilityController;
+use App\Http\Controllers\RentalRequestController;
 use App\Http\Controllers\RoomTypeController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
@@ -161,26 +162,25 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
         RoomTypeController::class, 'deleteImage'
     ])->name('owner.room-type-image.delete');
 
-    Route::get('/search', [SearchController::class, 'index'])->name('search');
-
     
-
+    Route::get('/rental-request/{property}', [
+        RentalRequestController::class, 'index'
+        ])->name('owner.rental-request');
+        
 });
-
-Route::get('/search', function () {
-    return Inertia::render('Search');
-})->name('search');
-
-Route::get('/DetailKos', function () {
-    return Inertia::render('DetailKos');
-})->name('detail.kos');
+        
+    Route::get('/DetailKos', function () {
+        return Inertia::render('DetailKos');
+    })->name('detail.kos');
 
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', function () {
         return Inertia::render('Profile');
-    })->name('profile');
-
+        })->name('profile');
+        
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
+    
     Route::post('/profile/update', [ProfileController::class, 'update'])
         ->name('profile.update');
 

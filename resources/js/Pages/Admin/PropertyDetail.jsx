@@ -108,7 +108,7 @@ export default function Show({ property }) {
 
                                             <div className="mt-2 text-xs text-kost-muted dark:text-mint-100/60 space-y-1">
                                                 <p>Rp {room.price?.toLocaleString("id-ID")}</p>
-                                                <p>Size: {room.size}</p>
+                                                <p>Size: {room.room_width} x {room.room_length} M</p>
                                                 <p>Capacity: {room.capacity}</p>
                                             </div>
                                         </div>

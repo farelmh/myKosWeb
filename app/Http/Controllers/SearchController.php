@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Facility;
 use Illuminate\Http\Request;
 use App\Models\Property;
 use Inertia\Inertia;
@@ -9,37 +10,56 @@ class SearchController extends Controller
 {
     public function index(Request $request)
     {
-        $query = $request->get('q', '');
+        $query = Property::with([
+            'facilities',
+            'roomTypes',
+            'images'
+        ]);
 
-        $properties = Property::with(['images', 'facilities', 'roomTypes'])
-            ->where('status', 'approved') // hanya kos yang sudah disetujui
-            ->when($query, function ($q) use ($query) {
-                $q->where(function ($q) use ($query) {
-                    $q->where('name',    'like', "%{$query}%")
-                      ->orWhere('city',  'like', "%{$query}%")
-                      ->orWhere('address','like', "%{$query}%");
-                });
-            })
-            ->latest()
-            ->get()
-            ->map(function ($property) {
-                return [
-                    'id'         => $property->id,
-                    'name'       => $property->name,
-                    'address'    => $property->address,
-                    'city'       => $property->city,
-                    'price'      => $property->roomTypes->min('price'), // harga terendah
-                    'rating'     => null, // tambahkan nanti jika ada review
-                    'type'       => $property->type ?? null,
-                    'images'     => $property->images,
-                    'facilities' => $property->facilities,
-                    'room_types' => $property->roomTypes,
-                ];
+        // SEARCH
+        if ($request->filled('search')) {
+
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%");
             });
+        }
 
-        return Inertia::render('Search', [
+        // MAX PRICE
+        if ($request->filled('max_price')) {
+
+            $query->whereHas('roomTypes', function ($q) use ($request) {
+
+                $q->where('price', '<=', $request->max_price);
+
+            });
+        }
+
+        // FACILITIES
+        if ($request->filled('facilities')) {
+
+            foreach ($request->facilities as $facilityId) {
+
+                $query->whereHas('facilities', function ($q) use ($facilityId) {
+
+                    $q->where('facilities.id', $facilityId);
+
+                });
+
+            }
+        }
+
+        $facilities = Facility::select('id', 'name')->where('type', 'property')->get();
+
+        $properties = $query->paginate(10);
+
+        return Inertia::render('SearchPage', [
             'properties' => $properties,
-            'query'      => $query,
+            'facilities' => $facilities
         ]);
     }
 }
