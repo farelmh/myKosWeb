@@ -5,9 +5,6 @@ import { Plus } from "lucide-react";
 import { Link } from "@inertiajs/react";
 
 export default function Facilities({ facilities }) {
-    console.log("Halaman Saat Ini:", facilities.current_page);
-    console.log("Data:", facilities.data);
-
     return (
         <AdminLayout>
 

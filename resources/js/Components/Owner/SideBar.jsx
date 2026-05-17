@@ -8,8 +8,8 @@ import {
     MessageSquareWarning,
     Star,
     Bed,
-    BedDouble,
-    Box
+    Box,
+    BadgeAlertIcon
 } from "lucide-react";
 
 import { motion } from "framer-motion";
@@ -112,10 +112,10 @@ export default function SideBar() {
                         : "#"
                 },
                 {
-                    name: "Kamar",
-                    icon: BedDouble,
+                    name: "Permintaan Sewa",
+                    icon: BadgeAlertIcon,
                     href: activePropertyId
-                        ? `/owner/rooms/${activePropertyId}`
+                        ? `/owner/rental-request/${activePropertyId}`
                         : "#"
                 },
                 {
