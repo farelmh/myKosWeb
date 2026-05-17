@@ -11,10 +11,8 @@ export default function Topbar({ setOpen }) {
 
     const { filters } = usePage().props;
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
-
-    // ── Dark mode ────────────────────────────────────────────
     const [isDark, setIsDark] = useState(
-        () => localStorage.getItem("theme") === "dark"
+        () => localStorage.getItem("theme") === "dark",
     );
 
     useEffect(() => {
@@ -28,27 +26,25 @@ export default function Topbar({ setOpen }) {
         }
     }, [isDark]);
 
-    // ── Debounce search ──────────────────────────────────────
     useEffect(() => {
-        // Ambil parameter page dari URL saat ini
         const urlParams = new URLSearchParams(window.location.search);
-        const currentPage = urlParams.get('page');
+        const currentPage = urlParams.get("page");
 
         const delayDebounceFn = setTimeout(() => {
             const currentPath = window.location.pathname;
-            
+
             if (currentPath.startsWith("/admin")) {
                 router.get(
                     currentPath,
-                    { 
+                    {
                         search: searchTerm,
-                        page: searchTerm ? 1 : currentPage 
+                        page: searchTerm ? 1 : currentPage,
                     },
-                    { 
-                        preserveState: true, 
-                        replace: true, 
-                        preserveScroll: true 
-                    }
+                    {
+                        preserveState: true,
+                        replace: true,
+                        preserveScroll: true,
+                    },
                 );
             }
         }, 400);
@@ -57,16 +53,17 @@ export default function Topbar({ setOpen }) {
     }, [searchTerm]);
 
     return (
-        <div className="
+        <div
+            className="
             flex items-center justify-between px-6 py-4 sticky top-0 z-40
             bg-white        dark:bg-dark-sidebar
             border-b
             border-mint-200 dark:border-dark-border/20
             transition-colors duration-300
-        ">
+        "
+        >
             {/* LEFT */}
             <div className="flex items-center gap-4">
-
                 {/* MOBILE MENU */}
                 <button
                     onClick={() => setOpen(true)}
@@ -74,12 +71,10 @@ export default function Topbar({ setOpen }) {
                 >
                     <Menu />
                 </button>
-
             </div>
 
             {/* RIGHT */}
             <div className="flex items-center gap-3">
-
                 {/* SEARCH */}
                 <div className="relative hidden md:block">
                     <Search className="absolute left-3 top-2.5 w-4 h-4 text-kost-muted dark:text-mint-100/40" />
@@ -117,21 +112,24 @@ export default function Topbar({ setOpen }) {
                     "
                     aria-label="Toggle dark mode"
                 >
-                    {isDark
-                        ? <Sun  className="w-4 h-4 text-mint-200" />
-                        : <Moon className="w-4 h-4" />
-                    }
+                    {isDark ? (
+                        <Sun className="w-4 h-4 text-mint-200" />
+                    ) : (
+                        <Moon className="w-4 h-4" />
+                    )}
                 </button>
 
                 {/* NOTIFICATION */}
-                <button className="
+                <button
+                    className="
                     relative p-2 rounded-lg
                     bg-mint-50      dark:bg-dark-card
                     border
                     border-mint-200 dark:border-dark-border/20
                     hover:bg-mint-100 dark:hover:bg-dark-card/60
                     transition
-                ">
+                "
+                >
                     <Bell className="w-4 h-4 text-kost-muted dark:text-mint-100/60" />
                     <span className="absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full" />
                 </button>
@@ -150,12 +148,14 @@ export default function Topbar({ setOpen }) {
                         "
                     >
                         {/* Avatar */}
-                        <div className="
+                        <div
+                            className="
                             w-7 h-7 rounded-full flex items-center justify-center
                             text-sm font-medium capitalize
                             bg-mint-200 dark:bg-mint-200/20
                             text-kost-dark dark:text-mint-50
-                        ">
+                        "
+                        >
                             {user.name.charAt(0)}
                         </div>
 
@@ -194,28 +194,31 @@ export default function Topbar({ setOpen }) {
                                         shadow-sm
                                     "
                                 >
-                                    <button className="
-                                        w-full text-left px-4 py-2.5 text-sm
+                                    <Link
+                                        as="button"
+                                        href={route("profile")}
+                                        className="w-full text-left px-4 py-2.5 text-sm
                                         text-kost-dark  dark:text-mint-50
                                         hover:bg-mint-50 dark:hover:bg-dark-sidebar
-                                        transition
-                                    ">
+                                        transition"
+                                    >
                                         Profile
-                                    </button>
+                                    </Link>
 
-                                    <button className="
+                                    <button
+                                        className="
                                         w-full text-left px-4 py-2.5 text-sm
                                         text-kost-dark  dark:text-mint-50
                                         hover:bg-mint-50 dark:hover:bg-dark-sidebar
                                         transition
-                                    ">
+                                    "
+                                    >
                                         Settings
                                     </button>
 
                                     <div className="border-t border-mint-200 dark:border-dark-border/20" />
 
                                     <Link
-                                        href={route("landing")}
                                         as="button"
                                         onClick={() => setOpenProfile(false)}
                                         className="

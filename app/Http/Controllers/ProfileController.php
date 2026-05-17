@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -40,6 +42,20 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit');
     }
 
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'Password berhasil diubah');
+    }
+
     /**
      * Delete the user's account.
      */
@@ -59,5 +75,18 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function personal(Request $request)
+    {
+        $request->validate([
+            'phone'   => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'city'    => 'nullable|string|max:100',
+        ]);
+
+        $request->user()->update($request->only('phone', 'address', 'city'));
+
+        return back();
     }
 }
