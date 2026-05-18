@@ -366,7 +366,16 @@ export default function SearchPage({
                     onSearch={handleSearch}
                     onClear={handleClear}
                     onSelectLocation={(loc) => {
-                        setPosition({ lat: loc.lat, lng: loc.lng });
+
+                        setKeyword(loc.name);
+
+                        setAppliedKeyword(loc.name);
+
+                        setPosition({
+                            lat: loc.lat,
+                            lng: loc.lng
+                        });
+
                         setSelectedLocation(loc);
                     }}
                 />

@@ -4,14 +4,9 @@ import { MapPin, Search, X } from "lucide-react";
 export default function SearchBar ({ keyword, setKeyword, onSearch, onClear, onSelectLocation }) {
     const inputRef = useRef(null);
     const [suggestions, setSuggestions] = useState([]);
-    const isSelecting = useRef(false);
+    const [showSuggestions, setShowSuggestions] = useState(false);
 
     useEffect(() => {
-        if (isSelecting.current) {
-            isSelecting.current = false;
-            return;
-        }
-
         if (keyword.length < 3) {
             setSuggestions([]);
             return;
@@ -53,7 +48,10 @@ export default function SearchBar ({ keyword, setKeyword, onSearch, onClear, onS
                 <input
                     ref={inputRef}
                     value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
+                    onChange={(e) => {
+                        setKeyword(e.target.value);
+                        setShowSuggestions(true);
+                    }}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
                             setSuggestions([]);
@@ -68,12 +66,13 @@ export default function SearchBar ({ keyword, setKeyword, onSearch, onClear, onS
                     "
                     onBlur={() => {
                         setTimeout(() => {
-                            setSuggestions([]);
+                            setSuggestions(false);
                         }, 150);
                     }}
                 />
 
-                {suggestions.length > 0 && (
+                {/* {suggestions.length > 0 && ( */}
+                {showSuggestions && suggestions.length > 0 && (
 
                     <div className="
                         absolute top-full left-0 right-0 mt-2 z-50
@@ -86,11 +85,7 @@ export default function SearchBar ({ keyword, setKeyword, onSearch, onClear, onS
 
                             <button
                                 key={item.place_id}
-                                onClick={() => {
-
-                                    isSelecting.current = true;
-
-                                    setKeyword(item.display_name);
+                                onMouseDown={() => {
 
                                     onSelectLocation({
                                         lat: Number(item.lat),
@@ -99,7 +94,7 @@ export default function SearchBar ({ keyword, setKeyword, onSearch, onClear, onS
                                     });
 
                                     setSuggestions([]);
-
+                                    setShowSuggestions(false);
                                 }}
                                 className="
                                     w-full text-left px-4 py-3

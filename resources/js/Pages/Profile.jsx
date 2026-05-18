@@ -130,7 +130,7 @@ export default function Profile() {
 
     const submitProfile = (e) => {
         e.preventDefault();
-        profileForm.post(route("profile.update"), {
+        profileForm.put(route("profile.update"), {
             forceFormData: true,
             onSuccess: () => setToast({ message: "Profil berhasil diperbarui", type: "success" }),
             onError:   () => setToast({ message: "Gagal memperbarui profil",   type: "error"   }),
