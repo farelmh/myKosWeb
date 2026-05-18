@@ -203,7 +203,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/search', [SearchController::class, 'index'])->name('search');
 
-    Route::post('/profile/update', [ProfileController::class, 'update'])
+    Route::put('/profile/update', [ProfileController::class, 'update'])
         ->name('profile.update');
 
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])

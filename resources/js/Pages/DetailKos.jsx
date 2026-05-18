@@ -5,6 +5,9 @@ import {
     CheckCircle, ChevronLeft, ChevronRight, Share2,
 } from "lucide-react";
 import { router, Link, usePage } from "@inertiajs/react";
+import { MapContainer, Marker, Popup } from "react-leaflet";
+import { createLocationIcon } from "@/Components/Map/CustomMarker";
+import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
 
 /* ================= FACILITY ICON MAP ================= */
 const FACILITY_ICONS = {
@@ -134,6 +137,7 @@ export default function DetailKos({ property = null, similar = [] }) {
     const roomTypes  = property.room_types ?? [];
     const facilities = property.facilities ?? [];
 
+    const icon = createLocationIcon();
     const [activeImage,  setActiveImage]  = useState(0);
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(roomTypes[0] ?? null);
@@ -435,10 +439,16 @@ export default function DetailKos({ property = null, similar = [] }) {
                         {property.latitude && property.longitude && (
                             <SectionCard title="Lokasi">
                                 <div className="rounded-xl overflow-hidden h-56 border border-mint-200 dark:border-dark-border/20">
-                                    <iframe
-                                        src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=16&output=embed`}
-                                        className="w-full h-full border-0"
-                                    />
+                                <MapContainer
+                                    center={[property.latitude, property.longitude]}
+                                    zoom={16}
+                                    style={{ height: "250px" }}
+                                >
+                                    <GoogleTileLayer />
+                                    <Marker position={[property.latitude, property.longitude]} icon={icon}>
+                                        <Popup>{property.name}</Popup>
+                                    </Marker>
+                                </MapContainer>
                                 </div>
                                 <p className="text-xs text-kost-muted dark:text-mint-100/40 flex items-center gap-1 mt-2">
                                     <MapPin className="w-3 h-3" />
