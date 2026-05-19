@@ -10,7 +10,7 @@ class Review extends Model
         'user_id',
         'property_id',
         'contract_id',
-        'rating_id',
+        'rating',
         'comment'
     ];
 
