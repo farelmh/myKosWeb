@@ -16,9 +16,6 @@ use App\Models\Notification;
 
 class PropertyApplicationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $applications = PropertyApplication::query()

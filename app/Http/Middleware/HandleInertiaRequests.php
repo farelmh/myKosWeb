@@ -53,8 +53,6 @@ class HandleInertiaRequests extends Middleware
                 ->limit(20)
                 ->get()
             : [],
-
-            
         ];
     }
 }

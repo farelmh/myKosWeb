@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+
 use App\Models\User;
 use App\Notifications\PasswordResetOtpNotification;
 use Illuminate\Http\RedirectResponse;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use Symfony\Component\HttpFoundation\Response as HttpResponse; 
 
 class PasswordResetLinkController extends Controller
 {
@@ -73,5 +74,6 @@ class PasswordResetLinkController extends Controller
         return redirect()
             ->route('password.otp', ['email' => $request->email])
             ->with('status', $statusMessage);
+
     }
 }
