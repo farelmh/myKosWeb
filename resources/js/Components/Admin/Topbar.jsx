@@ -1,19 +1,187 @@
-import { Menu, Search, Bell, ChevronDown, Moon, Sun } from "lucide-react";
+import {
+    Menu,
+    Search,
+    Bell,
+    ChevronDown,
+    Moon,
+    Sun,
+    Home,
+    Clock,
+    CheckCircle,
+    XCircle,
+    X,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, usePage, router } from "@inertiajs/react";
 
+const NotificationDropdown = ({ notifications, onClose, onMarkAll }) => {
+    const unread = notifications.filter((n) => !n.is_read);
+
+    const iconFor = (n) => {
+        if (n.message?.toLowerCase().includes("disetujui"))
+            return <CheckCircle className="w-4 h-4 text-mint-300" />;
+        if (n.message?.toLowerCase().includes("ditolak"))
+            return <XCircle className="w-4 h-4 text-red-400" />;
+        return <Clock className="w-4 h-4 text-yellow-500" />;
+    };
+
+    const timeAgo = (dateStr) => {
+        const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+        if (diff < 60) return `${diff}d lalu`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m lalu`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}j lalu`;
+        return `${Math.floor(diff / 86400)}h lalu`;
+    };
+
+    return (
+        <>
+            <div className="fixed inset-0 z-40" onClick={onClose} />
+
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.15 }}
+                className="
+                    absolute right-0 mt-2 w-80 z-50
+                    rounded-xl overflow-hidden
+                    bg-white        dark:bg-dark-card
+                    border border-mint-200 dark:border-dark-border/20
+                    shadow-sm
+                "
+            >
+                <div className="flex items-center justify-between px-4 py-3 border-b border-mint-200 dark:border-dark-border/20">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                            Notifikasi
+                        </span>
+                        {unread.length > 0 && (
+                            <span
+                                className="
+                                px-1.5 py-0.5 rounded-full text-xs font-medium
+                                bg-mint-200 dark:bg-mint-200/20
+                                text-kost-dark dark:text-mint-50
+                            "
+                            >
+                                {unread.length}
+                            </span>
+                        )}
+                    </div>
+                    {unread.length > 0 && (
+                        <button
+                            onClick={onMarkAll}
+                            className="text-xs text-mint-300 hover:text-mint-300/70 transition"
+                        >
+                            Tandai semua dibaca
+                        </button>
+                    )}
+                </div>
+
+                <div className="max-h-80 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                        <div className="flex flex-col items-center gap-2 py-10">
+                            <Bell className="w-8 h-8 text-mint-200 dark:text-mint-200/30" />
+                            <p className="text-xs text-kost-muted dark:text-mint-100/40">
+                                Tidak ada notifikasi
+                            </p>
+                        </div>
+                    ) : (
+                        notifications.map((n) => (
+                            <Link
+                                key={n.id}
+                                href={route("admin.request")} // ← ke list pengajuan, bukan detail
+                                onClick={onClose}
+                                className={`
+                                    flex items-start gap-3 px-4 py-3 transition
+                                    border-b border-mint-200/50 dark:border-dark-border/10
+                                    last:border-0
+                                    ${
+                                        !n.is_read
+                                            ? "bg-mint-50 dark:bg-dark-bg hover:bg-mint-100 dark:hover:bg-dark-bg/80"
+                                            : "hover:bg-mint-50 dark:hover:bg-dark-bg"
+                                    }
+                                `}
+                            >
+                                <div
+                                    className="
+                                    flex-shrink-0 w-8 h-8 rounded-lg mt-0.5
+                                    flex items-center justify-center
+                                    bg-mint-100 dark:bg-mint-200/10
+                                    border border-mint-200 dark:border-mint-300/20
+                                "
+                                >
+                                    {iconFor(n)}
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                    {n.title && (
+                                        <p
+                                            className={`text-xs font-medium mb-0.5 ${
+                                                !n.is_read
+                                                    ? "text-kost-dark dark:text-mint-50"
+                                                    : "text-kost-muted dark:text-mint-100/60"
+                                            }`}
+                                        >
+                                            {n.title}
+                                        </p>
+                                    )}
+                                    <p
+                                        className={`text-xs leading-relaxed ${
+                                            !n.is_read
+                                                ? "text-kost-dark dark:text-mint-50"
+                                                : "text-kost-muted dark:text-mint-100/60"
+                                        }`}
+                                    >
+                                        {n.message}
+                                    </p>
+                                    <p className="text-[10px] text-kost-muted dark:text-mint-100/30 mt-0.5">
+                                        {timeAgo(n.created_at)}
+                                    </p>
+                                </div>
+
+                                {!n.is_read && (
+                                    <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-mint-300 mt-1.5" />
+                                )}
+                            </Link>
+                        ))
+                    )}
+                </div>
+
+                {notifications.length > 0 && (
+                    <div className="border-t border-mint-200 dark:border-dark-border/20 p-2">
+                        <Link
+                            href={route("admin.request")}
+                            onClick={onClose}
+                            className="
+                                block w-full text-center py-2 rounded-lg text-xs transition
+                                text-mint-300 hover:bg-mint-50 dark:hover:bg-dark-bg
+                            "
+                        >
+                            Lihat semua pengajuan
+                        </Link>
+                    </div>
+                )}
+            </motion.div>
+        </>
+    );
+};
+
 export default function Topbar({ setOpen }) {
     const [openProfile, setOpenProfile] = useState(false);
+    const [openNotification, setOpenNotification] = useState(false);
 
-    const { auth } = usePage().props;
+    const { auth, notifications: initialNotifs = [] } = usePage().props;
     const user = auth.user;
 
     const { filters } = usePage().props;
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
+    const [notifications, setNotifications] = useState(initialNotifs);
     const [isDark, setIsDark] = useState(
         () => localStorage.getItem("theme") === "dark",
     );
+
+    const unreadCount = notifications.filter((n) => !n.is_read).length;
 
     useEffect(() => {
         const root = document.documentElement;
@@ -29,17 +197,12 @@ export default function Topbar({ setOpen }) {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const currentPage = urlParams.get("page");
-
         const delayDebounceFn = setTimeout(() => {
             const currentPath = window.location.pathname;
-
             if (currentPath.startsWith("/admin")) {
                 router.get(
                     currentPath,
-                    {
-                        search: searchTerm,
-                        page: searchTerm ? 1 : currentPage,
-                    },
+                    { search: searchTerm, page: searchTerm ? 1 : currentPage },
                     {
                         preserveState: true,
                         replace: true,
@@ -48,23 +211,48 @@ export default function Topbar({ setOpen }) {
                 );
             }
         }, 400);
-
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm]);
 
+    useEffect(() => {
+        const fetchNotifications = () => {
+            router.reload({
+                only: ["notifications"],
+                onSuccess: (page) => {
+                    setNotifications(page.props.notifications ?? []);
+                },
+            });
+        };
+
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleMarkAll = () => {
+        router.post(
+            route("admin.notifications.markAllRead"),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () =>
+                    setNotifications((prev) =>
+                        prev.map((n) => ({ ...n, is_read: true })),
+                    ),
+            },
+        );
+    };
     return (
         <div
             className="
             flex items-center justify-between px-6 py-4 sticky top-0 z-40
             bg-white        dark:bg-dark-sidebar
-            border-b
-            border-mint-200 dark:border-dark-border/20
+            border-b border-mint-200 dark:border-dark-border/20
             transition-colors duration-300
         "
         >
             {/* LEFT */}
             <div className="flex items-center gap-4">
-                {/* MOBILE MENU */}
                 <button
                     onClick={() => setOpen(true)}
                     className="md:hidden text-kost-muted dark:text-mint-100/60 hover:text-kost-dark dark:hover:text-mint-50 transition"
@@ -73,9 +261,7 @@ export default function Topbar({ setOpen }) {
                 </button>
             </div>
 
-            {/* RIGHT */}
             <div className="flex items-center gap-3">
-                {/* SEARCH */}
                 <div className="relative hidden md:block">
                     <Search className="absolute left-3 top-2.5 w-4 h-4 text-kost-muted dark:text-mint-100/40" />
                     <input
@@ -86,29 +272,24 @@ export default function Topbar({ setOpen }) {
                         className="
                             w-60 pl-10 pr-4 py-2 rounded-lg text-sm
                             bg-mint-50      dark:bg-dark-card
-                            border
-                            border-mint-200 dark:border-dark-border/20
+                            border border-mint-200 dark:border-dark-border/20
                             text-kost-dark  dark:text-mint-50
                             placeholder-kost-muted dark:placeholder-mint-100/30
-                            focus:outline-none
-                            focus:ring-2
+                            focus:outline-none focus:ring-2
                             focus:ring-mint-200 dark:focus:ring-mint-300/40
                             transition
                         "
                     />
                 </div>
 
-                {/* DARK MODE TOGGLE */}
                 <button
                     onClick={() => setIsDark(!isDark)}
                     className="
-                        p-2 rounded-lg
+                        p-2 rounded-lg transition
                         bg-mint-50      dark:bg-dark-card
-                        border
-                        border-mint-200 dark:border-dark-border/20
+                        border border-mint-200 dark:border-dark-border/20
                         text-kost-muted  dark:text-mint-100/60
                         hover:bg-mint-100 dark:hover:bg-dark-card/60
-                        transition
                     "
                     aria-label="Toggle dark mode"
                 >
@@ -119,35 +300,60 @@ export default function Topbar({ setOpen }) {
                     )}
                 </button>
 
-                {/* NOTIFICATION */}
-                <button
-                    className="
-                    relative p-2 rounded-lg
-                    bg-mint-50      dark:bg-dark-card
-                    border
-                    border-mint-200 dark:border-dark-border/20
-                    hover:bg-mint-100 dark:hover:bg-dark-card/60
-                    transition
-                "
-                >
-                    <Bell className="w-4 h-4 text-kost-muted dark:text-mint-100/60" />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full" />
-                </button>
-
-                {/* PROFILE */}
                 <div className="relative">
                     <button
-                        onClick={() => setOpenProfile(!openProfile)}
+                        onClick={() => {
+                            setOpenNotification(!openNotification);
+                            setOpenProfile(false);
+                        }}
                         className="
-                            flex items-center gap-2 px-3 py-1.5 rounded-lg
+                            relative p-2 rounded-lg transition
                             bg-mint-50      dark:bg-dark-card
-                            border
-                            border-mint-200 dark:border-dark-border/20
+                            border border-mint-200 dark:border-dark-border/20
                             hover:bg-mint-100 dark:hover:bg-dark-card/60
-                            transition
                         "
                     >
-                        {/* Avatar */}
+                        <Bell className="w-4 h-4 text-kost-muted dark:text-mint-100/60" />
+
+                        {unreadCount > 0 && (
+                            <span
+                                className="
+                                absolute -top-1 -right-1
+                                min-w-[16px] h-4 px-1
+                                rounded-full text-[10px] font-medium
+                                flex items-center justify-center
+                                bg-red-400 text-white
+                            "
+                            >
+                                {unreadCount > 9 ? "9+" : unreadCount}
+                            </span>
+                        )}
+                    </button>
+
+                    <AnimatePresence>
+                        {openNotification && (
+                            <NotificationDropdown
+                                notifications={notifications}
+                                onClose={() => setOpenNotification(false)}
+                                onMarkAll={handleMarkAll}
+                            />
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                <div className="relative">
+                    <button
+                        onClick={() => {
+                            setOpenProfile(!openProfile);
+                            setOpenNotification(false);
+                        }}
+                        className="
+                            flex items-center gap-2 px-3 py-1.5 rounded-lg transition
+                            bg-mint-50      dark:bg-dark-card
+                            border border-mint-200 dark:border-dark-border/20
+                            hover:bg-mint-100 dark:hover:bg-dark-card/60
+                        "
+                    >
                         <div
                             className="
                             w-7 h-7 rounded-full flex items-center justify-center
@@ -158,7 +364,6 @@ export default function Topbar({ setOpen }) {
                         >
                             {user.name.charAt(0)}
                         </div>
-
                         <div className="hidden md:block text-left">
                             <p className="text-sm font-medium capitalize text-kost-dark dark:text-mint-50">
                                 {user.name}
@@ -167,11 +372,9 @@ export default function Topbar({ setOpen }) {
                                 {user.role}
                             </p>
                         </div>
-
                         <ChevronDown className="w-4 h-4 text-kost-muted dark:text-mint-100/40" />
                     </button>
 
-                    {/* DROPDOWN */}
                     <AnimatePresence>
                         {openProfile && (
                             <>
@@ -179,7 +382,6 @@ export default function Topbar({ setOpen }) {
                                     className="fixed inset-0 z-40"
                                     onClick={() => setOpenProfile(false)}
                                 />
-
                                 <motion.div
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -189,62 +391,37 @@ export default function Topbar({ setOpen }) {
                                         absolute right-0 mt-2 w-48 z-50
                                         rounded-xl overflow-hidden
                                         bg-white        dark:bg-dark-card
-                                        border
-                                        border-mint-200 dark:border-dark-border/20
+                                        border border-mint-200 dark:border-dark-border/20
                                         shadow-sm
                                     "
                                 >
                                     <Link
                                         as="button"
                                         href={route("profile")}
-                                        className="w-full text-left px-4 py-2.5 text-sm
-                                        text-kost-dark  dark:text-mint-50
-                                        hover:bg-mint-50 dark:hover:bg-dark-sidebar
-                                        transition"
+                                        onClick={() => setOpenProfile(false)}
+                                        className="w-full text-left px-4 py-2.5 text-sm text-kost-dark dark:text-mint-50 hover:bg-mint-50 dark:hover:bg-dark-sidebar transition"
                                     >
                                         Profile
                                     </Link>
-
-                                    <button
-                                        className="
-                                        w-full text-left px-4 py-2.5 text-sm
-                                        text-kost-dark  dark:text-mint-50
-                                        hover:bg-mint-50 dark:hover:bg-dark-sidebar
-                                        transition
-                                    "
-                                    >
+                                    <button className="w-full text-left px-4 py-2.5 text-sm text-kost-dark dark:text-mint-50 hover:bg-mint-50 dark:hover:bg-dark-sidebar transition">
                                         Settings
                                     </button>
-
                                     <div className="border-t border-mint-200 dark:border-dark-border/20" />
-
                                     <Link
                                         as="button"
                                         href={route("landing")}
                                         onClick={() => setOpenProfile(false)}
-                                        className="
-                                            w-full text-left px-4 py-2.5 text-sm
-                                            text-kost-dark  dark:text-mint-50
-                                            hover:bg-mint-50 dark:hover:bg-dark-sidebar
-                                            transition
-                                        "
+                                        className="w-full text-left px-4 py-2.5 text-sm text-kost-dark dark:text-mint-50 hover:bg-mint-50 dark:hover:bg-dark-sidebar transition"
                                     >
                                         Landing
                                     </Link>
-
                                     <div className="border-t border-mint-200 dark:border-dark-border/20" />
-
                                     <Link
                                         href={route("logout")}
                                         method="post"
                                         as="button"
                                         onClick={() => setOpenProfile(false)}
-                                        className="
-                                            w-full text-left px-4 py-2.5 text-sm
-                                            text-red-400
-                                            hover:bg-red-50 dark:hover:bg-red-500/10
-                                            transition
-                                        "
+                                        className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
                                     >
                                         Logout
                                     </Link>

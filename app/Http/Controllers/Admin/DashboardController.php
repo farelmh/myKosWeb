@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use App\Models\RentalRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class DashboardController extends Controller
 {
@@ -49,7 +50,7 @@ class DashboardController extends Controller
                     'time' => $property->created_at->diffForHumans(),
                 ]);
             });
-            
+
         RentalRequest::latest()
             ->take(3)
             ->get()
@@ -67,6 +68,11 @@ class DashboardController extends Controller
             ->take(8)
             ->values();
 
+        $notifications = Notification::where('user_id', auth()->id())
+            ->latest()
+            ->limit(20)
+            ->get();
+
 
 
 
@@ -78,6 +84,7 @@ class DashboardController extends Controller
             ],
             'chartData' => $chartData,
             'activities' => $activities,
+            'notifications' => $notifications,
         ]);
     }
 }

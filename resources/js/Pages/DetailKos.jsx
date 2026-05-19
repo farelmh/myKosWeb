@@ -1,31 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-    MapPin, Star, Wifi, Car, Snowflake, ArrowLeft,
-    Heart, MessageCircle, Bath, BedDouble, Users,
-    CheckCircle, ChevronLeft, ChevronRight, Share2,
+    MapPin,
+    Star,
+    Wifi,
+    Car,
+    Snowflake,
+    ArrowLeft,
+    Heart,
+    MessageCircle,
+    Bath,
+    BedDouble,
+    Users,
+    CheckCircle,
+    ChevronLeft,
+    ChevronRight,
+    Share2,
+    Sun,
+    Moon,
 } from "lucide-react";
 import { router, Link, usePage } from "@inertiajs/react";
 import { MapContainer, Marker, Popup } from "react-leaflet";
 import { createLocationIcon } from "@/Components/Map/CustomMarker";
 import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
+import RoomTypeModal from "@/Components/Search/RoomTypeModal";
 
 /* ================= FACILITY ICON MAP ================= */
 const FACILITY_ICONS = {
-    "WiFi":              <Wifi       className="w-4 h-4" />,
-    "Wifi":              <Wifi       className="w-4 h-4" />,
-    "AC":                <Snowflake  className="w-4 h-4" />,
-    "Parkir":            <Car        className="w-4 h-4" />,
-    "Kamar Mandi Dalam": <Bath       className="w-4 h-4" />,
+    WiFi: <Wifi className="w-4 h-4" />,
+    Wifi: <Wifi className="w-4 h-4" />,
+    AC: <Snowflake className="w-4 h-4" />,
+    Parkir: <Car className="w-4 h-4" />,
+    "Kamar Mandi Dalam": <Bath className="w-4 h-4" />,
 };
 
 /* ================= ROOM TYPE CARD ================= */
 const RoomTypeCard = ({ room, onBook }) => (
-    <div className="
+    <div
+        className="
         rounded-xl p-4
         bg-mint-50       dark:bg-dark-bg
         border border-mint-200 dark:border-dark-border/20
         flex items-center justify-between gap-4
-    ">
+    "
+    >
         <div className="space-y-1">
             <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
                 {room.name}
@@ -43,12 +60,14 @@ const RoomTypeCard = ({ room, onBook }) => (
                         {room.capacity} orang
                     </span>
                 )}
-                <span className="
+                <span
+                    className="
                     px-2 py-0.5 rounded-full text-xs
                     bg-mint-100 dark:bg-mint-200/10
                     text-kost-dark dark:text-mint-100
                     border border-mint-200 dark:border-mint-300/20
-                ">
+                "
+                >
                     {room.total_rooms} kamar
                 </span>
             </div>
@@ -96,7 +115,10 @@ const RecomCard = ({ item }) => (
             </p>
             <div className="flex items-center justify-between pt-1">
                 <span className="text-xs font-medium text-kost-dark dark:text-mint-50">
-                    Rp {Number(item.room_types?.[0]?.price ?? 0).toLocaleString("id-ID")}
+                    Rp{" "}
+                    {Number(item.room_types?.[0]?.price ?? 0).toLocaleString(
+                        "id-ID",
+                    )}
                 </span>
                 {item.rating && (
                     <div className="flex items-center gap-0.5 text-yellow-500 text-xs">
@@ -111,12 +133,14 @@ const RecomCard = ({ item }) => (
 
 /* ================= SECTION CARD ================= */
 const SectionCard = ({ title, children }) => (
-    <div className="
+    <div
+        className="
         rounded-2xl p-6
         bg-white        dark:bg-dark-card
         border border-mint-200 dark:border-dark-border/20
         space-y-4 transition-colors duration-300
-    ">
+    "
+    >
         {title && (
             <h2 className="text-sm font-medium text-kost-dark dark:text-mint-50">
                 {title}
@@ -129,38 +153,66 @@ const SectionCard = ({ title, children }) => (
 /* ================= MAIN ================= */
 
 export default function DetailKos({ property = null, similar = [] }) {
-
     console.log("=== PROPERTY DATA ===", property);
-    console.log("=== PROPERTY KEYS ===", property ? Object.keys(property) : "null");
+    console.log(
+        "=== PROPERTY KEYS ===",
+        property ? Object.keys(property) : "null",
+    );
 
-    const images     = property.images     ?? [];
-    const roomTypes  = property.room_types ?? [];
+    const images = property.images ?? [];
+    const roomTypes = property.room_types ?? [];
     const facilities = property.facilities ?? [];
 
     const icon = createLocationIcon();
-    const [activeImage,  setActiveImage]  = useState(0);
+    const [activeImage, setActiveImage] = useState(0);
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [selectedRoom, setSelectedRoom] = useState(roomTypes[0] ?? null);
+    const [modalRoom, setModalRoom] = useState(null);
 
-    const prevImage = () => setActiveImage((prev) => (prev - 1 + images.length) % images.length);
-    const nextImage = () => setActiveImage((prev) => (prev + 1) % images.length);
+    const [isDark, setIsDark] = useState(
+        () => localStorage.getItem("theme") === "dark",
+    );
 
-    const lowestPrice = roomTypes.length > 0
-        ? Math.min(...roomTypes.map((r) => Number(r.price)))
-        : null;
+    const handleBook = (room) => {
+        setModalRoom(null);
+        router.visit(route("booking.create", { room_type_id: room.id }));
+    };
+
+    useEffect(() => {
+        const root = document.documentElement;
+
+        if (isDark) {
+            root.classList.add("dark");
+            localStorage.setItem("theme", "dark");
+        } else {
+            root.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+        }
+    }, [isDark]);
+
+    const prevImage = () =>
+        setActiveImage((prev) => (prev - 1 + images.length) % images.length);
+    const nextImage = () =>
+        setActiveImage((prev) => (prev + 1) % images.length);
+
+    const lowestPrice =
+        roomTypes.length > 0
+            ? Math.min(...roomTypes.map((r) => Number(r.price)))
+            : null;
 
     return (
         <div className="min-h-screen bg-mint-50 dark:bg-dark-bg pb-20 transition-colors duration-300">
-
             {/* ── NAVBAR ──────────────────────────────── */}
-            <div className="
+            <div
+                className="
                 sticky top-0 z-50
                 bg-white/90 dark:bg-dark-card/90
                 backdrop-blur border-b
                 border-mint-200 dark:border-dark-border/20
                 px-[6%] lg:px-[10%] py-3
                 flex items-center justify-between
-            ">
+            "
+            >
                 <button
                     onClick={() => window.history.back()}
                     className="
@@ -179,7 +231,12 @@ export default function DetailKos({ property = null, similar = [] }) {
 
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => navigator.share?.({ title: property.name, url: window.location.href })}
+                        onClick={() =>
+                            navigator.share?.({
+                                title: property.name,
+                                url: window.location.href,
+                            })
+                        }
                         className="
                             p-2 rounded-lg transition
                             bg-mint-50 dark:bg-dark-bg
@@ -198,15 +255,34 @@ export default function DetailKos({ property = null, similar = [] }) {
                             border border-mint-200 dark:border-dark-border/20
                         "
                     >
-                        <Heart className={`w-4 h-4 transition ${isWishlisted ? "fill-red-400 stroke-red-400" : "text-kost-muted dark:text-mint-100/40"}`} />
+                        <Heart
+                            className={`w-4 h-4 transition ${isWishlisted ? "fill-red-400 stroke-red-400" : "text-kost-muted dark:text-mint-100/40"}`}
+                        />
+                    </button>
+                    <button
+                        onClick={() => setIsDark(!isDark)}
+                        className="
+                                p-2 rounded-lg
+                                bg-mint-50 dark:bg-dark-card
+                                border
+                                border-mint-200 dark:border-dark-border/20
+                                text-kost-muted dark:text-mint-100/60
+                                hover:bg-mint-100 dark:hover:bg-dark-card/60
+                                transition
+                            "
+                        aria-label="Toggle dark mode"
+                    >
+                        {isDark ? (
+                            <Sun className="w-4 h-4 text-mint-200" />
+                        ) : (
+                            <Moon className="w-4 h-4" />
+                        )}
                     </button>
                 </div>
             </div>
 
             <div className="px-[6%] lg:px-[10%] mt-6 space-y-6">
-
                 <div className="grid lg:grid-cols-3 gap-3">
-
                     {/* Main image */}
                     <div className="lg:col-span-2 relative rounded-2xl overflow-hidden h-[320px] group">
                         <img
@@ -250,11 +326,13 @@ export default function DetailKos({ property = null, similar = [] }) {
                                 </button>
 
                                 {/* Counter */}
-                                <div className="
+                                <div
+                                    className="
                                     absolute bottom-3 right-3
                                     px-2 py-1 rounded-full text-xs
                                     bg-black/40 text-white backdrop-blur-sm
-                                ">
+                                "
+                                >
                                     {activeImage + 1}/{images.length}
                                 </div>
                             </>
@@ -270,9 +348,10 @@ export default function DetailKos({ property = null, similar = [] }) {
                                 className={`
                                     relative h-24 rounded-xl overflow-hidden cursor-pointer
                                     border-2 transition
-                                    ${activeImage === i
-                                        ? "border-mint-300"
-                                        : "border-transparent hover:border-mint-200"
+                                    ${
+                                        activeImage === i
+                                            ? "border-mint-300"
+                                            : "border-transparent hover:border-mint-200"
                                     }
                                 `}
                             >
@@ -294,22 +373,22 @@ export default function DetailKos({ property = null, similar = [] }) {
                 </div>
 
                 <div className="grid lg:grid-cols-3 gap-6">
-
                     {/* LEFT */}
                     <div className="lg:col-span-2 space-y-5">
-
                         {/* JUDUL */}
                         <SectionCard>
                             <div className="flex items-start justify-between gap-3">
                                 <div className="space-y-2">
                                     <div className="flex flex-wrap gap-2">
                                         {property.type && (
-                                            <span className="
+                                            <span
+                                                className="
                                                 px-2.5 py-1 rounded-full text-xs font-medium capitalize
                                                 bg-mint-50 dark:bg-dark-bg
                                                 text-kost-muted dark:text-mint-100/60
                                                 border border-mint-200 dark:border-dark-border/20
-                                            ">
+                                            "
+                                            >
                                                 Kos {property.type}
                                             </span>
                                         )}
@@ -341,19 +420,23 @@ export default function DetailKos({ property = null, similar = [] }) {
                                     {roomTypes.map((room) => (
                                         <div
                                             key={room.id}
-                                            onClick={() => setSelectedRoom(room)}
+                                            onClick={() =>
+                                                setSelectedRoom(room)
+                                            }
                                             className={`
-                                                cursor-pointer rounded-xl p-4 border transition
-                                                ${selectedRoom?.id === room.id
-                                                    ? "bg-mint-100 dark:bg-mint-200/10 border-mint-300 dark:border-mint-300/30"
-                                                    : "bg-mint-50 dark:bg-dark-bg border-mint-200 dark:border-dark-border/20 hover:bg-mint-100 dark:hover:bg-mint-200/10"
-                                                }
-                                            `}
+                        cursor-pointer rounded-xl p-4 border transition
+                        ${
+                            selectedRoom?.id === room.id
+                                ? "bg-mint-100 dark:bg-mint-200/10 border-mint-300 dark:border-mint-300/30"
+                                : "bg-mint-50 dark:bg-dark-bg border-mint-200 dark:border-dark-border/20 hover:bg-mint-100 dark:hover:bg-mint-200/10"
+                        }
+                    `}
                                         >
                                             <div className="flex items-center justify-between gap-3">
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-2">
-                                                        {selectedRoom?.id === room.id && (
+                                                        {selectedRoom?.id ===
+                                                            room.id && (
                                                             <CheckCircle className="w-4 h-4 text-mint-300" />
                                                         )}
                                                         <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
@@ -361,31 +444,69 @@ export default function DetailKos({ property = null, similar = [] }) {
                                                         </p>
                                                     </div>
                                                     <div className="flex items-center gap-3 text-xs text-kost-muted dark:text-mint-100/50">
-                                                        {room.room_width && room.room_length && (
-                                                            <span>{room.room_width}×{room.room_length} m</span>
-                                                        )}
+                                                        {room.room_width &&
+                                                            room.room_length && (
+                                                                <span>
+                                                                    {
+                                                                        room.room_width
+                                                                    }
+                                                                    ×
+                                                                    {
+                                                                        room.room_length
+                                                                    }{" "}
+                                                                    m
+                                                                </span>
+                                                            )}
                                                         {room.capacity && (
                                                             <span className="flex items-center gap-1">
                                                                 <Users className="w-3 h-3" />
-                                                                {room.capacity} orang
+                                                                {room.capacity}{" "}
+                                                                orang
                                                             </span>
                                                         )}
-                                                        <span className="
-                                                            px-2 py-0.5 rounded-full
-                                                            bg-mint-200/60 dark:bg-mint-200/20
-                                                            text-kost-dark dark:text-mint-100
-                                                        ">
-                                                            {room.total_rooms} unit
+                                                        <span className="px-2 py-0.5 rounded-full bg-mint-200/60 dark:bg-mint-200/20 text-kost-dark dark:text-mint-100">
+                                                            {room.total_rooms}{" "}
+                                                            unit
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="text-right flex-shrink-0">
-                                                    <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
-                                                        Rp {Number(room.price).toLocaleString("id-ID")}
-                                                    </p>
-                                                    <p className="text-xs text-kost-muted dark:text-mint-100/40">
-                                                        /{room.rental_type === "monthly" ? "bulan" : "hari"}
-                                                    </p>
+
+                                                <div className="flex items-center gap-3 flex-shrink-0">
+                                                    <div className="text-right">
+                                                        <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
+                                                            Rp{" "}
+                                                            {Number(
+                                                                room.price,
+                                                            ).toLocaleString(
+                                                                "id-ID",
+                                                            )}
+                                                        </p>
+                                                        <p className="text-xs text-kost-muted dark:text-mint-100/40">
+                                                            /
+                                                            {room.rental_type ===
+                                                            "monthly"
+                                                                ? "bulan"
+                                                                : "hari"}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Tombol detail — buka modal */}
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // ← jangan trigger setSelectedRoom
+                                                            setModalRoom(room);
+                                                        }}
+                                                        className="
+                                    px-3 py-1.5 rounded-lg text-xs transition flex-shrink-0
+                                    bg-white dark:bg-dark-card
+                                    border border-mint-200 dark:border-dark-border/20
+                                    text-kost-muted dark:text-mint-100/50
+                                    hover:bg-mint-100 dark:hover:bg-dark-bg
+                                    hover:text-kost-dark dark:hover:text-mint-50
+                                "
+                                                    >
+                                                        Detail
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -393,6 +514,13 @@ export default function DetailKos({ property = null, similar = [] }) {
                                 </div>
                             </SectionCard>
                         )}
+
+                        {/* Modal tipe kamar */}
+                        <RoomTypeModal
+                            room={modalRoom}
+                            onClose={() => setModalRoom(null)}
+                            onBook={handleBook}
+                        />
 
                         {/* FASILITAS */}
                         {facilities.length > 0 && (
@@ -439,16 +567,25 @@ export default function DetailKos({ property = null, similar = [] }) {
                         {property.latitude && property.longitude && (
                             <SectionCard title="Lokasi">
                                 <div className="rounded-xl overflow-hidden h-56 border border-mint-200 dark:border-dark-border/20">
-                                <MapContainer
-                                    center={[property.latitude, property.longitude]}
-                                    zoom={16}
-                                    style={{ height: "250px" }}
-                                >
-                                    <GoogleTileLayer />
-                                    <Marker position={[property.latitude, property.longitude]} icon={icon}>
-                                        <Popup>{property.name}</Popup>
-                                    </Marker>
-                                </MapContainer>
+                                    <MapContainer
+                                        center={[
+                                            property.latitude,
+                                            property.longitude,
+                                        ]}
+                                        zoom={16}
+                                        style={{ height: "250px" }}
+                                    >
+                                        <GoogleTileLayer />
+                                        <Marker
+                                            position={[
+                                                property.latitude,
+                                                property.longitude,
+                                            ]}
+                                            icon={icon}
+                                        >
+                                            <Popup>{property.name}</Popup>
+                                        </Marker>
+                                    </MapContainer>
                                 </div>
                                 <p className="text-xs text-kost-muted dark:text-mint-100/40 flex items-center gap-1 mt-2">
                                     <MapPin className="w-3 h-3" />
@@ -466,9 +603,15 @@ export default function DetailKos({ property = null, similar = [] }) {
                                     Mulai dari
                                 </p>
                                 <p className="text-xl font-medium text-kost-dark dark:text-mint-50">
-                                    Rp {Number(selectedRoom?.price ?? lowestPrice ?? 0).toLocaleString("id-ID")}
+                                    Rp{" "}
+                                    {Number(
+                                        selectedRoom?.price ?? lowestPrice ?? 0,
+                                    ).toLocaleString("id-ID")}
                                     <span className="text-xs text-kost-muted dark:text-mint-100/40 font-normal ml-1">
-                                        /{selectedRoom?.rental_type === "monthly" ? "bulan" : "hari"}
+                                        /
+                                        {selectedRoom?.rental_type === "monthly"
+                                            ? "bulan"
+                                            : "hari"}
                                     </span>
                                 </p>
                                 {selectedRoom && (
@@ -479,17 +622,20 @@ export default function DetailKos({ property = null, similar = [] }) {
                             </div>
 
                             <div className="space-y-2 pt-2 border-t border-mint-200 dark:border-dark-border/20">
-                                <button className="
+                                <button
+                                    className="
                                     w-full py-2.5 rounded-xl text-sm font-medium transition
                                     bg-mint-200      dark:bg-mint-200/20
                                     border border-mint-200 dark:border-mint-300/20
                                     text-kost-dark   dark:text-mint-50
                                     hover:bg-mint-300 dark:hover:bg-mint-300/30
-                                ">
+                                "
+                                >
                                     Booking Sekarang
                                 </button>
 
-                                <button className="
+                                <button
+                                    className="
                                     w-full py-2.5 rounded-xl text-sm transition
                                     flex items-center justify-center gap-2
                                     bg-mint-50 dark:bg-dark-bg
@@ -497,7 +643,8 @@ export default function DetailKos({ property = null, similar = [] }) {
                                     text-kost-muted dark:text-mint-100/50
                                     hover:bg-mint-100 dark:hover:bg-dark-card
                                     hover:text-kost-dark dark:hover:text-mint-50
-                                ">
+                                "
+                                >
                                     <MessageCircle className="w-4 h-4" />
                                     Chat Pemilik
                                 </button>

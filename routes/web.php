@@ -95,6 +95,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     Route::get('/settings', function () {
         return Inertia::render('Admin/Settings');
     })->name('admin.settings');
+    Route::get('/admin/request/{id}', [PropertyApplicationController::class, 'show'])
+    ->name('admin.request.show');
 });
 
 Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(function () {
@@ -194,6 +196,13 @@ Route::get('/DetailKos', function () {
 })->name('detail.kos');
 
 Route::get('/kos/{id}', [KosController::class, 'detail'])->name('kos.detail');
+
+Route::post('/admin/notifications/mark-all-read', function () {
+    \App\Models\Notification::where('user_id', auth()->id())
+        ->where('is_read', false)
+        ->update(['is_read' => true]);
+    return back();
+})->middleware('auth')->name('admin.notifications.markAllRead');
 
 Route::middleware('auth')->group(function () {
 

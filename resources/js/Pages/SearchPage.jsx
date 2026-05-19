@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
 
 import SearchBar from "@/Components/Search/SearchBar";
@@ -23,6 +23,8 @@ import {
     X,
     Navigation,
     ArrowLeft,
+    Sun,
+    Moon,
 } from "lucide-react";
 
 /* ================================================================
@@ -265,7 +267,21 @@ export default function SearchPage({
     const [position, setPosition] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
 
-    /* ── Handlers ──────────────────────────── */
+    const [isDark, setIsDark] = useState(
+        () => localStorage.getItem("theme") === "dark",
+    );
+
+    useEffect(() => {
+        const root = document.documentElement;
+
+        if (isDark) {
+            root.classList.add("dark");
+            localStorage.setItem("theme", "dark");
+        } else {
+            root.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+        }
+    }, [isDark]);
     const handleApply = () => {
         setApplied(filters);
         setAppliedKeyword(keyword);
@@ -341,17 +357,42 @@ export default function SearchPage({
             transition-colors duration-300
         "
         >
-            <button
-                onClick={() => window.history.back()}
-                className="
-                                        flex items-center gap-2 text-sm transition
-                                        text-kost-muted dark:text-mint-100/50
-                                        hover:text-kost-dark dark:hover:text-mint-50
-                                       py-2"
-            >
-                <ArrowLeft className="w-4 h-4" />
-                Kembali
-            </button>
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <button
+                    onClick={() => window.history.back()}
+                    className="
+                        flex items-center gap-2 text-sm transition
+                        text-kost-muted dark:text-mint-100/50
+                        hover:text-kost-dark dark:hover:text-mint-50
+                    "
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Kembali
+                </button>
+                </div>
+
+                {/* RIGHT */}
+                <button
+                    onClick={() => setIsDark(!isDark)}
+                    className="
+            p-2 rounded-lg
+            bg-mint-50 dark:bg-dark-card
+            border
+            border-mint-200 dark:border-dark-border/20
+            text-kost-muted dark:text-mint-100/60
+            hover:bg-mint-100 dark:hover:bg-dark-card/60
+            transition
+        "
+                    aria-label="Toggle dark mode"
+                >
+                    {isDark ? (
+                        <Sun className="w-4 h-4 text-mint-200" />
+                    ) : (
+                        <Moon className="w-4 h-4" />
+                    )}
+                </button>
+            </div>
 
             <div
                 className="
@@ -366,14 +407,13 @@ export default function SearchPage({
                     onSearch={handleSearch}
                     onClear={handleClear}
                     onSelectLocation={(loc) => {
-
                         setKeyword(loc.name);
 
                         setAppliedKeyword(loc.name);
 
                         setPosition({
                             lat: loc.lat,
-                            lng: loc.lng
+                            lng: loc.lng,
                         });
 
                         setSelectedLocation(loc);
