@@ -20,18 +20,21 @@ class RoomTypeController extends Controller
         $roomTypes = RoomType::with([
             'facilities',
             'images',
+            'roomTypes.images',
+            'roomTypes.facilities',
         ])
-        ->where('property_id', $property->id)
-        ->get();
+            ->where('property_id', $property->id)
+            ->get();
 
         return Inertia::render('Owner/RoomTypes', [
             'roomTypes' => $roomTypes,
         ]);
     }
 
-    public function create() {
+    public function create()
+    {
         $facilities = Facility::where('type', 'room')->get();
-    
+
         return Inertia::render('Owner/Create/CreateRoomType', ['facilities' => $facilities]);
     }
 
@@ -90,7 +93,8 @@ class RoomTypeController extends Controller
                 $facility = Facility::firstOrCreate(
                     [
                         'name' => $facilityName,
-                    ], [
+                    ],
+                    [
                         'type' => 'room',
                         'icon' => 'check_circle',
                         'created_by' => auth()->id(),
@@ -134,7 +138,8 @@ class RoomTypeController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function edit(string $id) {
+    public function edit(string $id)
+    {
         $roomType = RoomType::with('images', 'facilities')->findOrFail($id);
         $facilities = Facility::where('type', 'room')->get();
 
@@ -146,104 +151,105 @@ class RoomTypeController extends Controller
     }
 
     public function update(Request $request, string $id)
-{
-    $validated = $request->validate([
-        'property_id' => 'required|exists:properties,id',
+    {
+        $validated = $request->validate([
+            'property_id' => 'required|exists:properties,id',
 
-        'name' => 'required|string',
-        'room_width' => 'required|numeric',
-        'room_length' => 'required|numeric',
-        'price' => 'required|numeric',
-        'capacity' => 'required|numeric',
-        'total_rooms' => 'required|numeric',
-        'rental_type' => 'nullable|string',
+            'name' => 'required|string',
+            'room_width' => 'required|numeric',
+            'room_length' => 'required|numeric',
+            'price' => 'required|numeric',
+            'capacity' => 'required|numeric',
+            'total_rooms' => 'required|numeric',
+            'rental_type' => 'nullable|string',
 
-        'facilities' => 'nullable|array',
-        'facilities.*' => 'exists:facilities,id',
+            'facilities' => 'nullable|array',
+            'facilities.*' => 'exists:facilities,id',
 
-        'custom_facilities' => 'nullable|array',
+            'custom_facilities' => 'nullable|array',
 
-        'images' => 'nullable|array',
-        'images.*' => 'image|mimes:jpeg,jpg,png|max:2048',
-    ]);
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,jpg,png|max:2048',
+        ]);
 
-    $property = Property::where('id', $validated['property_id'])
-        ->where('owner_id', auth()->id())
-        ->firstOrFail();
+        $property = Property::where('id', $validated['property_id'])
+            ->where('owner_id', auth()->id())
+            ->firstOrFail();
 
-    $roomType = RoomType::findOrFail($id);
+        $roomType = RoomType::findOrFail($id);
 
-    $roomType->update([
-        'name' => $validated['name'],
-        'room_width' => $validated['room_width'],
-        'room_length' => $validated['room_length'],
-        'price' => $validated['price'],
-        'capacity' => $validated['capacity'],
-        'total_rooms' => $validated['total_rooms'],
-        'rental_type' => $validated['rental_type'],
-    ]);
+        $roomType->update([
+            'name' => $validated['name'],
+            'room_width' => $validated['room_width'],
+            'room_length' => $validated['room_length'],
+            'price' => $validated['price'],
+            'capacity' => $validated['capacity'],
+            'total_rooms' => $validated['total_rooms'],
+            'rental_type' => $validated['rental_type'],
+        ]);
 
-    $facilityIds = $validated['facilities'] ?? [];
+        $facilityIds = $validated['facilities'] ?? [];
 
-    if (!empty($validated['custom_facilities'])) {
+        if (!empty($validated['custom_facilities'])) {
 
-        foreach ($validated['custom_facilities'] as $facilityName) {
+            foreach ($validated['custom_facilities'] as $facilityName) {
 
-            $facility = Facility::firstOrCreate(
-                [
-                    'name' => $facilityName,
-                    'type' => 'room',
-                ],
-                [
-                    'icon' => 'check_circle',
-                    'created_by' => auth()->id(),
-                ]
-            );
+                $facility = Facility::firstOrCreate(
+                    [
+                        'name' => $facilityName,
+                        'type' => 'room',
+                    ],
+                    [
+                        'icon' => 'check_circle',
+                        'created_by' => auth()->id(),
+                    ]
+                );
 
-            $facilityIds[] = $facility->id;
+                $facilityIds[] = $facility->id;
+            }
         }
-    }
 
-    $roomType->facilities()->sync($facilityIds);
+        $roomType->facilities()->sync($facilityIds);
 
-    if ($request->hasFile('images')) {
+        if ($request->hasFile('images')) {
 
-        foreach ($request->file('images') as $image) {
+            foreach ($request->file('images') as $image) {
 
-            $path = $image->store(
-                'room-types',
-                'public'
-            );
+                $path = $image->store(
+                    'room-types',
+                    'public'
+                );
 
-            RoomTypeImage::create([
-                'room_type_id' => $roomType->id,
-                'image_path' => $path,
-            ]);
+                RoomTypeImage::create([
+                    'room_type_id' => $roomType->id,
+                    'image_path' => $path,
+                ]);
+            }
         }
-    }
 
-    return redirect()
-        ->route('owner.room-types', $property->id)
-        ->with('success', 'Tipe kamar berhasil diubah');
-}
+        return redirect()
+            ->route('owner.room-types', $property->id)
+            ->with('success', 'Tipe kamar berhasil diubah');
+    }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
-{
-    $roomType = RoomType::findOrFail($id);
-    
-    if ($roomType->property->owner_id !== auth()->id()) {
-        abort(403);
+    {
+        $roomType = RoomType::findOrFail($id);
+
+        if ($roomType->property->owner_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $roomType->delete();
+
+        return redirect()->back()->with('success', 'Tipe kamar berhasil dihapus');
     }
 
-    $roomType->delete();
-
-    return redirect()->back()->with('success', 'Tipe kamar berhasil dihapus');
-}
-
-    public function deleteImage(string $id) {
+    public function deleteImage(string $id)
+    {
         $image = RoomTypeImage::findOrFail($id);
 
         Storage::disk('public')->delete($image->image_path);

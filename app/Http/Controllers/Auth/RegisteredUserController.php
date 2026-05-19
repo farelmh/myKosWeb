@@ -43,12 +43,12 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
-
         return redirect(route('landing', absolute: false));
     }
 }
