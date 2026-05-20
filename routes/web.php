@@ -12,6 +12,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\KosController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Models\Review;
+use App\Models\Property;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -55,8 +58,8 @@ require __DIR__ . '/auth.php';
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(function () {
 
-   Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('admin.dashboard');
 
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');
 
@@ -96,7 +99,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
         return Inertia::render('Admin/Settings');
     })->name('admin.settings');
     Route::get('/admin/request/{id}', [PropertyApplicationController::class, 'show'])
-    ->name('admin.request.show');
+        ->name('admin.request.show');
 });
 
 Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(function () {
@@ -203,6 +206,63 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
             ->update(['is_read' => true]);
         return back();
     })->name('owner.notifications.markOneRead');
+
+    Route::get('/complaints/{property}', function ($property) {
+        return Inertia::render('Owner/Complaints', [
+            'propertyId' => $property,
+        ]);
+    })->name('complaints.index');
+
+
+
+    Route::get('/reviews/{property}', function (Request $request, Property $property) {
+        $reviewsQuery = Review::with(['user', 'property'])
+            ->where('property_id', $property->id)
+            ->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $reviewsQuery->where(function ($q) use ($search) {
+                $q->where('comment', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($user) use ($search) {
+                        $user->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('property', function ($property) use ($search) {
+                        $property->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('rating')) {
+            $reviewsQuery->where('rating', $request->rating);
+        }
+
+        $statsQuery = Review::where('property_id', $property->id);
+
+        return Inertia::render('Owner/Reviews', [
+            'propertyId' => $property->id,
+
+            'reviews' => $reviewsQuery
+                ->paginate(10)
+                ->withQueryString(),
+
+            'stats' => [
+                'total' => (clone $statsQuery)->count(),
+                'average' => round((clone $statsQuery)->avg('rating') ?? 0, 1),
+                'five' => (clone $statsQuery)->where('rating', 5)->count(),
+                'four' => (clone $statsQuery)->where('rating', 4)->count(),
+                'three' => (clone $statsQuery)->where('rating', 3)->count(),
+                'two' => (clone $statsQuery)->where('rating', 2)->count(),
+                'one' => (clone $statsQuery)->where('rating', 1)->count(),
+            ],
+
+            'filters' => [
+                'search' => $request->search,
+                'rating' => $request->rating,
+            ],
+        ]);
+    })->name('owner.reviews.index');
 });
 
 Route::get('/DetailKos', function () {
@@ -218,11 +278,11 @@ Route::post('/admin/notifications/mark-all-read', function () {
     return back();
 })->middleware('auth')->name('admin.notifications.markAllRead');
 Route::post('/notifications/{id}/mark-read', function ($id) {
-        \App\Models\Notification::where('id', $id)
-            ->where('user_id', auth()->id())
-            ->update(['is_read' => true]);
-        return back();
-    })->name('admin.notifications.markOneRead');
+    \App\Models\Notification::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->update(['is_read' => true]);
+    return back();
+})->name('admin.notifications.markOneRead');
 
 Route::middleware('auth')->group(function () {
 
