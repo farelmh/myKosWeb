@@ -11,7 +11,6 @@ use App\Models\PropertyApplicationImage;
 use App\Models\PropertyApplicationDocument;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Notification;
 
 class PropertyApplicationController extends Controller
@@ -179,6 +178,31 @@ class PropertyApplicationController extends Controller
                 ]);
             }
         });
+
+        if ($status === 'approved') {
+            $application->update(['status' => 'approved']);
+
+            // ← Notif ke owner
+            Notification::create([
+                'user_id' => $application->user_id,
+                'title'   => 'Pengajuan Disetujui',
+                'message' => "Pengajuan kos \"{$application->name}\" telah disetujui. Kamu sekarang bisa mengelola kos.",
+                'is_read' => false,
+            ]);
+        } else {
+            $application->update([
+                'status'           => 'rejected',
+                'rejection_reason' => $request->input('rejection_reason'),
+            ]);
+
+            // ← Notif ke owner
+            Notification::create([
+                'user_id' => $application->user_id,
+                'title'   => 'Pengajuan Ditolak',
+                'message' => "Pengajuan kos \"{$application->name}\" ditolak. Alasan: {$request->input('rejection_reason')}",
+                'is_read' => false,
+            ]);
+        }
 
         return redirect()->route('admin.request')->with('success', 'Status pengajuan berhasil diperbarui!');
     }

@@ -36,6 +36,7 @@ class DashboardController extends Controller
                     'type' => 'user',
                     'text' => "{$user->name} mendaftar",
                     'time' => $user->created_at->diffForHumans(),
+                    'created_at' => $user->created_at->toISOString(),
                 ]);
             });
 
@@ -48,6 +49,7 @@ class DashboardController extends Controller
                     'type' => 'property',
                     'text' => "Kos {$property->name} ditambahkan",
                     'time' => $property->created_at->diffForHumans(),
+                    'created_at' => $property->created_at->toISOString(),
                 ]);
             });
 
@@ -60,11 +62,12 @@ class DashboardController extends Controller
                     'type' => 'booking',
                     'text' => "Booking baru dibuat",
                     'time' => $request->created_at->diffForHumans(),
+                    'created_at' => $request->created_at->toISOString(),
                 ]);
             });
 
         $activities = $activities
-            ->sortByDesc('time')
+            ->sortByDesc('created_at')
             ->take(8)
             ->values();
 
