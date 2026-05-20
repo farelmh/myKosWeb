@@ -15,7 +15,12 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, usePage, router } from "@inertiajs/react";
 
-const NotificationDropdown = ({ notifications, onClose, onMarkAll }) => {
+const NotificationDropdown = ({
+    notifications,
+    onClose,
+    onMarkAll,
+    onMarkOne,
+}) => {
     const unread = notifications.filter((n) => !n.is_read);
 
     const iconFor = (n) => {
@@ -90,8 +95,11 @@ const NotificationDropdown = ({ notifications, onClose, onMarkAll }) => {
                         notifications.map((n) => (
                             <Link
                                 key={n.id}
-                                href={route("admin.request")} // ← ke list pengajuan, bukan detail
-                                onClick={onClose}
+                                href={route("admin.request")}
+                                onClick={() => {
+                                    if (!n.is_read) onMarkOne(n.id);
+                                    onClose();
+                                }}
                                 className={`
                                     flex items-start gap-3 px-4 py-3 transition
                                     border-b border-mint-200/50 dark:border-dark-border/10
@@ -193,6 +201,23 @@ export default function Topbar({ setOpen }) {
             localStorage.setItem("theme", "light");
         }
     }, [isDark]);
+
+    const handleMarkOne = (id) => {
+        router.post(
+            route("admin.notifications.markOneRead", id),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () =>
+                    setNotifications((prev) =>
+                        prev.map((n) =>
+                            n.id === id ? { ...n, is_read: true } : n,
+                        ),
+                    ),
+            },
+        );
+    };
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -336,6 +361,7 @@ export default function Topbar({ setOpen }) {
                                 notifications={notifications}
                                 onClose={() => setOpenNotification(false)}
                                 onMarkAll={handleMarkAll}
+                                onMarkOne={handleMarkOne}
                             />
                         )}
                     </AnimatePresence>

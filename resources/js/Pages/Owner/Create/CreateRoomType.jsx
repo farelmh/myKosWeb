@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-/* ================= SECTION CARD ================= */
 const SectionCard = ({ icon: Icon, title, subtitle, children }) => (
     <div className="
         rounded-2xl p-6

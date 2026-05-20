@@ -6,6 +6,7 @@ use App\Models\Property;
 use App\Models\RentalRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Notification;
 
 class RentalRequestController extends Controller
 {
@@ -69,6 +70,15 @@ class RentalRequestController extends Controller
     ->latest()
     ->paginate(10)
     ->withQueryString();
+
+    $property = Property::find($request->property_id);
+
+    Notification::create([
+    'user_id' => $property->owner_id,
+    'title'   => 'Permintaan Sewa Baru',
+    'message' => "Ada permintaan sewa baru untuk kos \"{$property->name}\".",
+    'is_read' => false,
+]);
 
     return Inertia::render('Owner/RentalRequest', [
         'rentals' => $rentals,

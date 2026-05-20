@@ -189,6 +189,20 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
         RentalRequestController::class,
         'index'
     ])->name('owner.rental-request');
+
+    Route::post('/notifications/mark-all-read', function () {
+        \App\Models\Notification::where('user_id', auth()->id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+        return back();
+    })->name('owner.notifications.markAllRead');
+
+    Route::post('/notifications/{id}/mark-read', function ($id) {
+        \App\Models\Notification::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->update(['is_read' => true]);
+        return back();
+    })->name('owner.notifications.markOneRead');
 });
 
 Route::get('/DetailKos', function () {
@@ -203,6 +217,12 @@ Route::post('/admin/notifications/mark-all-read', function () {
         ->update(['is_read' => true]);
     return back();
 })->middleware('auth')->name('admin.notifications.markAllRead');
+Route::post('/notifications/{id}/mark-read', function ($id) {
+        \App\Models\Notification::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->update(['is_read' => true]);
+        return back();
+    })->name('admin.notifications.markOneRead');
 
 Route::middleware('auth')->group(function () {
 
