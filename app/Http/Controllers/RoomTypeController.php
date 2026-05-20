@@ -20,8 +20,6 @@ class RoomTypeController extends Controller
         $roomTypes = RoomType::with([
             'facilities',
             'images',
-            'roomTypes.images',
-            'roomTypes.facilities',
         ])
             ->where('property_id', $property->id)
             ->get();
