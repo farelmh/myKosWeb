@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\KosController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Owner\OwnerComplaintController;
 use App\Models\Review;
 use App\Models\Property;
 use Illuminate\Http\Request;
@@ -263,6 +264,12 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
             ],
         ]);
     })->name('owner.reviews.index');
+
+    Route::get('/complaints', [OwnerComplaintController::class, 'index'])
+        ->name('complaints.index');
+
+    Route::patch('/complaints/{complaint}/status', [OwnerComplaintController::class, 'updateStatus'])
+        ->name('complaints.status');
 });
 
 Route::get('/DetailKos', function () {
