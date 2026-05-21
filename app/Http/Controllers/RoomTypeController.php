@@ -16,21 +16,30 @@ class RoomTypeController extends Controller
      * Display a listing of the resource.
      */
     public function index(Property $property)
-    {
-        $roomTypes = RoomType::with([
-            'facilities',
-            'images',
-            'roomTypes.images',
-            'roomTypes.facilities',
-        ])
-            ->where('property_id', $property->id)
-            ->get();
+{
+    $roomTypes = RoomType::with([
+        'facilities',
+        'images',
+    ])
+    ->withCount([
+        'contracts as occupied' => function ($query) {
+            $query->where('status', 'active');
+        }
+    ])
+    ->where('property_id', $property->id)
+    ->get()
+    ->map(function ($roomType) {
 
-        return Inertia::render('Owner/RoomTypes', [
-            'roomTypes' => $roomTypes,
-        ]);
-    }
+        $roomType->available =
+            $roomType->total_rooms - $roomType->occupied;
 
+        return $roomType;
+    });
+
+    return Inertia::render('Owner/RoomTypes', [
+        'roomTypes' => $roomTypes,
+    ]);
+}
     public function create()
     {
         $facilities = Facility::where('type', 'room')->get();
@@ -140,13 +149,20 @@ class RoomTypeController extends Controller
 
     public function edit(string $id)
     {
-        $roomType = RoomType::with('images', 'facilities')->findOrFail($id);
+        $roomType = RoomType::with('images', 'facilities', 'contracts')->findOrFail($id);
         $facilities = Facility::where('type', 'room')->get();
+        $occupiedRooms = $roomType->contracts()
+            ->where('status', 'active')
+            ->count();
+
+        $availableRooms = $roomType->total_rooms - $occupiedRooms;
 
         return Inertia::render('Owner/Edit/EditRoomType', [
             'roomType' => $roomType,
             'facilities' => $facilities,
             'selectedFacilities' => $roomType->facilities->pluck('id')->toArray(),
+            'occupied' => $occupiedRooms != null ? $occupiedRooms : 0,
+            'available' => $availableRooms != null ? $availableRooms : $roomType->total_rooms,
         ]);
     }
 

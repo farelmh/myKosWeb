@@ -71,14 +71,14 @@ class RentalRequestController extends Controller
     ->paginate(10)
     ->withQueryString();
 
-    $property = Property::find($request->property_id);
+//     $property = Property::find($request->property_id);
 
-    Notification::create([
-    'user_id' => $property->owner_id,
-    'title'   => 'Permintaan Sewa Baru',
-    'message' => "Ada permintaan sewa baru untuk kos \"{$property->name}\".",
-    'is_read' => false,
-]);
+//     Notification::create([
+//     'user_id' => $property->owner_id,
+//     'title'   => 'Permintaan Sewa Baru',
+//     'message' => "Ada permintaan sewa baru untuk kos \"{$property->name}\".",
+//     'is_read' => false,
+// ]);
 
     return Inertia::render('Owner/RentalRequest', [
         'rentals' => $rentals,
