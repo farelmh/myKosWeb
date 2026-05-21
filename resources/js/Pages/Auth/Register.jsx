@@ -16,6 +16,8 @@ export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         email: "",
+        phone: "",
+        jenis_kelamin: "",
         password: "",
         password_confirmation: "",
         role: role, 
@@ -96,6 +98,34 @@ export default function Register() {
                                 placeholder="email@gmail.com"
                             />
                             <InputError message={errors.email} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="phone" value="Nomor Telepon" className="text-gray-500" />
+                            <input
+                                id="phone"
+                                type="text"
+                                value={data.phone}
+                                onChange={(e) => setData("phone", e.target.value)}
+                                className="text-sm mt-1 w-full px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
+                                placeholder="Nomor telepon"
+                            />
+                            <InputError message={errors.phone} className="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel htmlFor="jenis_kelamin" value="Jenis Kelamin" className="text-gray-500" />
+                            <select
+                                id="jenis_kelamin"
+                                value={data.jenis_kelamin}
+                                onChange={(e) => setData("jenis_kelamin", e.target.value)}
+                                className="text-sm mt-1 w-full px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
+                            >
+                                <option value="">Pilih Jenis Kelamin</option>
+                                <option value="laki-laki">Laki-laki</option>
+                                <option value="perempuan">Perempuan</option>
+                            </select>
+                            <InputError message={errors.jenis_kelamin} className="mt-2" />
                         </div>
 
                         {/* PASSWORD */}

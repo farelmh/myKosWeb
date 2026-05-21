@@ -33,7 +33,9 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'phone' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'nullable|in:laki-laki,perempuan',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role'     => 'required|in:tenant,owner',
         ]);
@@ -41,6 +43,8 @@ class RegisteredUserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'jenis_kelamin' => $request->jenis_kelamin,
             'password' => Hash::make($request->password),
             'role' => $request->role,
 

@@ -16,6 +16,7 @@ import {
     AlertCircle,
     Moon,
     Sun,
+    VenusAndMars,
 } from "lucide-react";
 
 const Toast = ({ message, type, onClose }) => {
@@ -557,6 +558,35 @@ export default function Profile() {
                                         {personalForm.errors.phone}
                                     </p>
                                 )}
+                            </div>
+
+                            <div>
+                                <LabelText>Jenis Kelamin</LabelText>
+                                <div className="relative">
+                                    <VenusAndMars className="absolute left-3 top-3 w-4 h-4 text-kost-muted dark:text-mint-100/40" />
+                                    <select
+                                        value={personalForm.data.jenis_kelamin}
+                                        onChange={(e) =>
+                                            personalForm.setData(
+                                                "jenis_kelamin",
+                                                e.target.value,
+                                            )
+                                        }
+                                        className={`${inputClass(
+                                            personalForm.errors.jenis_kelamin,
+                                        )} pl-10`}
+                                    >
+                                        <option value="">
+                                            Pilih Jenis Kelamin
+                                        </option>
+                                        <option value="laki-laki">
+                                            Laki-laki
+                                        </option>
+                                        <option value="perempuan">
+                                            Perempuan
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
 
                             {/* ALAMAT */}
