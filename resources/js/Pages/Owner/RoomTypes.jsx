@@ -209,11 +209,11 @@ export default function RoomTypes({ roomTypes }) {
                                             <div className="flex items-center gap-1.5 mb-1.5">
                                                 <BedDouble className="w-3.5 h-3.5 text-mint-300" />
                                                 <span className="text-xs text-kost-muted dark:text-mint-100/40">
-                                                    Total Kamar
+                                                    Total Kamar Terisi
                                                 </span>
                                             </div>
                                             <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
-                                                {roomType.total_rooms || 0}
+                                                {roomType.occupied} / {roomType.total_rooms}
                                             </p>
                                         </div>
                                     </div>

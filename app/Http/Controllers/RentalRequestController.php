@@ -71,7 +71,7 @@ class RentalRequestController extends Controller
     ->paginate(10)
     ->withQueryString();
 
-    $property = Property::find($request->property_id);
+//     $property = Property::find($request->property_id);
 
 //     Notification::create([
 //     'user_id' => $property->owner_id,

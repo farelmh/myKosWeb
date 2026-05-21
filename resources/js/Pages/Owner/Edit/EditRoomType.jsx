@@ -72,6 +72,8 @@ export default function EditRoomType({
     roomType,
     facilities,
     selectedFacilities = [],
+    occupied,
+    available
 }) {
     const { auth } = usePage().props;
     const storageKey  = `selectedProperty_${auth.user.id}`;
@@ -197,6 +199,7 @@ export default function EditRoomType({
                             {/* NAMA */}
                             <div className="space-y-1.5">
                                 <LabelText>Nama Tipe Kamar</LabelText>
+
                                 <input
                                     type="text"
                                     placeholder="Reguler"
@@ -204,29 +207,44 @@ export default function EditRoomType({
                                     onChange={(e) => setData("name", e.target.value)}
                                     className={inputClass(errors.name)}
                                 />
-                                {errors.name && <p className="text-xs text-red-400">{errors.name}</p>}
+
+                                {errors.name && (
+                                    <p className="text-xs text-red-400">
+                                        {errors.name}
+                                    </p>
+                                )}
                             </div>
 
                             {/* UKURAN */}
                             <div className="space-y-1.5">
                                 <LabelText>Ukuran Kamar (Meter)</LabelText>
+
                                 <div className="flex items-center gap-3">
                                     <input
                                         type="number"
                                         placeholder="4"
                                         value={data.room_width}
-                                        onChange={(e) => setData("room_width", e.target.value)}
+                                        onChange={(e) =>
+                                            setData("room_width", e.target.value)
+                                        }
                                         className={inputClass(errors.room_width)}
                                     />
-                                    <span className="text-kost-muted dark:text-mint-100/40">×</span>
+
+                                    <span className="text-kost-muted dark:text-mint-100/40">
+                                        ×
+                                    </span>
+
                                     <input
                                         type="number"
                                         placeholder="4"
                                         value={data.room_length}
-                                        onChange={(e) => setData("room_length", e.target.value)}
+                                        onChange={(e) =>
+                                            setData("room_length", e.target.value)
+                                        }
                                         className={inputClass(errors.room_length)}
                                     />
                                 </div>
+
                                 {(errors.room_width || errors.room_length) && (
                                     <p className="text-xs text-red-400">
                                         {errors.room_width || errors.room_length}
@@ -237,6 +255,7 @@ export default function EditRoomType({
                             {/* HARGA */}
                             <div className="space-y-1.5">
                                 <LabelText>Harga Sewa</LabelText>
+
                                 <input
                                     type="number"
                                     placeholder="500000"
@@ -244,48 +263,139 @@ export default function EditRoomType({
                                     onChange={(e) => setData("price", e.target.value)}
                                     className={inputClass(errors.price)}
                                 />
-                                {errors.price && <p className="text-xs text-red-400">{errors.price}</p>}
+
+                                {errors.price && (
+                                    <p className="text-xs text-red-400">
+                                        {errors.price}
+                                    </p>
+                                )}
                             </div>
 
                             {/* KAPASITAS */}
                             <div className="space-y-1.5">
                                 <LabelText>Kapasitas Orang</LabelText>
+
                                 <input
                                     type="number"
                                     placeholder="1"
                                     value={data.capacity}
-                                    onChange={(e) => setData("capacity", e.target.value)}
+                                    onChange={(e) =>
+                                        setData("capacity", e.target.value)
+                                    }
                                     className={inputClass(errors.capacity)}
                                 />
-                                {errors.capacity && <p className="text-xs text-red-400">{errors.capacity}</p>}
+
+                                {errors.capacity && (
+                                    <p className="text-xs text-red-400">
+                                        {errors.capacity}
+                                    </p>
+                                )}
                             </div>
 
                             {/* TOTAL KAMAR */}
-                            <div className="space-y-1.5">
-                                <LabelText>Total Kamar</LabelText>
-                                <input
-                                    type="number"
-                                    placeholder="20"
-                                    value={data.total_rooms}
-                                    onChange={(e) => setData("total_rooms", e.target.value)}
-                                    className={inputClass(errors.total_rooms)}
-                                />
-                                {errors.total_rooms && <p className="text-xs text-red-400">{errors.total_rooms}</p>}
+                            <div className="md:col-span-2 space-y-2">
+                                <LabelText>Informasi Kamar</LabelText>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                                    {/* Input total kamar */}
+                                    <div
+                                        className="
+                                            rounded-xl p-3
+                                            bg-red-50 dark:bg-red-500/10
+                                            border-red-100 dark:border-red-500/20
+                                        "
+                                    >
+                                        <p className="text-xs text-red-400">
+                                            Kamar Terisi
+                                        </p>
+                                        <input
+                                            type="number"
+                                            min={occupied}
+                                            placeholder="20"
+                                            value={data.total_rooms}
+                                            onChange={(e) =>
+                                                setData("total_rooms", e.target.value)
+                                            }
+                                            className={inputClass(errors.total_rooms)}
+                                        />
+
+                                        {errors.total_rooms && (
+                                            <p className="text-xs text-red-400">
+                                                {errors.total_rooms}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Terisi */}
+                                    <div
+                                        className="
+                                            rounded-xl border p-3
+                                            bg-red-50 dark:bg-red-500/10
+                                            border-red-100 dark:border-red-500/20
+                                        "
+                                    >
+                                        <p className="text-xs text-red-400">
+                                            Kamar Terisi
+                                        </p>
+
+                                        <p className="text-xl font-bold text-red-500 mt-1">
+                                            {occupied}
+                                        </p>
+                                    </div>
+
+                                    {/* Tersedia */}
+                                    <div
+                                        className="
+                                            rounded-xl border p-3
+                                            bg-green-50 dark:bg-green-500/10
+                                            border-green-100 dark:border-green-500/20
+                                        "
+                                    >
+                                        <p className="text-xs text-green-500">
+                                            Kamar Tersedia
+                                        </p>
+
+                                        <p className="text-xl font-bold text-green-600 mt-1">
+                                            {available}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <p className="text-xs text-kost-muted dark:text-mint-100/40">
+                                    Total kamar tidak boleh lebih kecil dari kamar yang sedang terisi.
+                                </p>
                             </div>
 
                             {/* TIPE SEWA */}
                             <div className="space-y-1.5">
                                 <LabelText>Tipe Sewa</LabelText>
+
                                 <select
                                     value={data.rental_type}
-                                    onChange={(e) => setData("rental_type", e.target.value)}
+                                    onChange={(e) =>
+                                        setData("rental_type", e.target.value)
+                                    }
                                     className={inputClass(errors.rental_type)}
                                 >
-                                    <option value="" disabled>Pilih tipe sewa</option>
-                                    <option value="monthly">Bulanan</option>
-                                    <option value="daily">Harian</option>
+                                    <option value="" disabled>
+                                        Pilih tipe sewa
+                                    </option>
+
+                                    <option value="monthly">
+                                        Bulanan
+                                    </option>
+
+                                    <option value="daily">
+                                        Harian
+                                    </option>
                                 </select>
-                                {errors.rental_type && <p className="text-xs text-red-400">{errors.rental_type}</p>}
+
+                                {errors.rental_type && (
+                                    <p className="text-xs text-red-400">
+                                        {errors.rental_type}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </SectionCard>
