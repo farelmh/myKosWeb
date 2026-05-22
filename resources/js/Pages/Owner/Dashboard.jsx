@@ -182,12 +182,15 @@ const OccupancyCard = ({ occupied, total }) => {
     );
 };
 
-export default function Dashboard() {
+export default function Dashboard({
+    totalProperties, totalRooms, occupiedRooms,
+}) {
+
     const { ownerProperties = [] } = usePage().props;
 
-    const totalProperties = ownerProperties.length || 1;
-    const totalRooms = 24;
-    const occupiedRooms = 18;
+    // const totalProperties = ownerProperties.length || 1;
+    // const totalRooms = 24;
+    // const occupiedRooms = 18;
     const pendingComplaints = 2;
     const monthlyRevenue = 8200000;
 

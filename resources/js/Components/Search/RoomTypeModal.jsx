@@ -194,7 +194,7 @@ export default function RoomTypeModal({ room, onClose, onBook }) {
                                         <span className="text-xs text-kost-muted dark:text-mint-100/40">Ketersediaan</span>
                                     </div>
                                     <p className="text-sm font-medium text-kost-dark dark:text-mint-50">
-                                        {room.total_rooms} unit
+                                        {room.total_rooms - room.occupied_rooms} unit
                                     </p>
                                 </div>
                             )}
