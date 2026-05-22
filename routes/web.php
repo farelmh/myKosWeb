@@ -13,6 +13,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\KosController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Owner\OwnerComplaintController;
+use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Http\Controllers\WishlistController;
 use App\Models\Review;
 use App\Models\Property;
@@ -105,9 +106,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
 });
 
 Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(function () {
-    Route::get('/dashboard/', [
-        \App\Http\Controllers\Owner\DashboardController::class, 'index'
-    ])->name('owner.dashboard');
+    Route::get('/dashboard', [OwnerDashboardController::class, 'index'])
+    ->name('owner.dashboard');
 
     Route::get('/tenants/{id}', [
         TenantController::class,

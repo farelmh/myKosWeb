@@ -8,6 +8,7 @@ use App\Notifications\PasswordResetOtpNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -34,9 +35,11 @@ class AuthController extends Controller
             'message' => 'Login berhasil',
             'token'   => $token,
             'user'    => [
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role ?? 'tenant',
+                'name'   => $user->name,
+                'email'  => $user->email,
+                'role'   => $user->role ?? 'tenant',
+                'phone'  => $user->phone,
+                'avatar' => $this->avatarUrl($user->avatar),
             ],
         ]);
     }
@@ -66,9 +69,10 @@ class AuthController extends Controller
             'message' => 'Pendaftaran berhasil',
             'token'   => $token,
             'user'    => [
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role,
+                'name'   => $user->name,
+                'email'  => $user->email,
+                'role'   => $user->role,
+                'avatar' => $this->avatarUrl($user->avatar),
             ],
         ], 201);
     }
@@ -215,10 +219,11 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return response()->json([
-            'name'  => $request->user()->name,
-            'email' => $request->user()->email,
-            'role'  => $request->user()->role ?? 'tenant',
-            'phone' => $request->user()->phone,
+            'name'   => $request->user()->name,
+            'email'  => $request->user()->email,
+            'role'   => $request->user()->role ?? 'tenant',
+            'phone'  => $request->user()->phone,
+            'avatar' => $this->avatarUrl($request->user()->avatar),
         ]);
     }
 
@@ -231,23 +236,52 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'name'  => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'name'   => 'required|string|max:255',
+            'phone'  => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|max:2048',
         ]);
 
-        $user        = $request->user();
-        $user->name  = $request->name;
-        $user->phone = $request->phone;
+        $user         = $request->user();
+        $user->name    = $request->name;
+        $user->phone   = $request->phone;
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && !filter_var($user->avatar, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $user->avatar = $request->file('avatar')->store('avatars', 'public');
+        }
+
         $user->save();
 
         return response()->json([
             'message' => 'Profil berhasil diperbarui',
             'user'    => [
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role ?? 'tenant',
-                'phone' => $user->phone,
+                'name'   => $user->name,
+                'email'  => $user->email,
+                'role'   => $user->role ?? 'tenant',
+                'phone'  => $user->phone,
+                'avatar' => $this->avatarUrl($user->avatar),
             ],
         ]);
+    }
+
+    private function avatarUrl(?string $avatar): string
+    {
+        if (!$avatar) {
+            return '';
+        }
+
+        if (filter_var($avatar, FILTER_VALIDATE_URL)) {
+            $path = parse_url($avatar, PHP_URL_PATH) ?: '';
+            if ($path !== '') {
+                return request()->getSchemeAndHttpHost() . $path;
+            }
+
+            return $avatar;
+        }
+
+        return request()->getSchemeAndHttpHost() . '/storage/' . ltrim($avatar, '/');
     }
 }
