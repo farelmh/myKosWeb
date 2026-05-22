@@ -13,6 +13,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\KosController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Owner\OwnerComplaintController;
+use App\Http\Controllers\Owner\OwnerDashboardController;
 use App\Models\Review;
 use App\Models\Property;
 use Illuminate\Http\Request;
@@ -104,9 +105,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
 });
 
 Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Owner/Dashboard');
-    })->name('owner.dashboard');
+    Route::get('/dashboard', [OwnerDashboardController::class, 'index'])
+    ->name('owner.dashboard');
 
     Route::get('/tenants/{id}', [
         TenantController::class,
