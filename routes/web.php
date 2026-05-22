@@ -14,6 +14,7 @@ use App\Http\Controllers\KosController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Owner\OwnerComplaintController;
 use App\Http\Controllers\Owner\OwnerDashboardController;
+use App\Http\Controllers\WishlistController;
 use App\Models\Review;
 use App\Models\Property;
 use Illuminate\Http\Request;
@@ -272,12 +273,6 @@ Route::middleware(['auth', 'verified', 'owner'])->prefix('owner')->group(functio
         ->name('complaints.status');
 });
 
-Route::get('/DetailKos', function () {
-    return Inertia::render('DetailKos');
-})->name('detail.kos');
-
-Route::get('/kos/{id}', [KosController::class, 'detail'])->name('kos.detail');
-
 Route::post('/admin/notifications/mark-all-read', function () {
     \App\Models\Notification::where('user_id', auth()->id())
         ->where('is_read', false)
@@ -311,4 +306,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/pengajuan-kos', [PropertyApplicationController::class, 'store'])
         ->name('pengajuan-kos.store');
+    
+    Route::get('/DetailKos', function () {
+        return Inertia::render('DetailKos');
+    })->name('detail.kos');
+
+    Route::get('/kos/{id}', [KosController::class, 'detail'])->name('kos.detail');
+
+    Route::post('/wishlist', [WishlistController::class, 'toggle'])->name('wishlist.update');
 });

@@ -23,6 +23,7 @@ import { MapContainer, Marker, Popup } from "react-leaflet";
 import { createLocationIcon } from "@/Components/Map/CustomMarker";
 import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
 import RoomTypeModal from "@/Components/Search/RoomTypeModal";
+import FlashAlert from "@/Components/FlashAlert";
 
 /* ================= FACILITY ICON MAP ================= */
 const FACILITY_ICONS = {
@@ -153,19 +154,13 @@ const SectionCard = ({ title, children }) => (
 /* ================= MAIN ================= */
 
 export default function DetailKos({ property = null, similar = [] }) {
-    console.log("=== PROPERTY DATA ===", property);
-    console.log(
-        "=== PROPERTY KEYS ===",
-        property ? Object.keys(property) : "null",
-    );
-
     const images = property.images ?? [];
     const roomTypes = property.room_types ?? [];
     const facilities = property.facilities ?? [];
 
     const icon = createLocationIcon();
     const [activeImage, setActiveImage] = useState(0);
-    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [isWishlisted, setIsWishlisted] = useState(property.wishlists.length > 0);
     const [selectedRoom, setSelectedRoom] = useState(roomTypes[0] ?? null);
     const [modalRoom, setModalRoom] = useState(null);
 
@@ -177,6 +172,14 @@ export default function DetailKos({ property = null, similar = [] }) {
         setModalRoom(null);
         router.visit(route("booking.create", { room_type_id: room.id }));
     };
+
+    const toggleWishlist = () => {
+        setIsWishlisted(!isWishlisted);
+        router.post(route('wishlist.update', property), {
+            property_id: property.id
+        });
+        // post(route("wishlist.update", property));
+    }
 
     useEffect(() => {
         const root = document.documentElement;
@@ -213,6 +216,9 @@ export default function DetailKos({ property = null, similar = [] }) {
                 flex items-center justify-between
             "
             >
+
+            <FlashAlert />
+
                 <button
                     onClick={() => window.history.back()}
                     className="
@@ -248,7 +254,7 @@ export default function DetailKos({ property = null, similar = [] }) {
                         <Share2 className="w-4 h-4" />
                     </button>
                     <button
-                        onClick={() => setIsWishlisted(!isWishlisted)}
+                        onClick={() => toggleWishlist()}
                         className="
                             p-2 rounded-lg transition
                             bg-mint-50 dark:bg-dark-bg

@@ -14,18 +14,31 @@ import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
 import { createLocationIcon } from "@/Components/Map/CustomMarker";
 import useSearchFilter from "@/hooks/useSearchFilter";
 
-import { MapContainer, Marker, Popup, Circle } from "react-leaflet";
+import { MapContainer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import {
     Home,
     Loader2,
     SlidersHorizontal,
-    MapPin,
     X,
     Navigation,
     ArrowLeft,
     Sun,
     Moon,
 } from "lucide-react";
+
+function ChangeMapView({ center }) {
+    const map = useMap();
+
+    useEffect(() => {
+        if(center) {
+            map.flyTo(center, 14, {
+                duration: 1.5
+            });
+        }
+    }, [center, map]);
+
+    return null;
+}
 
 /* ================================================================
    MAP VIEW
@@ -41,10 +54,20 @@ const MapView = ({ properties, position, radius }) => {
                         ? [position.lat, position.lng]
                         : [-8.159822347307612, 113.72309285357674]
                 }
-                zoom={15}
+                zoom={10}
                 style={{ height: "100%", width: "100%" }}
             >
-                <GoogleTileLayer />
+
+            <ChangeMapView 
+                center={
+                    position
+                        ? [position.lat, position.lng]
+                        : [-8.159822347307612, 113.72309285357674]
+                }
+                zoom={10}
+            />
+
+            <GoogleTileLayer />
 
                 {position && (
                     <>
