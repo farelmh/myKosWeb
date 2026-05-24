@@ -6,7 +6,6 @@ import FlashAlert from "@/Components/FlashAlert";
 export default function OwnerLayout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // close sidebar when resize
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth >= 768) setSidebarOpen(false);
