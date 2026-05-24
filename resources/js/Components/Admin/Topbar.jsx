@@ -24,69 +24,96 @@ const NotificationDropdown = ({
     const unread = notifications.filter((n) => !n.is_read);
 
     const iconFor = (n) => {
-        if (n.message?.toLowerCase().includes("disetujui"))
+        const msg = n.message?.toLowerCase() ?? "";
+
+        if (msg.includes("disetujui") || msg.includes("approved")) {
             return <CheckCircle className="w-4 h-4 text-mint-300" />;
-        if (n.message?.toLowerCase().includes("ditolak"))
+        }
+
+        if (msg.includes("ditolak") || msg.includes("rejected")) {
             return <XCircle className="w-4 h-4 text-red-400" />;
+        }
+
         return <Clock className="w-4 h-4 text-yellow-500" />;
     };
 
     const timeAgo = (dateStr) => {
         const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+
         if (diff < 60) return `${diff}d lalu`;
         if (diff < 3600) return `${Math.floor(diff / 60)}m lalu`;
         if (diff < 86400) return `${Math.floor(diff / 3600)}j lalu`;
+
         return `${Math.floor(diff / 86400)}h lalu`;
     };
 
     return (
         <>
-            <div className="fixed inset-0 z-40" onClick={onClose} />
+            {/* BACKDROP */}
+            <div
+                className="fixed inset-0 z-40 bg-black/0 md:bg-transparent"
+                onClick={onClose}
+            />
 
             <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.98 }}
                 transition={{ duration: 0.15 }}
                 className="
-                    absolute right-0 mt-2 w-80 z-50
-                    rounded-xl overflow-hidden
-                    bg-white        dark:bg-dark-card
+                    fixed md:absolute
+                    left-3 right-3 top-[72px]
+                    md:left-auto md:right-0 md:top-auto md:mt-2
+                    md:w-80
+                    z-50
+                    rounded-2xl md:rounded-xl overflow-hidden
+                    bg-white dark:bg-dark-card
                     border border-mint-200 dark:border-dark-border/20
-                    shadow-sm
+                    shadow-lg md:shadow-sm
                 "
             >
-                <div className="flex items-center justify-between px-4 py-3 border-b border-mint-200 dark:border-dark-border/20">
-                    <div className="flex items-center gap-2">
+                {/* HEADER */}
+                <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-mint-200 dark:border-dark-border/20">
+                    <div className="flex items-center gap-2 min-w-0">
                         <span className="text-sm font-medium text-kost-dark dark:text-mint-50">
                             Notifikasi
                         </span>
+
                         {unread.length > 0 && (
                             <span
                                 className="
-                                px-1.5 py-0.5 rounded-full text-xs font-medium
-                                bg-mint-200 dark:bg-mint-200/20
-                                text-kost-dark dark:text-mint-50
-                            "
+                                    px-1.5 py-0.5 rounded-full text-xs font-medium
+                                    bg-mint-200 dark:bg-mint-200/20
+                                    text-kost-dark dark:text-mint-50
+                                "
                             >
                                 {unread.length}
                             </span>
                         )}
                     </div>
+
                     {unread.length > 0 && (
                         <button
+                            type="button"
                             onClick={onMarkAll}
-                            className="text-xs text-mint-300 hover:text-mint-300/70 transition"
+                            className="
+                                flex-shrink-0
+                                text-[11px] md:text-xs
+                                text-mint-300 hover:text-mint-300/70
+                                transition
+                            "
                         >
-                            Tandai semua dibaca
+                            Tandai semua
                         </button>
                     )}
                 </div>
 
-                <div className="max-h-80 overflow-y-auto">
+                {/* LIST */}
+                <div className="max-h-[65vh] md:max-h-80 overflow-y-auto">
                     {notifications.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-10">
                             <Bell className="w-8 h-8 text-mint-200 dark:text-mint-200/30" />
+
                             <p className="text-xs text-kost-muted dark:text-mint-100/40">
                                 Tidak ada notifikasi
                             </p>
@@ -111,43 +138,54 @@ const NotificationDropdown = ({
                                     }
                                 `}
                             >
+                                {/* ICON */}
                                 <div
                                     className="
-                                    flex-shrink-0 w-8 h-8 rounded-lg mt-0.5
-                                    flex items-center justify-center
-                                    bg-mint-100 dark:bg-mint-200/10
-                                    border border-mint-200 dark:border-mint-300/20
-                                "
+                                        flex-shrink-0 w-8 h-8 rounded-lg mt-0.5
+                                        flex items-center justify-center
+                                        bg-mint-100 dark:bg-mint-200/10
+                                        border border-mint-200 dark:border-mint-300/20
+                                    "
                                 >
                                     {iconFor(n)}
                                 </div>
 
+                                {/* CONTENT */}
                                 <div className="flex-1 min-w-0">
                                     {n.title && (
                                         <p
-                                            className={`text-xs font-medium mb-0.5 ${
-                                                !n.is_read
-                                                    ? "text-kost-dark dark:text-mint-50"
-                                                    : "text-kost-muted dark:text-mint-100/60"
-                                            }`}
+                                            className={`
+                                                text-xs font-medium mb-0.5 truncate
+                                                ${
+                                                    !n.is_read
+                                                        ? "text-kost-dark dark:text-mint-50"
+                                                        : "text-kost-muted dark:text-mint-100/60"
+                                                }
+                                            `}
                                         >
                                             {n.title}
                                         </p>
                                     )}
+
                                     <p
-                                        className={`text-xs leading-relaxed ${
-                                            !n.is_read
-                                                ? "text-kost-dark dark:text-mint-50"
-                                                : "text-kost-muted dark:text-mint-100/60"
-                                        }`}
+                                        className={`
+                                            text-xs leading-relaxed line-clamp-2
+                                            ${
+                                                !n.is_read
+                                                    ? "text-kost-dark dark:text-mint-50"
+                                                    : "text-kost-muted dark:text-mint-100/60"
+                                            }
+                                        `}
                                     >
                                         {n.message}
                                     </p>
+
                                     <p className="text-[10px] text-kost-muted dark:text-mint-100/30 mt-0.5">
                                         {timeAgo(n.created_at)}
                                     </p>
                                 </div>
 
+                                {/* UNREAD DOT */}
                                 {!n.is_read && (
                                     <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-mint-300 mt-1.5" />
                                 )}
@@ -156,6 +194,7 @@ const NotificationDropdown = ({
                     )}
                 </div>
 
+                {/* FOOTER */}
                 {notifications.length > 0 && (
                     <div className="border-t border-mint-200 dark:border-dark-border/20 p-2">
                         <Link
