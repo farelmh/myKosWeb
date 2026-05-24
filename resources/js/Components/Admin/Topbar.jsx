@@ -278,13 +278,19 @@ export default function Topbar({ setOpen }) {
         >
             {/* LEFT */}
             <div className="flex items-center gap-4">
-                <button
-                    onClick={() => setOpen(true)}
-                    className="md:hidden text-kost-muted dark:text-mint-100/60 hover:text-kost-dark dark:hover:text-mint-50 transition"
-                >
-                    <Menu />
-                </button>
-            </div>
+    <button
+        onClick={() => setOpen(true)} 
+        className="
+            md:hidden p-2 rounded-lg transition
+            text-kost-muted dark:text-mint-100/60
+            hover:text-kost-dark dark:hover:text-mint-50
+            hover:bg-mint-50 dark:hover:bg-dark-card
+        "
+        aria-label="Buka menu"
+    >
+        <Menu className="w-5 h-5" />
+    </button>
+</div>
 
             <div className="flex items-center gap-3">
                 <div className="relative hidden md:block">
