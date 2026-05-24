@@ -70,7 +70,7 @@ export default function RequestDetail({ application }) {
 
     return (
         <AdminLayout>
-            <div className="max-w-7xl mx-auto p-6 space-y-6">
+            <div className="max-w-7xl mx-auto p-2 space-y-6">
                 <button
                     onClick={() => window.history.back()}
                     className="flex items-center gap-2 text-sm text-kost-muted hover:text-kost-dark dark:hover:text-mint-50 transition"
