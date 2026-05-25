@@ -84,6 +84,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
 
     Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('admin.properties.detail');
 
+    Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->name('admin.properties.destroy');
+
     Route::get('/request', [PropertyApplicationController::class, 'index'])->name('admin.request');
 
     Route::get('/request/{id}', [PropertyApplicationController::class, 'show'])->name('admin.request.detail');
@@ -97,6 +99,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     Route::get('/facilities/edit', [FacilityController::class, 'edit'])->name('admin.facilities.edit');
 
     Route::post('/facilities/store', [FacilityController::class, 'store'])->name('admin.facilities.store');
+
+    Route::delete('/facilities/{id}', [FacilityController::class, 'destroy'])->name('admin.facilities.destroy');
 
     Route::get('/settings', function () {
         return Inertia::render('Admin/Settings');

@@ -70,6 +70,17 @@ class RoomTypeController extends Controller
 
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'name.required' => 'Nama tipe kamar harus diisi.',
+            'room_width.required' => 'Lebar kamar harus diisi.',
+            'room_length.required' => 'Panjang kamar harus diisi.',
+            'price.required' => 'Harga kamar harus diisi.',
+            'capacity.required' => 'Kapasitas kamar harus diisi.',
+            'total_rooms.required' => 'Total kamar harus diisi.',
+            'facilities.*.exists' => 'Fasilitas tidak valid.',
+            'images.*.image' => 'Setiap file harus berupa gambar.',
+            'images.*.mimes' => 'Gambar harus berformat jpeg, jpg, atau png.',
+            'images.*.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
 
         $property = Property::where('id', $validated['property_id'])
@@ -186,6 +197,17 @@ class RoomTypeController extends Controller
 
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'name.required' => 'Nama tipe kamar harus diisi.',
+            'room_width.required' => 'Lebar kamar harus diisi.',
+            'room_length.required' => 'Panjang kamar harus diisi.',
+            'price.required' => 'Harga kamar harus diisi.',
+            'capacity.required' => 'Kapasitas kamar harus diisi.',
+            'total_rooms.required' => 'Total kamar harus diisi.',
+            'facilities.*.exists' => 'Fasilitas tidak valid.',
+            'images.*.image' => 'Setiap file harus berupa gambar.',
+            'images.*.mimes' => 'Gambar harus berformat jpeg, jpg, atau png.',
+            'images.*.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
 
         $property = Property::where('id', $validated['property_id'])

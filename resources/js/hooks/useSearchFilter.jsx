@@ -95,6 +95,12 @@ export default function useSearchFilter({
             );
         }
 
+            if (applied.wishlistOnly) {
+            list = list.filter(
+                (property) => property.wishlists?.length > 0
+            );
+        }
+
         return list;
 
     }, [properties, appliedKeyword, applied, sortBy]);

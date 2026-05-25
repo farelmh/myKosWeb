@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 
 export default function FlashAlert() {
 
-    const { flash } = usePage().props;
+    const { flash, errors } = usePage().props;
 
     useEffect(() => {
 
@@ -62,7 +62,21 @@ export default function FlashAlert() {
 
         }
 
-    }, [flash]);
+        if (errors && Object.keys(errors).length > 0) {
+
+    const messages = Object.values(errors).join("<br>");
+
+    Swal.fire({
+        icon: "error",
+        title: "Validasi Gagal",
+        html: messages,
+        background: "#0f172a",
+        color: "#fff",
+        confirmButtonColor: "#ef4444",
+    });
+}
+
+    }, [flash, errors]);
 
     return null;
 }

@@ -48,16 +48,54 @@ class UserController extends Controller
      */
     public function updateRole(Request $request, User $user)
     {
-
         $request->validate([
             'role' => 'required|in:tenant,owner,admin',
         ]);
+
+        /* TIDAK BISA UBAH ROLE DIRI SENDIRI */
+        if (auth()->id() === $user->id) {
+            return back()->with(
+                'error',
+                'Anda tidak dapat mengubah role akun sendiri.'
+            );
+        }
+
+        /* TIDAK BISA UBAH ROLE OWNER JIKA SUDAH PUNYA PROPERTY */
+        if (
+            $user->role === 'owner' &&
+            $request->role !== 'owner' &&
+            $user->properties()->exists()
+        ) {
+            return back()->with(
+                'error',
+                'Role owner tidak dapat diubah karena user masih memiliki properti.'
+            );
+        }
+
+        /* TIDAK BISA UBAH ROLE ADMIN JIKA ADMIN TERSISA 1 */
+        if (
+            $user->role === 'admin' &&
+            $request->role !== 'admin'
+        ) {
+
+            $totalAdmin = User::where('role', 'admin')->count();
+
+            if ($totalAdmin <= 1) {
+                return back()->with(
+                    'error',
+                    'Minimal harus ada 1 admin dalam sistem.'
+                );
+            }
+        }
 
         $user->update([
             'role' => $request->role,
         ]);
 
-        return back()->with('success', 'Role user berhasil diubah.');
+        return back()->with(
+            'success',
+            'Role user berhasil diubah.'
+        );
     }
 
     public function destroy(User $user)

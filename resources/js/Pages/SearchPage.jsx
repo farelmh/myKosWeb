@@ -24,6 +24,7 @@ import {
     ArrowLeft,
     Sun,
     Moon,
+    Heart
 } from "lucide-react";
 
 function ChangeMapView({ center }) {
@@ -267,7 +268,8 @@ const EmptyState = ({ onReset, keyword }) => (
 const countActiveFilters = (applied) =>
     (applied.type !== "all" ? 1 : 0) +
     (applied.maxPrice !== 2000000 ? 1 : 0) +
-    applied.facilities.length;
+    applied.facilities.length +
+    (applied.wishlistOnly ? 1 : 0);
 
 /* ================================================================
    MAIN
@@ -277,7 +279,7 @@ export default function SearchPage({
     query = "",
     facilities = [],
 }) {
-    const defaultFilters = { type: "all", maxPrice: 2000000, facilities: [] };
+    const defaultFilters = { type: "all", maxPrice: 2000000, facilities: [], wishlistOnly: false };
 
     const [keyword, setKeyword] = useState(query);
     const [sortBy, setSortBy] = useState("relevance");
@@ -539,6 +541,32 @@ export default function SearchPage({
                         }
                         onClearAll={handleReset}
                     />
+
+                    <div className="flex items-center gap-2 flex-wrap">
+    <button
+        onClick={() =>
+            patchApplied({
+                wishlistOnly: !applied.wishlistOnly,
+            })
+        }
+        className={`
+            flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition border
+            ${
+                applied.wishlistOnly
+                    ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-500"
+                    : "bg-white dark:bg-dark-card border-mint-200 dark:border-dark-border/20 text-kost-muted dark:text-mint-100/50"
+            }
+        `}
+    >
+        <Heart
+            className={`w-4 h-4 ${
+                applied.wishlistOnly ? "fill-red-500" : ""
+            }`}
+        />
+
+        Wishlist
+    </button>
+</div>
 
                     {/* List */}
                     {isLoading ? (

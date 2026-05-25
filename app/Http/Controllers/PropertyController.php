@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use Illuminate\Http\Request;
@@ -108,6 +109,16 @@ class PropertyController extends Controller
 
             'images' => 'required|array',
             'images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'name.required' => 'Nama Properti Harus Diisi.',
+            'address.required' => 'Alamat Properti Harus Diisi.',
+            'city.required' => 'Kota Properti Harus Diisi.',
+            'latitude.required' => 'Latitude Properti Harus Diisi.',
+            'longitude.required' => 'Longitude Properti Harus Diisi.',
+            'images.required' => 'Foto Properti Harus Diunggah.',
+            'images.*.image' => 'Setiap file harus berupa gambar.',
+            'images.*.mimes' => 'Gambar harus berformat jpg, jpeg, atau png.',
+            'images.*.max' => 'Ukuran gambar maksimal 2MB.'
         ]);
 
         DB::transaction(function () use ($request, $property, $validated) {
@@ -143,10 +154,34 @@ class PropertyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-    }
+    public function destroy(Request $request, Property $property)
+{
+    $request->validate([
+        'reason' => 'required|string|max:255',
+    ]);
+
+    /* SIMPAN OWNER ID SEBELUM PROPERTY DIHAPUS */
+    $ownerId = $property->owner_id;
+
+    /* SIMPAN NAMA PROPERTY */
+    $propertyName = $property->name;
+
+    /* HAPUS PROPERTY */
+    $property->delete();
+
+    /* NOTIFIKASI KE OWNER */
+    Notification::create([
+        'user_id' => $ownerId,
+        'title'   => 'Property Dihapus Admin',
+        'message' => "Property '{$propertyName}' dihapus oleh admin. Alasan: {$request->reason}",
+        'is_read' => false,
+    ]);
+
+    return back()->with(
+        'success',
+        'Property berhasil dihapus.'
+    );
+}
 
     public function deleteImage(string $id) 
     {

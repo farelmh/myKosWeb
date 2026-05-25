@@ -68,7 +68,7 @@ const SidebarContent = ({ onClose }) => {
                 {
                     name: "Ulasan",
                     icon: Star,
-                    href: "/owner/reviews",
+                    href: `/owner/reviews/${activePropertyId}`,
                 },
             ],
         },

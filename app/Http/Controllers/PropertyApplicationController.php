@@ -52,6 +52,33 @@ class PropertyApplicationController extends Controller
             'image_kos' => 'required|image|mimes:jpeg,jpg,png|max:2048',
             'image_ktp' => 'required|image|mimes:jpeg,jpg,png|max:2048',
             'document_extra' => 'required|file|mimes:pdf|max:2048'
+        ], [
+            // TEXT
+            'name.required' => 'Nama kos wajib diisi.',
+            'address.required' => 'Alamat wajib diisi.',
+            'city.required' => 'Kota wajib diisi.',
+
+            // MAP
+            'latitude.required' => 'Silakan pilih lokasi pada peta.',
+            'longitude.required' => 'Silakan pilih lokasi pada peta.',
+
+            // FOTO KOS
+            'image_kos.required' => 'Foto kos wajib diupload.',
+            'image_kos.image' => 'File foto kos harus berupa gambar.',
+            'image_kos.mimes' => 'Foto kos harus format JPG, JPEG, atau PNG.',
+            'image_kos.max' => 'Ukuran foto kos maksimal 2 MB.',
+
+            // FOTO KTP
+            'image_ktp.required' => 'Foto KTP wajib diupload.',
+            'image_ktp.image' => 'File KTP harus berupa gambar.',
+            'image_ktp.mimes' => 'Foto KTP harus format JPG, JPEG, atau PNG.',
+            'image_ktp.max' => 'Ukuran foto KTP maksimal 2 MB.',
+
+            // DOKUMEN
+            'document_extra.required' => 'Dokumen tambahan wajib diupload.',
+            'document_extra.file' => 'Dokumen tambahan tidak valid.',
+            'document_extra.mimes' => 'Dokumen tambahan harus format PDF.',
+            'document_extra.max' => 'Ukuran dokumen maksimal 2 MB.',
         ]);
 
         return DB::transaction(function () use ($request, $validated) {

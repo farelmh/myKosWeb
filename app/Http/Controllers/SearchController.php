@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Facility;
 use Illuminate\Http\Request;
 use App\Models\Property;
@@ -11,9 +12,15 @@ class SearchController extends Controller
     public function index(Request $request)
     {
         $query = Property::with([
+
             'facilities',
             'roomTypes',
-            'images'
+            'images',
+
+            'wishlists' => function ($q) {
+                $q->where('user_id', auth()->id());
+            }
+
         ]);
 
         // SEARCH
@@ -26,6 +33,7 @@ class SearchController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('address', 'like', "%{$search}%")
                     ->orWhere('city', 'like', "%{$search}%");
+
             });
         }
 
@@ -53,7 +61,9 @@ class SearchController extends Controller
             }
         }
 
-        $facilities = Facility::select('id', 'name')->where('type', 'property')->get();
+        $facilities = Facility::select('id', 'name')
+            ->where('type', 'property')
+            ->get();
 
         $properties = $query->paginate(10);
 
@@ -63,4 +73,3 @@ class SearchController extends Controller
         ]);
     }
 }
-

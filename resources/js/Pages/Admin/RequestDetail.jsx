@@ -1,8 +1,6 @@
 import AdminLayout from "@/Layouts/AdminLayout";
 import { MapContainer, Marker, Popup } from "react-leaflet";
 import {
-    Check,
-    X,
     MapPin,
     Phone,
     Mail,
@@ -11,10 +9,11 @@ import {
     FileText,
     ExternalLink,
     ShieldCheck,
-    ArrowLeft
+    ArrowLeft,
 } from "lucide-react";
 import GoogleTileLayer from "@/Components/Map/GoogleTileLayer";
-import { router } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
+import Swal from "sweetalert2";
 
 function InfoBlock({ label, value }) {
     return (
@@ -54,14 +53,42 @@ export default function RequestDetail({ application }) {
             status: "approved",
         });
     };
-
-    const handleReject = () => {
-        const reason = prompt("Masukkan alasan penolakan:");
-        if (reason) {
-            router.put(route("admin.request.update", application.id), {
-                status: "rejected",
-                rejection_reason: reason,
-            });
+    
+    const handleReject = async (propertyId) => {
+    
+        const result = await Swal.fire({
+            title: "Tolak Pengajuan Property?",
+            text: "Property tidak akan dimasukkan dalam sistem.",
+            icon: "warning",
+            input: "textarea",
+            inputLabel: "Alasan Penolakan",
+            inputPlaceholder: "Masukkan alasan penolakan property...",
+            inputAttributes: {
+                maxlength: 255,
+            },
+            showCancelButton: true,
+            confirmButtonText: "Hapus",
+            cancelButtonText: "Batal",
+            confirmButtonColor: "#ef4444",
+            background: "#0f172a",
+            color: "#fff",
+            inputValidator: (value) => {
+                if (!value) {
+                    return "Alasan wajib diisi";
+                }
+            }
+        });
+    
+        if (result.isConfirmed) {
+    
+            router.put(
+                route('admin.request.update', application.id),
+                {
+                    status: "rejected",
+                    rejection_reason: result.value
+                }
+            );
+    
         }
     };
 
