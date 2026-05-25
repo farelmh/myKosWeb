@@ -37,6 +37,10 @@ class FacilityController extends Controller
             'name' => 'required|string|max:255|unique:facilities,name',
             'type'=> 'required|in:property,room',
             'icon' => 'nullable|string'
+        ], [
+            'name.required' => 'Name Fasilitas Harus Diisi.',
+            'name.string' => 'Nama Fasilitas Harus Berupa Teks.',
+            'name.unique' => 'Nama Fasilitas Sudah Terdaftar.'
         ]);
 
         Facility::create($validated);
@@ -67,6 +71,9 @@ class FacilityController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $facility = Facility::findOrFail($id);
+        $facility->delete();
+
+        return back()->with('success', 'fasilitas berhasil dihapus');
     }
 }

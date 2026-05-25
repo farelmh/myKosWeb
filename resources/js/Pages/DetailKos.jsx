@@ -174,12 +174,29 @@ export default function DetailKos({ property = null, similar = [] }) {
     };
 
     const toggleWishlist = () => {
-        setIsWishlisted(!isWishlisted);
-        router.post(route('wishlist.update', property), {
-            property_id: property.id
-        });
-        // post(route("wishlist.update", property));
-    }
+
+    setIsWishlisted(!isWishlisted);
+
+    router.post(route('wishlist.update', property), {
+        property_id: property.id
+    }, {
+        preserveScroll: true,
+
+        onSuccess: () => {
+            router.reload({
+                only: ['properties'],
+                preserveScroll: true,
+            });
+        },
+
+        onError: () => {
+
+            // rollback kalau gagal
+            setIsWishlisted(isWishlisted);
+        }
+    });
+
+}
 
     useEffect(() => {
         const root = document.documentElement;

@@ -1,5 +1,46 @@
-import { Link } from "@inertiajs/react";
-import { Eye, Home, MapPin, User } from "lucide-react";
+import { Link, router } from "@inertiajs/react";
+import { Eye, Home, MapPin, Trash2, User } from "lucide-react";
+import Swal from "sweetalert2";
+
+const handleDelete = async (propertyId) => {
+
+    const result = await Swal.fire({
+        title: "Hapus Property?",
+        text: "Property akan dihapus dari sistem.",
+        icon: "warning",
+        input: "textarea",
+        inputLabel: "Alasan Penghapusan",
+        inputPlaceholder: "Masukkan alasan penghapusan property...",
+        inputAttributes: {
+            maxlength: 255,
+        },
+        showCancelButton: true,
+        confirmButtonText: "Hapus",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#ef4444",
+        background: "#0f172a",
+        color: "#fff",
+        inputValidator: (value) => {
+            if (!value) {
+                return "Alasan wajib diisi";
+            }
+        }
+    });
+
+    if (result.isConfirmed) {
+
+        router.delete(
+            route('admin.properties.destroy', propertyId),
+            {
+                data: {
+                    reason: result.value
+                }
+            }
+        );
+
+    }
+};
+
 
 export default function TableProperties({ properties }) {
     return (
@@ -87,7 +128,7 @@ export default function TableProperties({ properties }) {
                                     </td>
 
                                     <td className="p-4">
-                                        <div className="flex justify-end">
+                                        <div className="flex justify-end gap-2">
                                             <Link
                                                 href={`/admin/properties/${property.id}`}
                                                 className="
@@ -104,6 +145,20 @@ export default function TableProperties({ properties }) {
                                                 <Eye className="w-4 h-4" />
                                                 Detail
                                             </Link>
+
+                                            <button
+                                                onClick={() => handleDelete(property.id)}
+                                                className="
+                                                    inline-flex items-center gap-2
+                                                    px-3 py-1.5 rounded-lg text-sm transition
+                                                    bg-red-50 dark:bg-red-500/10
+                                                    border border-red-200 dark:border-red-500/20
+                                                    text-red-500 hover:bg-red-100
+                                                "
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                                Hapus
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

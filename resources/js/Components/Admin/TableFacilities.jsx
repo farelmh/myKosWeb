@@ -1,7 +1,28 @@
 import { Pencil, Trash2, Box, Tag, Code2 } from "lucide-react";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
+import Swal from "sweetalert2";
+
+const confirmDelete = (callback) => {
+    Swal.fire({
+        title: "Hapus fasilitas?",
+        text: "Fasilitas yang dihapus tidak dapat dikembalikan.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#64748b",
+        confirmButtonText: "Ya, hapus",
+        cancelButtonText: "Batal",
+        background: "#0f172a",
+        color: "#fff",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            callback();
+        }
+    });
+};
 
 const TypeBadge = ({ type }) => {
+
     const isProperty = type === "property";
 
     return (
@@ -98,35 +119,15 @@ export default function TableFacilities({ facilities = [] }) {
 
                                     <td className="p-4">
                                         <div className="flex justify-end items-center gap-2">
-                                            <Link
-                                                href={route(
-                                                    "admin.facilities.edit",
-                                                    facility.id,
-                                                )}
-                                                title="Edit Fasilitas"
-                                                className="
-                                                    p-2 rounded-lg transition group
-                                                    bg-mint-50 dark:bg-dark-bg
-                                                    border border-mint-200 dark:border-dark-border/20
-                                                    hover:bg-mint-200 dark:hover:bg-mint-200/20
-                                                    hover:border-mint-300 dark:hover:border-mint-300/30
-                                                "
-                                            >
-                                                <Pencil className="w-4 h-4 text-kost-muted dark:text-mint-100/40 group-hover:text-kost-dark dark:group-hover:text-mint-50" />
-                                            </Link>
 
                                             <button
                                                 type="button"
                                                 title="Hapus Fasilitas"
-                                                onClick={() => {
-                                                    if (
-                                                        confirm(
-                                                            "Yakin ingin menghapus fasilitas ini?",
-                                                        )
-                                                    ) {
-                                                        // router.delete(route("admin.facilities.destroy", facility.id))
-                                                    }
-                                                }}
+                                                onClick={() =>
+                                                    confirmDelete(() =>
+                                                        router.delete(route("admin.facilities.destroy", facility.id))
+                                                    )
+                                                }
                                                 className="
                                                     p-2 rounded-lg transition group
                                                     bg-mint-50 dark:bg-dark-bg
@@ -185,34 +186,15 @@ export default function TableFacilities({ facilities = [] }) {
                                 </div>
 
                                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                                    <Link
-                                        href={route(
-                                            "admin.facilities.edit",
-                                            facility.id,
-                                        )}
-                                        title="Edit Fasilitas"
-                                        className="
-                                            p-2 rounded-lg transition group
-                                            bg-mint-50 dark:bg-dark-bg
-                                            border border-mint-200 dark:border-dark-border/20
-                                            hover:bg-mint-200 dark:hover:bg-mint-200/20
-                                        "
-                                    >
-                                        <Pencil className="w-3.5 h-3.5 text-kost-muted dark:text-mint-100/40 group-hover:text-kost-dark dark:group-hover:text-mint-50" />
-                                    </Link>
 
                                     <button
                                         type="button"
                                         title="Hapus Fasilitas"
-                                        onClick={() => {
-                                            if (
-                                                confirm(
-                                                    "Yakin ingin menghapus fasilitas ini?",
-                                                )
-                                            ) {
-                                                // router.delete(route("admin.facilities.destroy", facility.id))
-                                            }
-                                        }}
+                                        onClick={() =>
+                                                    confirmDelete(() =>
+                                                        router.delete(route("admin.facilities.destroy", facility.id))
+                                                    )
+                                                }
                                         className="
                                             p-2 rounded-lg transition group
                                             bg-mint-50 dark:bg-dark-bg

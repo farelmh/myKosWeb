@@ -2,7 +2,8 @@ import { useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { LocationMarker } from "@/Components/Map/LocationMarker";
-import { Upload, X, ArrowLeft } from "lucide-react";
+import { Upload, X, ArrowLeft, Loader2 } from "lucide-react";
+import FlashAlert from "@/Components/FlashAlert";
 
 /* ================= FILE INPUT ================= */
 const FileInput = ({ label, fileData, onChange, onRemove, error }) => (
@@ -116,23 +117,21 @@ export default function FormPengajuan() {
 
     useEffect(() => {
         if (position) {
-            setData((prev) => ({
-                ...prev,
-                latitude: position.lat,
-                longitude: position.lng,
-            }));
-        }
-    }, [position]);
+        setData("latitude", position.lat);
+        setData("longitude", position.lng);
+    }
+}, [position]);
 
     const submit = (e) => {
         e.preventDefault();
         post("/pengajuan-kos", {
-            onSuccess: () => {
-                reset();
-                setPosition(null);
-            },
-            onError: (errs) => console.log(errs),
-        });
+        forceFormData: true,
+
+        onSuccess: () => {
+            reset();
+            setPosition(null);
+        }
+    });
     };
 
     return (
@@ -144,6 +143,9 @@ export default function FormPengajuan() {
             transition-colors duration-300
         "
         >
+
+            <FlashAlert />
+
             <div className="max-w-4xl mx-auto">
                 <div
                     className="
@@ -311,7 +313,7 @@ export default function FormPengajuan() {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                 <FileInput
-                                    label="Foto Kos"
+                                    label="Foto Kos (jpeg, jpg, png, Max 2 MB)"
                                     fileData={data.image_kos}
                                     onChange={(e) =>
                                         setData("image_kos", e.target.files[0])
@@ -320,7 +322,7 @@ export default function FormPengajuan() {
                                     error={errors.image_kos}
                                 />
                                 <FileInput
-                                    label="Foto KTP"
+                                    label="Foto KTP (jpeg, jpg, png, Max 2 MB)"
                                     fileData={data.image_ktp}
                                     onChange={(e) =>
                                         setData("image_ktp", e.target.files[0])
@@ -329,7 +331,7 @@ export default function FormPengajuan() {
                                     error={errors.image_ktp}
                                 />
                                 <FileInput
-                                    label="Dokumen Tambahan"
+                                    label="Dokumen Tambahan (PDF, max 2 MB)"
                                     fileData={data.document_extra}
                                     onChange={(e) =>
                                         setData(
@@ -348,7 +350,7 @@ export default function FormPengajuan() {
                         <div className="pt-4 border-t border-mint-200 dark:border-dark-border/20">
                             <button
                                 type="submit"
-                                disabled={processing}
+                                disabled={processing || !position}
                                 className="
                                     px-8 py-2.5 rounded-xl text-sm font-medium transition
                                     bg-mint-200      dark:bg-mint-200/20
@@ -359,9 +361,14 @@ export default function FormPengajuan() {
                                     disabled:opacity-50 disabled:cursor-not-allowed
                                 "
                             >
-                                {processing
-                                    ? "Memproses..."
-                                    : "Ajukan Sekarang"}
+                                {processing ? (
+                                    <span className="flex items-center gap-2">
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Memproses...
+                                    </span>
+                                ) : (
+                                    "Ajukan Sekarang"
+                                )}
                             </button>
                         </div>
                     </form>
